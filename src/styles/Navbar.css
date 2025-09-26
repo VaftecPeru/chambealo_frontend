@@ -1,0 +1,217 @@
+
+/* Extra small devices – iPhone, Xiaomi (~320px a 480px) */
+@media (max-width: 480px) {
+  /* Logo más pequeño */
+  nav .flex-shrink-0 img {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  /* Badge del carrito más pequeño */
+  .absolute.-top-2.-right-15 {
+    height: 16px !important;
+    width: 16px !important;
+    font-size: 0.65rem;
+    top: -4px;
+    right: -5px;
+  }
+
+  /* Contenedor de búsqueda relativo */
+  .input.flex-1 {
+    position: relative;
+    flex: 1 1 100px;
+    max-width: 150px;
+  }
+
+  /* Input expansible sobre los demás elementos */
+  .input.flex-1 input {
+    transition: all 0.3s ease;
+    position: relative;
+    width: 100%;
+  }
+
+  .input.flex-1 input:focus {
+    position: absolute;
+    top: 50%;          /* mantener misma posición vertical */
+    transform: translateY(-50%); /* centrar verticalmente exactamente donde estaba */
+    left: 0;
+    width: calc(100vw - 2rem);
+    max-width: none;
+    z-index: 50;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Right section: Phone + Cart */
+  .flex.items-center.space-x-6 {
+    gap: 0.5rem;
+  }
+
+  .flex.items-center.space-x-6 > div > .text-sm {
+    font-size: 0.65rem;
+  }
+
+  .flex.items-center.space-x-6 svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  /* Bottom navigation: scroll horizontal */
+  .flex.space-x-8 {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .flex.space-x-8 a, .flex.items-center span {
+    white-space: nowrap;
+    font-size: 0.7rem;
+  }
+}
+
+/* Small devices – ~481px a 640px */
+@media (min-width: 481px) and (max-width: 640px) {
+  nav .flex-shrink-0 img {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .absolute.-top-2.-right-15 {
+    height: 18px !important;
+    width: 18px !important;
+    font-size: 0.7rem;
+    top: -5px;
+    right: -6px;
+  }
+
+  .input.flex-1 {
+    position: relative;
+    flex: 1 1 150px;
+    max-width: 250px;
+  }
+
+  .input.flex-1 input {
+    transition: all 0.3s ease;
+    position: relative;
+    width: 100%;
+  }
+
+  .input.flex-1 input:focus {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    width: calc(100vw - 2rem);
+    max-width: none;
+    z-index: 50;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .flex.items-center.space-x-6 > div > .text-sm {
+    font-size: 0.75rem;
+  }
+
+  .flex.items-center.space-x-6 svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .flex.space-x-8 {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .flex.space-x-8 a, .flex.items-center span {
+    white-space: nowrap;
+    font-size: 0.8rem;
+  }
+}
+
+/* Medium devices – ~641px a 768px */
+@media (min-width: 641px) and (max-width: 768px) {
+
+  .flex.space-x-8 {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch; /* scroll suave */
+  }
+
+  .flex.space-x-8 a,
+  .flex.items-center span {
+    white-space: nowrap;
+  }
+
+  .input.flex-1 {
+    max-width: 250px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .input.flex-1 input {
+    transition: all 0.3s ease;
+    position: relative;
+    width: 100%;
+  }
+
+  .input.flex-1 input:focus {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    width: calc(100vw - 2rem);
+    max-width: none;
+    z-index: 50;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  .absolute.-top-2.-right-15 {
+    height: 20px !important;
+    width: 20px !important;
+    font-size: 0.8rem;
+  }
+
+  nav .flex-shrink-0 img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .flex.items-center.space-x-6 > div > .text-sm {
+    font-size: 0.85rem;
+  }
+
+  .flex.items-center.space-x-6 svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+/* Large devices – ~769px a 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .input.flex-1 {
+    max-width: 450px;
+  }
+
+  nav .flex-shrink-0 img {
+    width: 80px !important;
+    height: 80px !important;
+  }
+}
+
+/* Desktop – >1024px */
+@media (min-width: 1025px) {
+  .input.flex-1 {
+    max-width: none;
+  }
+
+  nav .flex-shrink-0 img {
+    width: 160px !important;
+    height: 160px !important;
+  }
+}

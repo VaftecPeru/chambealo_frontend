@@ -1,0 +1,100 @@
+.categories-container {
+  margin-top: 2.5rem; /* mt-10 */
+  text-align: center;
+  padding: 0 1rem; /* espacio lateral */
+}
+
+.categories-title {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: bold;
+  color: #1e293b; /* slate-800 */
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+
+.categories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem; /* gap-6 */
+}
+
+.category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 10rem; /* w-40 */
+  height: 8rem; /* h-32 */
+  background-color: #f8fafc; /* gray-50 */
+  border-radius: 0.75rem; /* rounded-xl */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* shadow-sm */
+  cursor: pointer;
+  transition: transform 0.5s;
+}
+
+.category-card:hover {
+  transform: rotateY(180deg);
+}
+
+.category-icon {
+  width: 2.5rem; /* w-10 */
+  height: 2.5rem; /* h-10 */
+  color: #334155; /* slate-700 */
+}
+
+.category-name {
+  margin-top: 0.5rem; /* mt-2 */
+  font-weight: 600;
+  font-size: 0.875rem; /* text-sm */
+  color: #334155; /* slate-700 */
+}
+
+/* ------------------ Media Queries ------------------ */
+
+/* Tablets */
+@media (min-width: 640px) {
+
+  .category-card {
+    width: 10rem;
+    height: 8rem;
+  }
+  .category-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+  .category-name {
+    font-size: 0.95rem;
+  }
+}
+
+/* Laptops */
+@media (min-width: 1024px) {
+  .category-card {
+    width: 12rem;
+    height: 10rem;
+  }
+  .category-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+  .category-name {
+    font-size: 1rem;
+  }
+}
+
+/* Escritorio grande */
+@media (min-width: 1280px) {
+  .category-card {
+    width: 14rem;
+    height: 12rem;
+  }
+  .category-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .category-name {
+    font-size: 1.125rem;
+  }
+}
+
+
