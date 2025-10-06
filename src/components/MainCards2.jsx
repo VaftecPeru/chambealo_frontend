@@ -5,7 +5,7 @@ const bannerData = [
     discountText: "Up to 45% OFF",
     title: "Don't Miss Out on Tasty Grocery Deals!",
     buttonText: "View More",
-    imgSrc: "/public/img/CerealBar1.png",
+    imgSrc: "/img/CerealBar1.png",
   },
   {
     id: 2,
@@ -17,7 +17,7 @@ const bannerData = [
       </>
     ),
     buttonText: "View More",
-    imgSrc: "/public/img/CerealBar2.png",
+    imgSrc: "/img/CerealBar2.png",
   },
 ];
 

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = [
-  "/public/img/montaña.jpg",
-  "/public/img/paisaje.jpg",
-  "/public/img/estratosfera.png",
+  "/img/montaña.jpg",
+  "/img/paisaje.jpg",
+  "/img/estratosfera.png",
 ];
 
 export default function Slider() {

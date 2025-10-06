@@ -10,8 +10,8 @@ const products = [
     price: 15.0,
     oldPrice: 20.0,
     discount: "25%",
-    img1: "/public/img/Protein_Cookie_2.png",
-    img2: "/public/img/Protein_Cookie_1.png",
+    img1: "/img/Protein_Cookie_2.png",
+    img2: "/img/Protein_Cookie_1.png",
     rating: 4,
     details: "150 g",
     status: "sale",
@@ -22,8 +22,8 @@ const products = [
     price: 17.0,
     oldPrice: 20.0,
     discount: "15%",
-    img1: "/public/img/Betty_Cake1.png",
-    img2: "/public/img/Betty_Cake2.png",
+    img1: "/img/Betty_Cake1.png",
+    img2: "/img/Betty_Cake2.png",
     rating: 5,
     details: "20 g",
     status: "sale",
@@ -32,8 +32,8 @@ const products = [
     id: 3,
     name: "Multi Millet Strawberry Pancake Back & Go",
     price: 50.0,
-    img1: "/public/img/Bake_Go1.png",
-    img2: "/public/img/Bake_Go2.png",
+    img1: "/img/Bake_Go1.png",
+    img2: "/img/Bake_Go2.png",
     rating: 4,
     details: "2 kg",
     status: "",
@@ -42,8 +42,8 @@ const products = [
     id: 4,
     name: "Monterra Jumbo California Walnuts in Shell 1 kg",
     price: 10.0,
-    img1: "/public/img/Monterra1.png",
-    img2: "/public/img/Monterra2.png",
+    img1: "/img/Monterra1.png",
+    img2: "/img/Monterra2.png",
     rating: 3,
     details: "45 g",
     status: "sold out",
@@ -159,7 +159,7 @@ export default function ProductCarousel() {
           {products.map((product) => (
             <article
               key={product.id}
-              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] border rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0"
+              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0"
             >
               <div className="relative w-full h-44 flex justify-center items-center overflow-hidden rounded-lg">
                 {product.status && (

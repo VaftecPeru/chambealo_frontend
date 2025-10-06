@@ -3,7 +3,7 @@ import '../styles/NavbarHeader.css'
 
 function NavbarHeader() {
   return (
-    <div className="NavbarHeader bg-linear-to-t from-sky-500 to-indigo-500 text-white text-sm overflow-hidden">
+    <div className="NavbarHeader bg-[#680bb2] text-white text-sm overflow-hidden">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-2 w-full">
           <span className="font-medium tracking-wide">
             Save up to 20% on all Toys & Accessories with “FLAT26OFF” code

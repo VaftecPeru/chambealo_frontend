@@ -5,7 +5,7 @@ export default function Banner() {
       {/* Imagen izquierda */}
       <div className="flex-1 flex justify-center sm:justify-start">
         <img
-          src="/public/img/CerealBar1.png"
+          src="/img/CerealBar1.png"
           alt="Left Product"
           className="h-48 object-contain"
         />
@@ -25,7 +25,7 @@ export default function Banner() {
       {/* Imagen derecha */}
       <div className="flex-1 flex justify-center sm:justify-end">
         <img
-          src="/public/img/CerealBar2.png"
+          src="/img/CerealBar2.png"
           alt="Right Product"
           className="h-48 object-contain"
         />
