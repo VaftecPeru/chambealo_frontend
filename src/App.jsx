@@ -44,11 +44,14 @@ function App() {
                 path="/OurStore" 
                 element={
                   <> 
-                    <div className='flex'>
-                      <div className='ml-20 mt-20'>                         
+                    {/* Contenedor responsive */}
+                    <div className='flex flex-col md:flex-row'>
+                      {/* Filter - Oculto en móvil, visible en desktop */}
+                      <div className='hidden md:block md:ml-20 md:mt-20'>                         
                         <Filter /> 
                       </div>
-                      <div className=' mt-10'>
+                      {/* Products - Siempre visible, ajustado para móvil */}
+                      <div className='w-full mt-4 md:mt-10'>
                         <Products />
                       </div>
                     </div>  

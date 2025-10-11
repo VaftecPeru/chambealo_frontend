@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = [
-  "/img/montaña.jpg",
-  "/img/paisaje.jpg",
-  "/img/estratosfera.png",
+  "/img/banner_chambealo.jpg",
+  "/img/banner2.png",
 ];
 
 export default function Slider() {

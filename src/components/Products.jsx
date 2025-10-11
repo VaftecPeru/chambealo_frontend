@@ -97,7 +97,7 @@ export default function Products() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       {/* ---- NAV SUPERIOR ---- */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center mb-6 gap-20 border-2 border-violet-200 rounded-md w-fit mx-auto p-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center mb-6 gap-4 border-2 border-violet-200 rounded-md w-fit mx-auto p-2">
         {/* Contador de productos */}  
           <span className="text-gray-700 font-medium text-violet-500">
             🏅{totalProducts.length} 
@@ -123,7 +123,7 @@ export default function Products() {
       </div>
 
       {/* ---- GRID DE PRODUCTOS ---- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {currentProducts.map((product) => (
           <article
             key={product.id}
