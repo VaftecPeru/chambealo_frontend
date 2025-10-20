@@ -43,7 +43,7 @@ export default function OurLatestNews() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <h2 className="text-2xl font-bold text-center text-slate-800 mb-10">
-        Our Latest News
+        Últimas Novedades
       </h2>
 
       <Swiper
@@ -78,7 +78,7 @@ export default function OurLatestNews() {
                   href={news.link}
                   className="text-orange-500 font-medium hover:underline"
                 >
-                  Read More →
+                  Leer más →
                 </a>
               </div>
             </div>

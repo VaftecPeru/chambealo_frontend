@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Search, PhoneCall, ShoppingCart, Menu, ChevronDown, X } from 'lucide-react';
+import SaleCarousel from './SaleCarrousel';
+import { saleProducts } from './products';
+
 
 const Navbar = () => {
   const [openDropdowns, setOpenDropdowns] = useState({
@@ -32,7 +35,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+      <nav className="bg-yellow-300 shadow-sm border-b border-gray-200">
         {/* Top section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20 md:h-25">
@@ -63,7 +66,7 @@ const Navbar = () => {
                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                             transition-all duration-300 transform
                             hover:bg-white-50 hover:shadow-md hover:border-blue-300"
-                  placeholder="Search for items..."
+                  placeholder="Buscar Productos..."
                 />
               </div>
             </div>
@@ -74,8 +77,8 @@ const Navbar = () => {
               <div className="hidden md:flex items-center text-gray-700">
                 <PhoneCall className="h-8 w-6 ml-5" />
                 <div className="text-sm">
-                  <div className="font-medium">Need Help?</div>
-                  <div className="text-blue-600">+01 123 456 789</div>
+                  <div className="font-medium">Necesitas Ayuda?</div>
+                  <div className="text-gray-800">+01 123 456 789</div>
                 </div>
               </div>
 
@@ -88,8 +91,8 @@ const Navbar = () => {
                   </span>
                 </div>
                 <div className="ml-2 text-sm hidden md:block">
-                  <div className="font-medium text-gray-700">Cart</div>
-                  <div className="text-gray-600">0,00 lei</div>
+                  <div className="font-medium text-gray-700">Carrito</div>
+                  <div className="text-gray-600">0,00</div>
                 </div>
               </div>
             </div>
@@ -111,27 +114,27 @@ const Navbar = () => {
         </div>
 
         {/* Bottom navigation - Desktop */}
-        <div className="hidden md:block bg-gray-50 border-t border-gray-200">
+        <div className="hidden md:block bg-blue-900 text-black max-auto overflow-x-clip">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
-            <div className="flex items-center h-12">
+            <div className="flex justify-between items-center w-full h-12">
               {/* Shop by Departments - Hover Dropdown */}
               <div className="flex items-center mr-8 relative group">
-                <button className="flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
-                  <Menu className="h-4 w-4 mr-2 text-gray-600" />
-                  Shop by Departments
-                  <ChevronDown className="h-4 w-4 text-gray-500 ml-1" />
+                <button className="flex items-center text-sm font-medium text-white hover:text-violet-400">
+                  <Menu className="h-4 w-4 mr-2 text-white"/>
+                  Comprar por Categorías
+                  <ChevronDown className="h-4 w-4 text-white ml-1" />
                 </button>
 
                 <div className="absolute left-0 top-full mt-3 -ml-12 w-64 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden max-h-0 opacity-0 group-hover:max-h-[2000px] group-hover:opacity-100 transition-all duration-300 ease-in-out z-50">
                   <ul className="py-2">
                     <li>
                       <Link to="/OurStore" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600">
-                        Our Store
+                        Tienda
                       </Link>
                     </li>
                     <li>
                       <button className="flex justify-between items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600" onClick={() => toggleDropdown('bakery')}>
-                        Bakery
+                        Panadería
                         <span>{openDropdowns.bakery ? '-' : '+'}</span>
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openDropdowns.bakery ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -145,7 +148,7 @@ const Navbar = () => {
                     <li><a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600">Vegetables</a></li>
                     <li>
                       <button className="flex justify-between items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600" onClick={() => toggleDropdown('chips')}>
-                        Chips / Snacks Item
+                        Chips / Snacks
                         <span>{openDropdowns.chips ? '-' : '+'}</span>
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openDropdowns.chips ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -158,7 +161,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <button className="flex justify-between items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600" onClick={() => toggleDropdown('beverages')}>
-                        Beverages
+                        Bebidas
                         <span>{openDropdowns.beverages ? '-' : '+'}</span>
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openDropdowns.beverages ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -171,7 +174,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <button className="flex justify-between items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600" onClick={() => toggleDropdown('milk')}>
-                        Milk Items
+                        Lácteos
                         <span>{openDropdowns.milk ? '-' : '+'}</span>
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openDropdowns.milk ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -184,7 +187,7 @@ const Navbar = () => {
                     </li>
                     <li>
                       <button className="flex justify-between items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600" onClick={() => toggleDropdown('seafood')}>
-                        Sea food
+                        Mariscos
                         <span>{openDropdowns.seafood ? '-' : '+'}</span>
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openDropdowns.seafood ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -195,10 +198,10 @@ const Navbar = () => {
                         </ul>
                       </div>
                     </li>
-                    <li><a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600">Toast</a></li>
+                    <li><a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600">Tostadas</a></li>
                     <li>
                       <button className="flex justify-between items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600" onClick={() => toggleDropdown('dairy')}>
-                        Dairy Items
+                        Productos Lácteos
                         <span>{openDropdowns.dairy ? '-' : '+'}</span>
                       </button>
                       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${openDropdowns.dairy ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -214,82 +217,337 @@ const Navbar = () => {
               </div>
 
               {/* Navigation items */}
-              <div className="flex space-x-8">
-                <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600">Home</a>
+              <div className="flex space-x-8 text-white">
+                <Link to="/" className="text-sm font-medium hover:text-violet-400">Inicio</Link>
                 
+              <div className='relative group'>
+                <div className="flex items-center">
+                  <Link to="/OurStore" className="text-sm font-medium hover:text-violet-400 mr-1">Tienda</Link>
+                  <ChevronDown className="h-4 w-4 text-white" />
+                </div>
+                <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-screen max-w-7xl bg-white border-t border-gray-200 shadow-lg rounded-lg transition-all duration-200 z-50 scale-0 group-hover:scale-100 transform origin-top">
+                  <div className="px-6 py-6 grid grid-cols-4 gap-6">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-3"><a href="#" className="hover:text-blue-600">Bebidas</a></h3>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li><a href="#" className="hover:text-blue-600">Bebidas Frías</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Cerveza</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Gaseosas</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Bebidas Orgánicas</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Jugos</a></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-3"><a href="#" className="hover:text-blue-600">Productos Lácteos</a></h3>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li><a href="#" className="hover:text-blue-600">Panadería</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Helados</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Mantequilla</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Galletas</a></li>
+                        <li><a href="#" className="hover:text-blue-600">Queso</a></li>
+                      </ul>
+                    </div>
+                    <div className="flex justify-center">
+                      <img src="/img/mainCard1.png" alt="Oferta 1" className="rounded-lg w-auto h-auto object-cover"/>
+                    </div>
+                    <div className="flex justify-center">
+                      <img src="/img/mainCard2.png" alt="Oferta 2" className="rounded-lg w-auto h-auto object-cover"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
                 <div className='relative group'>
                   <div className="flex items-center">
-                    <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 mr-1">Our Store</a>
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                    <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1">Especial</a>
+                    <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">SALE</span>
+                    <ChevronDown className="h-4 w-4 text-white ml-1" />
                   </div>
-                  <div className="absolute -ml-150 mt-3 w-screen max-w-7xl bg-white border-t border-gray-200 shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
-                    <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-4 gap-6">
+                    <div className="absolute top-full mt-3 ml-[-300px] bg-white shadow-lg rounded-lg p-4 w-[900px] z-50 scale-0 group-hover:scale-100 transform origin-top transition-all duration-200">
+                      <SaleCarousel products={saleProducts} />
+                    </div>
+                </div>
+
+                {/* CATEGORÍAS CON DROPDOWN */}
+                <div className="relative group flex items-center">
+                  <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1">Categorías</a>
+                  <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">HOT</span>
+                  <ChevronDown className="h-4 w-4 text-white ml-1" />
+
+                  {/* DROPDOWN DE CATEGORÍAS CENTRADO Y JUSTO DEBAJO */}
+                  <div className="absolute top-full left-[20%] -translate-x-1/2 mt-2 w-[70vw] max-w-[1200px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-visible max-h-auto scale-0 group-hover:scale-100 transform origin-top">
+
+                    <div className="px-6 py-6" style={{display: 'grid',gridTemplateColumns: '1fr 1fr 1fr 2fr'}}> {/*style={{gridTemplateColumns: '1fr 1fr 1fr 1.5fr'}} --> Esto hace que las primeras 3 columnas tengan tamaño normal y la columna "Best Selling" sea 1.5 veces más ancha.*/}
+
+                      {/* ---------- COLUMNA 1 ---------- */}
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-3"><a href="#" className="hover:text-blue-600">Beverages</a></h3>
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          <li><a href="#" className="hover:text-blue-600">Cold Drinks</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Beer Items</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Carbonated</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Plant Drinks</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Juices Items</a></li>
-                        </ul>
+                        <div className="mb-4">
+                          <h3 className="text-sky-900 font-semibold mb-2">Bakery</h3>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li><a href="#" className="hover:text-blue-600">Biscuits</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Cookies</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Wafers</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Cake</a></li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sky-900 font-semibold mb-2">Healthy Food</h3>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li><a href="#" className="hover:text-blue-600">Honey</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Vegetables</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Fruits</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Juices</a></li>
+                          </ul>
+                        </div>
                       </div>
+
+                      {/* ---------- COLUMNA 2 ---------- */}
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-3"><a href="#" className="hover:text-blue-600">Dairy Items</a></h3>
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          <li><a href="#" className="hover:text-blue-600">Bread Items</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Ice Cream</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Butter Items</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Cookies Items</a></li>
-                          <li><a href="#" className="hover:text-blue-600">Cheese Items</a></li>
-                        </ul>
+                        <div className="mb-4">
+                          <h3 className="text-sky-900 font-semibold mb-2">Meat & Eggs</h3>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li><a href="#" className="hover:text-blue-600">Poultry</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Eggs</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Meats</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Chicken</a></li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sky-900 font-semibold mb-2">Milk Items</h3>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li><a href="#" className="hover:text-blue-600">Coffee</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Cream</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Chocolate</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Milk</a></li>
+                          </ul>
+                        </div>
                       </div>
-                      <div className="flex justify-center">
-                        <img src="/img/mainCard1.png" alt="Oferta 1" className="rounded-lg w-auto h-auto object-cover"/>
+
+                      {/* ---------- COLUMNA 3 ---------- */}
+                      <div>
+                        <div className="mb-4">
+                          <h3 className="text-sky-900 font-semibold mb-2">Snacks Item</h3>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li><a href="#" className="hover:text-blue-600">Crackers</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Bars</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Chips</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Toasts</a></li>
+                          </ul>
+                        </div>
+
+                        <div>
+                          <h3 className="text-sky-900 font-semibold mb-2">Sea Food</h3>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            <li><a href="#" className="hover:text-blue-600">Meats</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Chicken</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Eggs</a></li>
+                            <li><a href="#" className="hover:text-blue-600">Poultry</a></li>
+                          </ul>
+                        </div>
                       </div>
-                      <div className="flex justify-center">
-                        <img src="/img/mainCard2.png" alt="Oferta 2" className="rounded-lg w-auto h-auto object-cover"/>
+
+                      {/* ---------- COLUMNA 4: BEST SELLING ---------- */}
+                      <div>
+                        <h3 className="text-sky-900 font-semibold mb-3 text-center">Best Selling</h3>
+
+                        {/* Grid 2x2 para las cards */}
+                        <div className="grid grid-cols-2 gap-3">
+                          
+                          {/* ---------- CARD 1 ---------- */}
+                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                            <img
+                              src="/img/Bake_Go1.png"
+                              alt="Producto 1"
+                              className="w-16 h-20 object-cover rounded mr-3 flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <p className="text-xs text-gray-500">Multi Millet Strawberry Pancake Back & Go</p>
+                              <div className="mt-1 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-gray-300">★</span>
+                                  <div className="text-sm font-bold text-red-600">$50.00</div>
+                                </div> 
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* ---------- CARD 2 ---------- */}
+                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                            <img
+                              src="/img/Betty_Cake1.png"
+                              alt="Producto 2"
+                              className="w-16 h-20 object-cover rounded mr-3 flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <p className="text-xs text-gray-500">Vanilla Cleansing Cheese Cake Bomb Cosmetics</p>
+                              <div className="mt-1 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <div className="text-sm font-bold text-red-600">$17.00</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* ---------- CARD 3 ---------- */}
+                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                            <img
+                              src="/img/Protein_Cookie_1.png"
+                              alt="Producto 3"
+                              className="w-16 h-20 object-cover rounded mr-3 flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <p className="text-xs text-gray-500">Vplab Protein Cookies Choco Chips (Pack of 6)</p>
+                              <div className="mt-1 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-gray-300">★</span>
+                                  <div className="text-sm font-bold text-red-600">$15.00</div>
+                                </div>    
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* ---------- CARD 4 ---------- */}
+                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                            <img
+                              src="/img/Monterra1.png"
+                              alt="Producto 4"
+                              className="w-16 h-20 object-cover rounded mr-3 flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <p className="text-xs text-gray-500">Monterra Jumbo California Walnuts in Shell 1 kg</p>
+                              <div className="mt-1 flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-yellow-400">★</span>
+                                  <span className="text-xs text-gray-300">★</span>
+                                  <span className="text-xs text-gray-300">★</span>
+                                  <div className="text-sm font-bold text-red-600">$10.00</div>                                 
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
                       </div>
+
                     </div>
                   </div>
                 </div>
 
+                {/* TOP DEALS CON DROPDOWN */}
+                <div className="relative group flex items-center">
+                  <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1 whitespace-nowrap">Mejores Ofertas</a>
+                  <ChevronDown className="h-4 w-4 text-white" />
+
+                {/* DROPDOWN DE TOP DEALS */}
+                <div className="absolute top-full left-[-90%] -translate-x-1/2 mt-2 w-[95vw] max-w-[1100px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-hidden scale-0 group-hover:scale-100 transform origin-top">
+                  <div className="px-4 md:px-6 py-4 md:py-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+                    
+                    {/* ---------- COLUMNA 1: SHOP BY ---------- */}
+                    <div>
+                      <h3 className="text-sky-900 font-semibold mb-3 md:mb-4 text-base md:text-lg text-center">Shop By</h3>
+                      
+                      {/* Grid de categorías responsive */}
+                      <div className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+                        {[
+                          { img: "/img/beverages-icon.png", name: "Beverages" },
+                          { img: "/img/fruits-icon.png", name: "Fruits" },
+                          { img: "/img/icecream-icon.png", name: "Ice Cream" },
+                          { img: "/img/cream-icon.png", name: "Cream" },
+                          { img: "/img/vegetables-icon.png", name: "Vegetables" },
+                          { img: "/img/honey-icon.png", name: "Honey" },
+                          { img: "/img/potatos-icon.png", name: "Potatos" },
+                          { img: "/img/palak-icon.png", name: "Palak" }
+                        ].map((item, index) => (
+                          <div key={index} className="flex flex-col items-center">
+                            <div className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border border-gray-200 flex items-center justify-center mb-1 md:mb-2 hover:border-blue-500 transition-colors cursor-pointer">
+                              <img src={item.img} alt={item.name} className="w-6 h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 object-contain" />
+                            </div>
+                            <p className="text-xs text-gray-700 font-medium text-center">{item.name}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Etiquetas de descuento */}
+                      <div className="space-y-2">
+                        <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-2 md:p-3 rounded-lg">
+                          <p className="text-xs md:text-sm text-gray-700 text-center"><span className="font-semibold">Up to 25% OFF</span></p>
+                        </div>
+                        <div className="bg-gradient-to-r from-emerald-100 to-blue-100 p-2 md:p-3 rounded-lg">
+                          <p className="text-xs text-gray-500 italic text-center">Only this week</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ---------- COLUMNA 2: TOP RATED ---------- */}
+                    <div>
+                      <h3 className="text-sky-900 font-semibold mb-3 md:mb-4 text-base md:text-lg text-center">Top Rated</h3>
+
+                      {/* Grid responsive para productos */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 max-h-80 overflow-y-auto">
+                        {[
+                          { img: "/img/Protein_Cookie_1.png", name: "Vplab Protein Cookies Choco Chips (Pack of 6)", rating: "★★★★", stars: 4, reviews: 3, price: "$40.00", discount: null },
+                          { img: "/img/Betty_Cake1.png", name: "Vanilla Cleansing Cheese Cake Bomb Cosmetics", rating: "★★★★★", stars: 5, reviews: 0, price: "$70.00", discount: null },
+                          { img: "/img/Bake_Go1.png", name: "Multi Millet Strawberry Pancake Back & Go", rating: "★★★★", stars: 4, reviews: 1, price: "$40.00", discount: null },
+                          { img: "/img/Monterra1.png", name: "Monterra Jumbo California Walnuts in...", rating: "★★★★", stars: 4, reviews: 1, price: "$26.00", discount: { original: "$32.00", percent: "19%" } },
+                          { img: "/img/milky_mist.png", name: "Milky Mist Mango Fruit Yogurt 100 g (Cup)", rating: "★★★★★", stars: 5, reviews: 0, price: "$15.00", discount: null },
+                          { img: "/img/komo_cheese.png", name: "Komo Holland Hard Cheese 45% 150g Pack...", rating: "★★★★★", stars: 5, reviews: 2, price: "$15.00", discount: { original: "$20.00", percent: "25%" } }
+                        ].map((product, index) => (
+                          <div key={index} className="flex items-center gap-2 p-2 bg-violet-50 hover:bg-emerald-50 rounded-lg transition-colors border border-gray-100">
+                            <img src={product.img} alt={product.name} className="w-12 h-12 md:w-14 md:h-14 object-contain flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-xs md:text-sm font-medium text-gray-800 mb-1 line-clamp-2">{product.name}</h4>
+                              <div className="flex items-center gap-1 mb-1">
+                                <span className={`text-xs ${product.stars === 5 ? 'text-yellow-400' : 'text-yellow-400'}`}>{product.rating}</span>
+                                <span className="text-xs text-gray-500">({product.reviews})</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {product.discount && (
+                                  <p className="text-xs text-gray-400 line-through">{product.discount.original}</p>
+                                )}
+                                <p className="text-sm md:text-base font-bold text-red-600">{product.price}</p>
+                                {product.discount && (
+                                  <span className="text-xs bg-red-100 text-red-600 px-1 py-0.5 rounded font-semibold">{product.discount.percent}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+                
+
                 <div className='relative group'>
                   <div className="flex items-center">
-                    <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 mr-1">Special</a>
-                    <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">SALE</span>
-                    <ChevronDown className="h-4 w-4 text-gray-500 ml-1" />
+                    <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1">Elementos</a>
+                    <ChevronDown className="h-4 w-4 text-white" />
                   </div>
-                  <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50">
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Category 1</a>
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Category 2</a>
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Category 3</a>
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 mr-1">Categories</a>
-                  <span className="bg-violet-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">HOT</span>
-                  <ChevronDown className="h-4 w-4 text-gray-500 ml-1" />
-                </div>
-
-                <div className="flex items-center">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 mr-1">Top Deals</a>
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
-                </div>
-
-                <div className='relative group'>
-                  <div className="flex items-center">
-                    <a href="#" className="text-sm font-medium text-gray-700 hover:text-blue-600 mr-1">Elements</a>
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  </div>
-                  <div className="absolute -ml-5 mt-3 w-30 bg-white border border-gray-200 rounded-md shadow-lg opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-200 z-50 font-medium text-sm">
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">About Us</a>
+                  <div className="absolute -ml-6 mt-3 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50 scale-0 group-hover:scale-100 transform origin-top transition-all duration-200 font-medium text-sm">
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Acerca de nosotros</a>
                     <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Blogs</a>
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Contact</a>
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Contacto</a>
                     <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">FAQs</a>
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Compare</a>
-                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Wishlist</a>
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Comparar</a>
+                    <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Lista</a>
                   </div>
                 </div>
               </div>

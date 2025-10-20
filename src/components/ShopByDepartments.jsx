@@ -203,9 +203,9 @@ export default function ProductCarousel() {
   const scrollRef = useRef(null);
 
   const categories = [
-    { key: "milk", label: "Milk Items" },
-    { key: "vegetables", label: "Vegetables" },
-    { key: "bakery", label: "Bakery" },
+    { key: "milk", label: "Lácteos" },
+    { key: "vegetables", label: "Vegetales" },
+    { key: "bakery", label: "Panadería" },
   ];
 
   // Scroll que centra cada card por click
@@ -241,7 +241,7 @@ export default function ProductCarousel() {
     <div className="max-w-7xl mx-auto px-4 py-10">
       {/* Título */}
       <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
-        Shop by Departments
+        Comprar por Categorías
       </h2>
 
       {/* Botones de categoría */}
@@ -346,7 +346,7 @@ export default function ProductCarousel() {
 
                 {/* Botón Add to Cart */}
                 <button className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600">
-                  Add to Cart
+                  Agregar al carrito
                 </button>
               </div>
             </article>

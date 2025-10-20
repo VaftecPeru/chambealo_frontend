@@ -75,13 +75,13 @@ export default function PromoCards() {
           <div className="absolute inset-0"></div>
           <div className="relative p-6 flex flex-col justify-between h-full">
             <div>
-              <p className="text-sm text-purple-600 font-medium">Up to 25% OFF</p>
+              <p className="text-sm text-purple-600 font-medium">Hasta 25% de descuento</p>
               <h3 className="text-xl font-bold text-gray-800 mt-2">
-                Potato-based <br /> fresh juice
+                Jugo fresco a  <br /> Base de papas
               </h3>
             </div>
             <button className="mt-6 bg-orange-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-orange-600 w-fit">
-              View More
+              Ver más
             </button>
           </div>
         </div>
@@ -93,13 +93,13 @@ export default function PromoCards() {
           <div className="absolute inset-0"></div>
           <div className="relative p-6 flex flex-col justify-between h-full">
             <div>
-              <span className="bg-orange-500 text-white text-xs px-3 py-1 rounded-full">Flat 20% OFF</span>
+              <span className="bg-orange-500 text-white text-xs px-3 py-1 rounded-full">20% de descuento</span>
               <h3 className="text-xl font-bold text-gray-800 mt-2">
-                Butter Cookie <br /> & Chip
+                Galleta de manteca <br /> & Chips
               </h3>
             </div>
             <button className="mt-6 bg-orange-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-orange-600 w-fit">
-              View More
+              Ver más
             </button>
           </div>
         </div>
@@ -111,13 +111,13 @@ export default function PromoCards() {
           <div className="absolute inset-0"></div>
           <div className="relative p-6 flex flex-col justify-between h-full">
             <div>
-              <p className="text-sm text-blue-600 font-medium">Only this week</p>
+              <p className="text-sm text-blue-600 font-medium">Solo por esta semana</p>
               <h3 className="text-xl font-bold text-gray-800 mt-2">
-                Shopping with us <br /> for best price
+                Compra con nosotros <br /> Al mejor precio
               </h3>
             </div>
             <button className="mt-6 bg-orange-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-orange-600 w-fit">
-              View More
+              Ver más
             </button>
           </div>
         </div>

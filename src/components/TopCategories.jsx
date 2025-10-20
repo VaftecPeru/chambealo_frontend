@@ -2,13 +2,13 @@ import { Salad, Apple, Drumstick, Milk, Beer, Croissant, Sandwich } from "lucide
 import '../styles/TopCategories.css'; 
 
 const categories = [
-  { name: "Vegetables", icon: Salad },
-  { name: "Fruits", icon: Apple },
-  { name: "Meats", icon: Drumstick },
-  { name: "Milk", icon: Milk },
-  { name: "Juices", icon: Beer },
-  { name: "Bakery", icon: Croissant },
-  { name: "Toasts", icon: Sandwich },
+  { name: "Vegetales", icon: Salad },
+  { name: "Frutas", icon: Apple },
+  { name: "Carne", icon: Drumstick },
+  { name: "Lácteos", icon: Milk },
+  { name: "Bebidas", icon: Beer },
+  { name: "Panadería", icon: Croissant },
+  { name: "Totadas", icon: Sandwich },
 ];
 
 export default function Categories() {
@@ -16,12 +16,12 @@ export default function Categories() {
     <div className="mt-10 px-4">
       {/* Título centrado */}
       <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
-        Top Categories
+        Categorías Principales
       </h2>
 
       {/* Contenedor scroll horizontal centrado */}
-      <div className="overflow-x-auto no-scrollbar" style={{ paddingLeft: 'calc(12.8% - 5rem)', paddingRight: '1rem' }}>
-        <div className="inline-flex justify-center gap-6">
+      <div className="overflow-x-auto no-scrollbar px-4 justify-center">
+        <div className="w-max mx-auto flex gap-6">
           {categories.map(({ name, icon }) => {
             const IconComponent = icon;
             return (

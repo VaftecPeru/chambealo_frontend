@@ -139,7 +139,7 @@ export default function ProductCarousel() {
     <div className="max-w-7xl mx-auto px-4 py-10">
       {/* Título */}
       <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
-        Best Selling Products
+        Productos más Vendidos
       </h2>
 
       <div className="relative">
@@ -221,7 +221,7 @@ export default function ProductCarousel() {
                 )}
 
                 <button className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600">
-                  Add to Cart
+                  Agregar Compra
                 </button>
               </div>
             </article>

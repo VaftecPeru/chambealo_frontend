@@ -1,5 +1,7 @@
+import { Link } from "react-router-dom";
+
 export default function OurProducts() {
-  // ✅ Data sin img2
+  // Data sin img2
   const productsData = {
     milk: [
       {
@@ -105,7 +107,7 @@ export default function OurProducts() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       <h2 className="text-2xl font-bold text-center text-slate-800 mb-10">
-        Don't Miss Our Products
+        No te pierdas nuestros Productos
       </h2>
 
       {/* GRID de productos */}
@@ -174,9 +176,11 @@ export default function OurProducts() {
 
       {/* Botón View All */}
       <div className="flex justify-center mt-10">
+        <Link to="/OurStore">
         <button className="bg-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-orange-600">
-          View all
+          Ver más
         </button>
+        </Link>
       </div>
     </div>
   );

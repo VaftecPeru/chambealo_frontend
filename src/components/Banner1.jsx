@@ -13,12 +13,12 @@ export default function Banner() {
 
       {/* Texto central */}
       <div className="flex-1 text-center sm:text-center">
-        <p className="text-sm text-violet-600 mb-2">Up to 35% OFF</p>
+        <p className="text-sm text-violet-600 mb-2">Hasta un 35% de descuento</p>
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-          Delicious Foods from India’s <br /> Best Sellers
+          Deliciosas comidas de <br /> los más vendidos <br /> de la India
         </h2>
         <button className="bg-orange-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-violet-600 transition">
-          View More &rarr;
+          Ver más &rarr;
         </button>
       </div>
 

@@ -3,7 +3,7 @@ const bannerData = [
     id: 1,
     bgColor: "bg-blue-100",
     discountText: "Up to 45% OFF",
-    title: "Don't Miss Out on Tasty Grocery Deals!",
+    title: "¡No te pierdas estas deliciosas Ofertas de comestibles!",
     buttonText: "View More",
     imgSrc: "/img/CerealBar1.png",
   },
@@ -13,7 +13,7 @@ const bannerData = [
     discountText: "Flat 15% OFF",
     title: (
       <>
-        Fruits Juice Delicious Tasty<br /> from Farm
+        Jugo de Frutas Delicioso y Sabroso de Granja
       </>
     ),
     buttonText: "View More",

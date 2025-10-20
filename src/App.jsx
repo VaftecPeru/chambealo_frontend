@@ -12,7 +12,6 @@ import BestSelling from './components/BestSelling'
 import MainCards2 from './components/MainCards2'
 import OurProducts from './components/OurProducts';
 import OurLatestNews from './components/OurLatestNews';
-import Filter from './components/Filter.jsx';
 import Products from './components/Products.jsx'
 
 
@@ -43,21 +42,9 @@ function App() {
               <Route 
                 path="/OurStore" 
                 element={
-                  <> 
-                    {/* Contenedor responsive */}
-                    <div className='flex flex-col md:flex-row'>
-                      {/* Filter - Oculto en móvil, visible en desktop */}
-                      <div className='hidden md:block md:ml-20 md:mt-20'>                         
-                        <Filter /> 
-                      </div>
-                      {/* Products - Siempre visible, ajustado para móvil */}
-                      <div className='w-full mt-4 md:mt-10'>
-                        <Products />
-                      </div>
-                    </div>  
-                  </>
-              } 
-            />
+                  <Products />     
+                } 
+              />
             </Routes>
           </BrowserRouter>
       </div>
