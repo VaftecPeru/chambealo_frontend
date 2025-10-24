@@ -1,117 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Star } from "lucide-react";
 import Filter from "./Filter";
+import { Link } from "react-router-dom";
+import {totalProductsRaw} from "./products"
 
-const baseProducts = [
-  {
-    id: 1,
-    name: "Vplab Protein Cookies Choco Chips (Pack of 6)",
-    price: 15.0,
-    oldPrice: 20.0,
-    discount: "25%",
-    img1: "/img/Protein_Cookie_2.png",
-    img2: "/img/Protein_Cookie_1.png",
-    rating: 4,
-    details: "150 g",
-    status: "sale",
-    category: "Galletas",
-    type: "Snacks",
-    brand: "Vplub",
-    weight: "150g",
-    tags: ["Snacks", "Proteína"],
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Vanilla Cleansing Cheese Cake Bomb",
-    price: 17.0,
-    oldPrice: 20.0,
-    discount: "15%",
-    img1: "/img/Betty_Cake1.png",
-    img2: "/img/Betty_Cake2.png",
-    rating: 5,
-    details: "20 g",
-    status: "sale",
-    category: "Pasteles",
-    type: "Postres",
-    brand: "Betty's Cake",
-    weight: "20g",
-    tags: ["Postre"],
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Multi Millet Strawberry Pancake Back & Go",
-    price: 50.0,
-    img1: "/img/Bake_Go1.png",
-    img2: "/img/Bake_Go2.png",
-    rating: 4,
-    details: "2 kg",
-    status: "",
-    category: "Mezclas",
-    type: "Desayuno",
-    brand: "Back & Go",
-    weight: "2kg",
-    tags: ["Desayuno"],
-    inStock: true,
-  },
-  {
-    id: 4,
-    name: "Monterra Jumbo California Walnuts in Shell 1 kg",
-    price: 10.0,
-    img1: "/img/Monterra1.png",
-    img2: "/img/Monterra2.png",
-    rating: 3,
-    details: "45 g",
-    status: "sold out",
-    category: "Frutos Secos",
-    type: "Nueces",
-    brand: "Monterra",
-    weight: "1kg",
-    tags: ["Nueces"],
-    inStock: false,
-  },
-  {
-    id: 5,
-    name: "Cake World Chocolate Toast",
-    price: 32.0,
-    oldPrice: 45.0,
-    discount: "29%",
-    img1: "/img/bakery1-front.png",
-    img2: "/img/bakery1-back.png",
-    rating: 5,
-    details: "Slice",
-    status: "sale",
-    category: "Panadería",
-    type: "Tostadas",
-    brand: "Cake World",
-    weight: "Slice",
-    tags: ["Pan"],
-    inStock: true,
-  },
-  {
-    id: 6,
-    name: "Croissant Pack (6 pcs)",
-    price: 12.0,
-    img1: "/img/bakery2-front.png",
-    img2: "/img/bakery2-back.png",
-    rating: 4,
-    details: "6 pcs",
-    status: "",
-    category: "Panadería",
-    type: "Bollería",
-    brand: "Bake & Go",
-    weight: "6pcs",
-    tags: ["Pan"],
-    inStock: true,
-  },
-];
-
-const TOTAL_COUNT = 500;
-const totalProductsRaw = Array.from({ length: TOTAL_COUNT }, (_, i) => {
-  const base = baseProducts[i % baseProducts.length];
-  return { ...base, id: i + 1 };
-});
 
 function applyFilters(products, filters) {
   return products.filter((p) => {
@@ -228,6 +120,8 @@ export default function Products() {
     brand: false,
   });
 
+
+  //Aquí estamos exportando totalProductsRaw de products.js
   const [allProducts] = useState(totalProductsRaw);
 
   const allOptions = useMemo(() => getUniqueOptions(allProducts), [allProducts]);
@@ -424,6 +318,8 @@ export default function Products() {
             {/* GRID DE PRODUCTOS */}
             <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {currentProducts.map((product) => (
+                // Enlace al detalle del producto
+                <Link to={`/producto/${product.id}`} key={product.id}>
                 <article
                   key={product.id}
                   className="rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group p-4 bg-white relative"
@@ -486,6 +382,7 @@ export default function Products() {
                     </button>
                   </div>
                 </article>
+                </Link>
               ))}
             </div>
 

@@ -114,15 +114,15 @@ const Navbar = () => {
         </div>
 
         {/* Bottom navigation - Desktop */}
-        <div className="hidden md:block bg-blue-900 text-black max-auto overflow-x-clip">
+        <div className="hidden md:block bg-white text-black max-auto overflow-x-clip">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
             <div className="flex justify-between items-center w-full h-12">
               {/* Shop by Departments - Hover Dropdown */}
               <div className="flex items-center mr-8 relative group">
-                <button className="flex items-center text-sm font-medium text-white hover:text-violet-400">
-                  <Menu className="h-4 w-4 mr-2 text-white"/>
+                <button className="flex items-center text-sm font-medium text-gray-950 hover:text-violet-400">
+                  <Menu className="h-4 w-4 mr-2 text-gray-950"/>
                   Comprar por Categorías
-                  <ChevronDown className="h-4 w-4 text-white ml-1" />
+                  <ChevronDown className="h-4 w-4 text-gray-950 ml-1" />
                 </button>
 
                 <div className="absolute left-0 top-full mt-3 -ml-12 w-64 bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden max-h-0 opacity-0 group-hover:max-h-[2000px] group-hover:opacity-100 transition-all duration-300 ease-in-out z-50">
@@ -217,13 +217,13 @@ const Navbar = () => {
               </div>
 
               {/* Navigation items */}
-              <div className="flex space-x-8 text-white">
+              <div className="flex space-x-8 text-gray-950">
                 <Link to="/" className="text-sm font-medium hover:text-violet-400">Inicio</Link>
                 
               <div className='relative group'>
                 <div className="flex items-center">
                   <Link to="/OurStore" className="text-sm font-medium hover:text-violet-400 mr-1">Tienda</Link>
-                  <ChevronDown className="h-4 w-4 text-white" />
+                  <ChevronDown className="h-4 w-4 text-gray-950" />
                 </div>
                 <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-screen max-w-7xl bg-white border-t border-gray-200 shadow-lg rounded-lg transition-all duration-200 z-50 scale-0 group-hover:scale-100 transform origin-top">
                   <div className="px-6 py-6 grid grid-cols-4 gap-6">
@@ -261,7 +261,7 @@ const Navbar = () => {
                   <div className="flex items-center">
                     <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1">Especial</a>
                     <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">SALE</span>
-                    <ChevronDown className="h-4 w-4 text-white ml-1" />
+                    <ChevronDown className="h-4 w-4 text-gray-950 ml-1" />
                   </div>
                     <div className="absolute top-full mt-3 ml-[-300px] bg-white shadow-lg rounded-lg p-4 w-[900px] z-50 scale-0 group-hover:scale-100 transform origin-top transition-all duration-200">
                       <SaleCarousel products={saleProducts} />
@@ -272,10 +272,10 @@ const Navbar = () => {
                 <div className="relative group flex items-center">
                   <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1">Categorías</a>
                   <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">HOT</span>
-                  <ChevronDown className="h-4 w-4 text-white ml-1" />
+                  <ChevronDown className="h-4 w-4 text-gray-950 ml-1" />
 
                   {/* DROPDOWN DE CATEGORÍAS CENTRADO Y JUSTO DEBAJO */}
-                  <div className="absolute top-full left-[20%] -translate-x-1/2 mt-2 w-[70vw] max-w-[1200px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-visible max-h-auto scale-0 group-hover:scale-100 transform origin-top">
+                  <div className="absolute top-full left-[1%] -translate-x-1/2 mt-2 w-[70vw] max-w-[1200px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-visible max-h-auto scale-0 group-hover:scale-100 transform origin-top">
 
                     <div className="px-6 py-6" style={{display: 'grid',gridTemplateColumns: '1fr 1fr 1fr 2fr'}}> {/*style={{gridTemplateColumns: '1fr 1fr 1fr 1.5fr'}} --> Esto hace que las primeras 3 columnas tengan tamaño normal y la columna "Best Selling" sea 1.5 veces más ancha.*/}
 
@@ -356,7 +356,7 @@ const Navbar = () => {
                         <div className="grid grid-cols-2 gap-3">
                           
                           {/* ---------- CARD 1 ---------- */}
-                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                          <div className="flex items-center p-2 bg-violet-50 rounded hover:shadow-md">
                             <img
                               src="/img/Bake_Go1.png"
                               alt="Producto 1"
@@ -378,7 +378,7 @@ const Navbar = () => {
                           </div>
 
                           {/* ---------- CARD 2 ---------- */}
-                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                          <div className="flex items-center p-2 bg-violet-50 rounded hover:shadow-md">
                             <img
                               src="/img/Betty_Cake1.png"
                               alt="Producto 2"
@@ -400,7 +400,7 @@ const Navbar = () => {
                           </div>
 
                           {/* ---------- CARD 3 ---------- */}
-                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                          <div className="flex items-center p-2 bg-violet-50 rounded hover:shadow-md">
                             <img
                               src="/img/Protein_Cookie_1.png"
                               alt="Producto 3"
@@ -422,7 +422,7 @@ const Navbar = () => {
                           </div>
 
                           {/* ---------- CARD 4 ---------- */}
-                          <div className="flex items-center p-2 bg-violet-50 border rounded-lg hover:shadow-md">
+                          <div className="flex items-center p-2 bg-violet-50 rounded hover:shadow-md">
                             <img
                               src="/img/Monterra1.png"
                               alt="Producto 4"
@@ -453,10 +453,10 @@ const Navbar = () => {
                 {/* TOP DEALS CON DROPDOWN */}
                 <div className="relative group flex items-center">
                   <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1 whitespace-nowrap">Mejores Ofertas</a>
-                  <ChevronDown className="h-4 w-4 text-white" />
+                  <ChevronDown className="h-4 w-4 text-gray-950" />
 
                 {/* DROPDOWN DE TOP DEALS */}
-                <div className="absolute top-full left-[-90%] -translate-x-1/2 mt-2 w-[95vw] max-w-[1100px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-hidden scale-0 group-hover:scale-100 transform origin-top">
+                <div className="absolute top-full left-[-150%] -translate-x-1/2 mt-2 w-[95vw] max-w-[1100px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-hidden scale-0 group-hover:scale-100 transform origin-top">
                   <div className="px-4 md:px-6 py-4 md:py-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
                     
                     {/* ---------- COLUMNA 1: SHOP BY ---------- */}
@@ -466,14 +466,14 @@ const Navbar = () => {
                       {/* Grid de categorías responsive */}
                       <div className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
                         {[
-                          { img: "/img/beverages-icon.png", name: "Beverages" },
-                          { img: "/img/fruits-icon.png", name: "Fruits" },
-                          { img: "/img/icecream-icon.png", name: "Ice Cream" },
-                          { img: "/img/cream-icon.png", name: "Cream" },
-                          { img: "/img/vegetables-icon.png", name: "Vegetables" },
-                          { img: "/img/honey-icon.png", name: "Honey" },
-                          { img: "/img/potatos-icon.png", name: "Potatos" },
-                          { img: "/img/palak-icon.png", name: "Palak" }
+                          { img: "/img/shopby1.png", name: "Beverages" },
+                          { img: "/img/shopby2.png", name: "Fruits" },
+                          { img: "/img/shopby3.png", name: "Ice Cream" },
+                          { img: "/img/shopby4.png", name: "Cream" },
+                          { img: "/img/shopby5.png", name: "Vegetables" },
+                          { img: "/img/shopby6.png", name: "Honey" },
+                          { img: "/img/shopby7.png", name: "Potatos" },
+                          { img: "/img/shopby8.png", name: "Palak" }
                         ].map((item, index) => (
                           <div key={index} className="flex flex-col items-center">
                             <div className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-full border border-gray-200 flex items-center justify-center mb-1 md:mb-2 hover:border-blue-500 transition-colors cursor-pointer">
@@ -538,8 +538,8 @@ const Navbar = () => {
 
                 <div className='relative group'>
                   <div className="flex items-center">
-                    <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1">Elementos</a>
-                    <ChevronDown className="h-4 w-4 text-white" />
+                    <Link to='' className="text-sm font-medium hover:text-violet-400 mr-1">Elementos</Link>
+                    <ChevronDown className="h-4 w-4 text-gray-950" />
                   </div>
                   <div className="absolute -ml-6 mt-3 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50 scale-0 group-hover:scale-100 transform origin-top transition-all duration-200 font-medium text-sm">
                     <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-violet-100">Acerca de nosotros</a>

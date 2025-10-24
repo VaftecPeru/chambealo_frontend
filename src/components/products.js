@@ -103,4 +103,10 @@ export const baseProducts = [
   },
 ];
 
-export const saleProducts = baseProducts.filter(p => p.status === "sale");
+const TOTAL_COUNT = 500;
+export const totalProductsRaw = Array.from({ length: TOTAL_COUNT }, (_, i) => {
+  const base = baseProducts[i % baseProducts.length];
+  return { ...base, id: i + 1 };
+});
+
+export const saleProducts = baseProducts.filter(p => p.status === "sale"); //Esto va para el filtro

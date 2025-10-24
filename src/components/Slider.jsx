@@ -4,6 +4,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const images = [
   "/img/banner_chambealo.jpg",
   "/img/banner2.png",
+  "/img/piezagráfica1.png",
+  "/img/piezagráfica2.png",
+  "/img/piezagráfica3.png",
 ];
 
 export default function Slider() {
