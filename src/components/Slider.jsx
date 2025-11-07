@@ -2,8 +2,14 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const images = [
-  "/img/banner_chambealo.jpg",
-  "/img/banner2.png",
+  {
+    desktop: "/img/banner_chambealo.jpg",
+    mobile: "/img/banner_chambealo.jpg"
+  },
+  {
+    desktop: "/img/banner2.png", 
+    mobile: "/img/banner2.png"
+  },
 ];
 
 export default function Slider() {
@@ -25,24 +31,22 @@ export default function Slider() {
 
   return (
     <div className="relative w-full max-w-8xl mx-auto overflow-hidden rounded-2xl shadow-lg">
-      {/* Contenedor de imágenes */}
+      {/* Contenedor de imágenes - se adapta automáticamente */}
       <div
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {images.map((src, index) => (
-          <div key={index} className="w-full flex-shrink-0 relative">
-            <img
-              src={src}
-              alt={`Slide ${index}`}
-              className="w-full h-auto object-cover"
-              // Alturas responsive
-              style={{ 
-                height: '70vh', // Altura base para desktop
-                maxHeight: '600px', // Altura máxima
-                minHeight: '300px' // Altura mínima
-              }}
-            />
+        {images.map((image, index) => (
+          <div key={index} className="w-full flex-shrink-0">
+            <picture>
+              <source media="(min-width: 768px)" srcSet={image.desktop} />
+              <source media="(max-width: 767px)" srcSet={image.mobile} />
+              <img
+                src={image.desktop}
+                alt={`Slide ${index}`}
+                className="w-full h-auto object-contain"
+              />
+            </picture>
           </div>
         ))}
       </div>

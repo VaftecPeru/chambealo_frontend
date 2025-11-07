@@ -1,4 +1,4 @@
-/* Extra small devices – iPhone, Xiaomi (~320px a 480px) */
+/* responsive */
 @media (max-width: 480px) {
   .NavbarHeader .max-w-7xl {
     flex-direction: column;
@@ -10,18 +10,17 @@
     font-size: 0.65rem;
   }
 
-  .NavbarHeader .flex.gap-2 el-dropdown button {
+  .NavbarHeader .flex.gap-2 .relative button {
     padding: 0.25rem 0.5rem;
     font-size: 0.65rem;
   }
 
   .NavbarHeader .flex.gap-2 svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 16px;
+    height: 16px;
   }
 }
 
-/* Small devices – ~481px a 640px */
 @media (min-width: 481px) and (max-width: 640px) {
   .NavbarHeader .max-w-7xl {
     flex-direction: column;
@@ -33,32 +32,29 @@
     font-size: 0.75rem;
   }
 
-  .NavbarHeader .flex.gap-2 el-dropdown button {
+  .NavbarHeader .flex.gap-2 .relative button {
     padding: 0.4rem 0.75rem;
     font-size: 0.75rem;
   }
 
   .NavbarHeader .flex.gap-2 svg {
-    width: 18px !important;
-    height: 18px !important;
+    width: 18px;
+    height: 18px;
   }
 }
 
-/* Medium devices – ~641px a 768px */
 @media (min-width: 641px) and (max-width: 768px) {
   .NavbarHeader span {
     font-size: 0.85rem;
   }
 
-  .NavbarHeader .flex.gap-2 el-dropdown button {
+  .NavbarHeader .flex.gap-2 .relative button {
     padding: 0.5rem 1rem;
     font-size: 0.85rem;
   }
 
   .NavbarHeader .flex.gap-2 svg {
-    width: 20px !important;
-    height: 20px !important;
+    width: 20px;
+    height: 20px;
   }
 }
-
-/* Desktop – >768px mantiene estilos originales */
