@@ -1,9 +1,8 @@
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { Search, PhoneCall, ShoppingCart, Menu, ChevronDown, X } from 'lucide-react';
 import SaleCarousel from './SaleCarrousel';
-import { saleProducts } from './products';
-
+import { saleProducts, totalProductsRaw } from './products';
 
 const Navbar = () => {
   const [openDropdowns, setOpenDropdowns] = useState({
@@ -21,6 +20,49 @@ const Navbar = () => {
   });
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // Estados para la búsqueda
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
+  const navigate = useNavigate();
+
+  // Manejar clic fuera del search para cerrar resultados
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Función de búsqueda
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      const filtered = totalProductsRaw.filter(product =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.brand.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 8); // Limitar a 8 resultados
+      
+      setSearchResults(filtered);
+      setShowResults(true);
+    } else {
+      setSearchResults([]);
+      setShowResults(false);
+    }
+  }, [searchQuery]);
+
+  // Manejar clic en un producto de búsqueda
+  const handleProductClick = (productId) => {
+    navigate(`/producto/${productId}`);
+    setSearchQuery('');
+    setShowResults(false);
+  };
 
   const toggleDropdown = (name) => {
     setOpenDropdowns(prev => ({
@@ -55,19 +97,65 @@ const Navbar = () => {
             </Link>
 
             {/* Search bar - Hidden on mobile */}
-            <div className="hidden md:flex flex-1 mx-4">
+            <div className="hidden md:flex flex-1 mx-4 relative" ref={searchRef}>
               <div className="relative group w-full">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-gray-400 transition-colors duration-300 group-hover:text-blue-500 group-focus-within:text-blue-500" />
                 </div>
                 <input
                   type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery && setShowResults(true)}
                   className="w-full pl-10 pr-4 py-2 bg-white text-gray-800 placeholder-gray-400 rounded-xl border border-gray-200
                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                             transition-all duration-300 transform
                             hover:bg-white-50 hover:shadow-md hover:border-blue-300"
                   placeholder="Buscar Productos..."
                 />
+                
+                {/* Resultados de búsqueda - Desktop */}
+                {showResults && searchResults.length > 0 && (
+                  <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto">
+                    {searchResults.map((product) => (
+                      <div
+                        key={product.id}
+                        onClick={() => handleProductClick(product.id)}
+                        className="flex items-center gap-3 p-3 hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                      >
+                        <img
+                          src={product.img1}
+                          alt={product.name}
+                          className="w-16 h-16 object-contain rounded border border-gray-200"
+                        />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-gray-800 line-clamp-2">
+                            {product.name}
+                          </h4>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-gray-500">{product.category}</span>
+                            <span className="text-xs text-gray-400">•</span>
+                            <span className="text-sm font-bold text-red-600">
+                              ${product.price.toFixed(2)}
+                            </span>
+                            {product.oldPrice && (
+                              <span className="text-xs text-gray-400 line-through">
+                                ${product.oldPrice.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Mensaje cuando no hay resultados */}
+                {showResults && searchQuery && searchResults.length === 0 && (
+                  <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-4 text-center">
+                    <p className="text-gray-500">No se encontraron productos</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -101,15 +189,59 @@ const Navbar = () => {
 
         {/* Search bar mobile - Only visible on mobile */}
         <div className="md:hidden px-4 pb-3">
-          <div className="relative">
+          <div className="relative" ref={searchRef}>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
             <input
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => searchQuery && setShowResults(true)}
               className="w-full pl-10 pr-4 py-2 bg-white text-gray-800 placeholder-gray-400 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Search for items..."
+              placeholder="Buscar productos..."
             />
+
+            {/* Resultados de búsqueda - Mobile */}
+            {showResults && searchResults.length > 0 && (
+              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-80 overflow-y-auto">
+                {searchResults.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => handleProductClick(product.id)}
+                    className="flex items-center gap-2 p-2 hover:bg-blue-50 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
+                  >
+                    <img
+                      src={product.img1}
+                      alt={product.name}
+                      className="w-12 h-12 object-contain rounded border border-gray-200"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-semibold text-gray-800 line-clamp-2">
+                        {product.name}
+                      </h4>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <span className="text-sm font-bold text-red-600">
+                          ${product.price.toFixed(2)}
+                        </span>
+                        {product.oldPrice && (
+                          <span className="text-xs text-gray-400 line-through">
+                            ${product.oldPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Mensaje cuando no hay resultados - Mobile */}
+            {showResults && searchQuery && searchResults.length === 0 && (
+              <div className="absolute top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 text-center">
+                <p className="text-sm text-gray-500">No se encontraron productos</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -274,10 +406,10 @@ const Navbar = () => {
                   <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full ml-1 font-medium">HOT</span>
                   <ChevronDown className="h-4 w-4 text-gray-950 ml-1" />
 
-                  {/* DROPDOWN DE CATEGORÍAS CENTRADO Y JUSTO DEBAJO */}
+                  {/* DROPDOWN DE CATEGORÍAS */}
                   <div className="absolute top-full left-[1%] -translate-x-1/2 mt-2 w-[70vw] max-w-[1200px] bg-white border-t border-gray-200 shadow-lg transition-all duration-200 z-50 rounded-lg overflow-visible max-h-auto scale-0 group-hover:scale-100 transform origin-top">
 
-                    <div className="px-6 py-6" style={{display: 'grid',gridTemplateColumns: '1fr 1fr 1fr 2fr'}}> {/*style={{gridTemplateColumns: '1fr 1fr 1fr 1.5fr'}} --> Esto hace que las primeras 3 columnas tengan tamaño normal y la columna "Best Selling" sea 1.5 veces más ancha.*/}
+                    <div className="px-6 py-6" style={{display: 'grid',gridTemplateColumns: '1fr 1fr 1fr 2fr'}}>
 
                       {/* ---------- COLUMNA 1 ---------- */}
                       <div>
@@ -450,7 +582,7 @@ const Navbar = () => {
                   </div>
                 </div>
 
-                {/* TOP DEALS CON DROPDOWN */}
+                {/* TOP DEALS */}
                 <div className="relative group flex items-center">
                   <a href="#" className="text-sm font-medium hover:text-violet-400 mr-1 whitespace-nowrap">Mejores Ofertas</a>
                   <ChevronDown className="h-4 w-4 text-gray-950" />
@@ -463,7 +595,7 @@ const Navbar = () => {
                     <div>
                       <h3 className="text-sky-900 font-semibold mb-3 md:mb-4 text-base md:text-lg text-center">Shop By</h3>
                       
-                      {/* Grid de categorías responsive */}
+                      {/* Grid de categorías */}
                       <div className="grid grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
                         {[
                           { img: "/img/shopby1.png", name: "Beverages" },
@@ -506,8 +638,8 @@ const Navbar = () => {
                           { img: "/img/Betty_Cake1.png", name: "Vanilla Cleansing Cheese Cake Bomb Cosmetics", rating: "★★★★★", stars: 5, reviews: 0, price: "$70.00", discount: null },
                           { img: "/img/Bake_Go1.png", name: "Multi Millet Strawberry Pancake Back & Go", rating: "★★★★", stars: 4, reviews: 1, price: "$40.00", discount: null },
                           { img: "/img/Monterra1.png", name: "Monterra Jumbo California Walnuts in...", rating: "★★★★", stars: 4, reviews: 1, price: "$26.00", discount: { original: "$32.00", percent: "19%" } },
-                          { img: "/img/milky_mist.png", name: "Milky Mist Mango Fruit Yogurt 100 g (Cup)", rating: "★★★★★", stars: 5, reviews: 0, price: "$15.00", discount: null },
-                          { img: "/img/komo_cheese.png", name: "Komo Holland Hard Cheese 45% 150g Pack...", rating: "★★★★★", stars: 5, reviews: 2, price: "$15.00", discount: { original: "$20.00", percent: "25%" } }
+                          { img: "/img/CakeWorld.png", name: "Cake World Chocolate Toast", rating: "★★★★★", stars: 5, reviews: 0, price: "$32.00", discount: null },
+                          { img: "/img/KomoCheese.png", name: "Komo Holland Hard Cheese 45% 150g Pack Britannia", rating: "★★★★★", stars: 5, reviews: 2, price: "$12.00", discount: { original: "$20.00", percent: "25%" } }
                         ].map((product, index) => (
                           <div key={index} className="flex items-center gap-2 p-2 bg-violet-50 hover:bg-emerald-50 rounded-lg transition-colors border border-gray-100">
                             <img src={product.img} alt={product.name} className="w-12 h-12 md:w-14 md:h-14 object-contain flex-shrink-0" />
@@ -686,7 +818,7 @@ const Navbar = () => {
             </div>
 
             {/* Home */}
-            <a href="#" className="block px-4 py-3 text-gray-700 hover:bg-gray-100 font-medium">Home</a>
+            <Link to="/" className="block px-4 py-3 text-gray-700 hover:bg-gray-100 font-medium">Home</Link>
 
             {/* Our Store */}
             <div>
@@ -799,4 +931,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar
+export default Navbar;

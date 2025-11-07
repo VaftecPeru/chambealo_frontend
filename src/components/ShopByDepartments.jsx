@@ -1,212 +1,51 @@
 import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react"; // flechas y estrella
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { baseProducts } from "./products"; //Importamos los productos reales
+import { useCart } from "../contexts/CartContext";
 
-import '../styles/ShopByDepartments.css'
+import '../styles/ShopByDepartments.css';
 
-const productsData = {
-  milk: [
-    {
-      id: 1,
-      name: "Vplab Protein Cookies Choco Chips (Pack of 6)",
-      price: 15.0,
-      oldPrice: 20.0,
-      discount: "25%",
-      img1: "/img/Protein_Cookie_2.png",
-      img2: "/img/Protein_Cookie_1.png",
-      rating: 4,
-      details: "150 g",
-      status: "sale",
-    },
-    {
-      id: 2,
-      name: "Vanilla Cleansing Cheese Cake Bomb Cosmetics",
-      price: 17.0,
-      oldPrice: 20.0,
-      discount: "15%",
-      img1: "/img/Betty_Cake1.png",
-      img2: "/img/Betty_Cake2.png",
-      rating: 5,
-      details: "20 g",
-      status: "sale",
-    },
-    {
-      id: 3,
-      name: "Multi Millet Strawberry Pancake Back & Go",
-      price: 50.0,
-      img1: "/img/Bake_Go1.png",
-      img2: "/img/Bake_Go2.png",
-      rating: 4,
-      details: "2 kg",
-      status: "",
-    },
-    {
-      id: 4,
-      name: "Monterra Jumbo California Walnuts in Shell 1 kg",
-      price: 10.0,
-      img1: "/img/Monterra1.png",
-      img2: "/img/Monterra2.png",
-      rating: 3,
-      details: "45 g",
-      status: "sold out",
-    },
-    {
-      id: 5,
-      name: "Corny Muesly Bar Chocolate",
-      price: 10.0,
-      img1: "/img/milk4-front.png",
-      img2: "/img/milk4-back.png",
-      rating: 3,
-      details: "45 g",
-      status: "sold out",
-    },
-    {
-      id: 6,
-      name: "Corny Muesly Bar Chocolate",
-      price: 10.0,
-      img1: "/img/milk4-front.png",
-      img2: "/img/milk4-back.png",
-      rating: 3,
-      details: "45 g",
-      status: "sold out",
-    },
-  ],
-  vegetables: [
-    {
-      id: 7,
-      name: "Fresh Tomato Pack",
-      price: 10.0,
-      img1: "/img/veg1-front.png",
-      img2: "/img/veg1-back.png",
-      rating: 4,
-      details: "1 kg",
-      status: "sale",
-    },
-    {
-      id: 8,
-      name: "Green Lettuce Bunch",
-      price: 7.5,
-      img1: "/img/veg2-front.png",
-      img2: "/img/veg2-back.png",
-      rating: 5,
-      details: "1 bunch",
-      status: "",
-    },
-    {
-      id: 9,
-      name: "Fresh Tomato Pack",
-      price: 10.0,
-      img1: "/img/veg1-front.png",
-      img2: "/img/veg1-back.png",
-      rating: 4,
-      details: "1 kg",
-      status: "sale",
-    },    
-    {
-      id: 10,
-      name: "Fresh Tomato Pack",
-      price: 10.0,
-      img1: "/img/veg1-front.png",
-      img2: "/img/veg1-back.png",
-      rating: 4,
-      details: "1 kg",
-      status: "sale",
-    },
-    {
-      id: 11,
-      name: "Fresh Tomato Pack",
-      price: 10.0,
-      img1: "/img/veg1-front.png",
-      img2: "/img/veg1-back.png",
-      rating: 4,
-      details: "1 kg",
-      status: "sale",
-    },
-    {
-      id: 12,
-      name: "Fresh Tomato Pack",
-      price: 10.0,
-      img1: "/img/veg1-front.png",
-      img2: "/img/veg1-back.png",
-      rating: 4,
-      details: "1 kg",
-      status: "sale",
-    },
-  ],
-  bakery: [
-    {
-      id: 13,
-      name: "Cake World Chocolate Toast",
-      price: 32.0,
-      oldPrice: 45.0,
-      discount: "29%",
-      img1: "/img/bakery1-front.png",
-      img2: "/img/bakery1-back.png",
-      rating: 5,
-      details: "Slice",
-      status: "sale",
-    },
-    {
-      id: 14,
-      name: "Croissant Pack (6 pcs)",
-      price: 12.0,
-      img1: "/img/bakery2-front.png",
-      img2: "/img/bakery2-back.png",
-      rating: 4,
-      details: "6 pcs",
-      status: "",
-    },
-    {
-      id: 15,
-      name: "Croissant Pack (6 pcs)",
-      price: 12.0,
-      img1: "/img/bakery2-front.png",
-      img2: "/img/bakery2-back.png",
-      rating: 4,
-      details: "6 pcs",
-      status: "",
-    },
-    {
-      id: 16,
-      name: "Croissant Pack (6 pcs)",
-      price: 12.0,
-      img1: "/img/bakery2-front.png",
-      img2: "/img/bakery2-back.png",
-      rating: 4,
-      details: "6 pcs",
-      status: "",
-    },
-    {
-      id: 17,
-      name: "Croissant Pack (6 pcs)",
-      price: 12.0,
-      img1: "/img/bakery2-front.png",
-      img2: "/img/bakery2-back.png",
-      rating: 4,
-      details: "6 pcs",
-      status: "",
-    },
-    {
-      id: 18,
-      name: "Croissant Pack (6 pcs)",
-      price: 12.0,
-      img1: "/img/bakery2-front.png",
-      img2: "/img/bakery2-back.png",
-      rating: 4,
-      details: "6 pcs",
-      status: "",
-    },   
-  ],
+// Categorías mapeadas a los productos reales
+const getProductsByCategory = (categoryKey) => {
+  const categoryMap = {
+    milk: ["Lácteos", "Snacks", "Postres"],
+    vegetables: ["Vegetales", "Frutas"], 
+    bakery: ["Panadería", "Galletas", "Pasteles"]
+  };
+
+  return baseProducts.filter(product => 
+    categoryMap[categoryKey]?.includes(product.category) || 
+    categoryMap[categoryKey]?.includes(product.type)
+  );
 };
 
 export default function ProductCarousel() {
   const [activeCategory, setActiveCategory] = useState("milk");
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
+  const { addToCart } = useCart(); // ✅ Hook del carrito
 
   const categories = [
     { key: "milk", label: "Lácteos" },
     { key: "vegetables", label: "Vegetales" },
     { key: "bakery", label: "Panadería" },
   ];
+
+  // Obtener productos filtrados por categoría
+  const filteredProducts = getProductsByCategory(activeCategory);
+
+  // Función para redirigir al detalle del producto
+  const handleProductClick = (productId) => {
+    navigate(`/producto/${productId}`); // ✅ CORREGIDO: usa "/producto/" no "/product/"
+  };
+
+  // ✅ Función para agregar al carrito
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+    addToCart(product, 1); // ✅ Agrega 1 unidad al carrito
+    alert(`"${product.name}" agregado al carrito! 🛒`);
+  };
 
   // Scroll que centra cada card por click
   const scroll = (direction) => {
@@ -215,7 +54,7 @@ export default function ProductCarousel() {
     const cards = Array.from(container.children);
     if (!cards.length) return;
 
-    const gap = 24; // coincide con "gap-6" en Tailwind (6*4px)
+    const gap = 24;
     const cardWidth = cards[0].offsetWidth + gap;
     const scrollLeft = container.scrollLeft;
 
@@ -278,77 +117,86 @@ export default function ProductCarousel() {
           className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-2 sm:px-8"
           style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
         >
-          {productsData[activeCategory].map((product) => (
+          {filteredProducts.map((product) => (
             <article
               key={product.id}
-              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0"
+              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0 cursor-pointer transition-transform hover:scale-105 hover:shadow-md"
             >
-              {/* Imagen + Badge */}
-              <div className="relative w-full h-44 flex justify-center items-center overflow-hidden rounded-lg">
-                {product.status && (
-                  <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
-                    {product.status === "sale"
-                      ? "Sale"
-                      : product.status === "sold out"
-                      ? "Sold out"
-                      : product.status}
-                  </span>
-                )}
-                <img
-                  src={product.img1}
-                  alt={product.name}
-                  className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
-                />
-                <img
-                  src={product.img2}
-                  alt={product.name + " alt"}
-                  className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                />
-              </div>
-
-              {/* Contenido inferior */}
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
-                  {product.name}
-                </h3>
-
-                {/* Estrellas */}
-                <div className="flex items-center gap-1 mt-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < (product.rating || 0) ? "text-yellow-400" : "text-gray-300"}
-                    />
-                  ))}
-                  <span className="text-xs text-gray-500 ml-2">({product.rating || 0})</span>
-                </div>
-
-                {/* Precio y descuento */}
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  {product.oldPrice && (
-                    <span className="line-through text-gray-400 text-sm">
-                      ${product.oldPrice.toFixed(2)}
+              {/* Contenido clickeable para ir al detalle */}
+              <div 
+                onClick={() => handleProductClick(product.id)}
+                className="cursor-pointer"
+              >
+                {/* Imagen + Badge */}
+                <div className="relative w-full h-44 flex justify-center items-center overflow-hidden rounded-lg">
+                  {product.status && (
+                    <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
+                      {product.status === "sale"
+                        ? "Sale"
+                        : product.status === "sold out"
+                        ? "Sold out"
+                        : product.status}
                     </span>
                   )}
-                  <span className="text-lg font-bold text-red-600">${product.price.toFixed(2)}</span>
-                  {product.discount && (
-                    <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                      {product.discount}
-                    </span>
-                  )}
+                  <img
+                    src={product.img1}
+                    alt={product.name}
+                    className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
+                  />
+                  <img
+                    src={product.img2}
+                    alt={product.name + " alt"}
+                    className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                  />
                 </div>
 
-                {/* Detalles */}
-                {product.details && (
-                  <p className="text-gray-500 text-sm mt-1">{product.details}</p>
-                )}
+                {/* Contenido inferior */}
+                <div className="mt-4">
+                  <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
+                    {product.name}
+                  </h3>
 
-                {/* Botón Add to Cart */}
-                <button className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600">
-                  Agregar al carrito
-                </button>
+                  {/* Estrellas */}
+                  <div className="flex items-center gap-1 mt-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={16}
+                        className={i < (product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+                      />
+                    ))}
+                    <span className="text-xs text-gray-500 ml-2">({product.rating || 0})</span>
+                  </div>
+
+                  {/* Precio y descuento */}
+                  <div className="mt-3 flex items-center gap-2 flex-wrap">
+                    {product.oldPrice && (
+                      <span className="line-through text-gray-400 text-sm">
+                        ${product.oldPrice.toFixed(2)}
+                      </span>
+                    )}
+                    <span className="text-lg font-bold text-red-600">${product.price.toFixed(2)}</span>
+                    {product.discount && (
+                      <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
+                        {product.discount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Detalles */}
+                  {product.details && (
+                    <p className="text-gray-500 text-sm mt-1">{product.details}</p>
+                  )}
+                </div>
               </div>
+
+              {/* Botón Agregar Compra - SEPARADO */}
+              <button 
+                className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
+                onClick={(e) => handleAddToCart(e, product)}
+              >
+                Agregar compra
+              </button>
             </article>
           ))}
         </div>

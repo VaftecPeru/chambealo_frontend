@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Star, Heart, Share2, ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Star, Heart, Share2, ChevronDown, ShoppingCart } from 'lucide-react';
 import { useParams } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext'; // ✅ Importar useCart
 
 const ProductDetail = ({ allProducts }) => {
   const { id } = useParams();
@@ -9,6 +10,8 @@ const ProductDetail = ({ allProducts }) => {
   const [acordeonAbierto, setAcordeonAbierto] = useState(null);
   const [producto, setProducto] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const { addToCart } = useCart(); // ✅ Obtener addToCart del context
 
   useEffect(() => {
     if (allProducts && id) {
@@ -41,7 +44,14 @@ const ProductDetail = ({ allProducts }) => {
     }
   }, [allProducts, id]);
 
-  // ✅ MOVER toggleAcordeon AQUÍ - una sola vez
+  // ✅ Función para agregar al carrito
+  const handleAddToCart = () => {
+    if (producto) {
+      addToCart(producto, cantidad);
+      alert(`${cantidad} ${producto.nombre} agregado(s) al carrito! 🛒`);
+    }
+  };
+
   const toggleAcordeon = (index) => {
     setAcordeonAbierto(acordeonAbierto === index ? null : index);
   };
@@ -133,8 +143,6 @@ const ProductDetail = ({ allProducts }) => {
               <div className="flex gap-0.5">{renderStars(prod.rating)}</div>
               <span className="text-sm text-gray-600">({prod.reviews})</span>
             </div>
-
-            {/* ... resto del JSX para producto no encontrado */}
           </div>
         </div>
       </div>
@@ -267,7 +275,12 @@ const ProductDetail = ({ allProducts }) => {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2.5 px-6 rounded text-sm">
+            {/* ✅ BOTÓN ACTUALIZADO para usar el carrito */}
+            <button 
+              onClick={handleAddToCart}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-medium py-2.5 px-6 rounded text-sm flex items-center gap-2"
+            >
+              <ShoppingCart size={18} />
               Add to Cart
             </button>
             <button className="bg-purple-700 hover:bg-purple-800 text-white font-medium py-2.5 px-6 rounded text-sm">

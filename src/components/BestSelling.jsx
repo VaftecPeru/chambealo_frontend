@@ -1,76 +1,14 @@
 import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"; 
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../contexts/CartContext";
+import { baseProducts } from "./products"; // ✅ Importar productos reales
 import '../styles/ShopByDepartments.css'
 
-// Todos los productos en un solo arreglo
-const products = [
-  {
-    id: 1,
-    name: "Vplab Protein Cookies Choco Chips (Pack of 6)",
-    price: 15.0,
-    oldPrice: 20.0,
-    discount: "25%",
-    img1: "/img/Protein_Cookie_2.png",
-    img2: "/img/Protein_Cookie_1.png",
-    rating: 4,
-    details: "150 g",
-    status: "sale",
-  },
-  {
-    id: 2,
-    name: "Vanilla Cleansing Cheese Cake Bomb Cosmetics",
-    price: 17.0,
-    oldPrice: 20.0,
-    discount: "15%",
-    img1: "/img/Betty_Cake1.png",
-    img2: "/img/Betty_Cake2.png",
-    rating: 5,
-    details: "20 g",
-    status: "sale",
-  },
-  {
-    id: 3,
-    name: "Multi Millet Strawberry Pancake Back & Go",
-    price: 50.0,
-    img1: "/img/Bake_Go1.png",
-    img2: "/img/Bake_Go2.png",
-    rating: 4,
-    details: "2 kg",
-    status: "",
-  },
-  {
-    id: 4,
-    name: "Monterra Jumbo California Walnuts in Shell 1 kg",
-    price: 10.0,
-    img1: "/img/Monterra1.png",
-    img2: "/img/Monterra2.png",
-    rating: 3,
-    details: "45 g",
-    status: "sold out",
-  },
-  {
-    id: 5,
-    name: "Cake World Chocolate Toast",
-    price: 32.0,
-    oldPrice: 45.0,
-    discount: "29%",
-    img1: "/img/bakery1-front.png",
-    img2: "/img/bakery1-back.png",
-    rating: 5,
-    details: "Slice",
-    status: "sale",
-  },
-  {
-    id: 6,
-    name: "Croissant Pack (6 pcs)",
-    price: 12.0,
-    img1: "/img/bakery2-front.png",
-    img2: "/img/bakery2-back.png",
-    rating: 4,
-    details: "6 pcs",
-    status: "",
-  },
-];
+// ✅ Usar productos reales en lugar de datos hardcodeados
+const products = baseProducts.filter(product => 
+  product.status === "sale" || product.rating >= 4
+).slice(0, 6); // Limitar a 6 productos
 
 // Función para obtener o crear endTime persistente en localStorage
 const getProductEndTime = (productId) => {
@@ -111,6 +49,20 @@ function CountdownTimer({ productId }) {
 
 export default function ProductCarousel() {
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+
+  // ✅ Función para redirigir al detalle del producto
+  const handleProductClick = (productId) => {
+    navigate(`/producto/${productId}`);
+  };
+
+  // ✅ Función para agregar al carrito
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+    addToCart(product, 1);
+    alert(`"${product.name}" agregado al carrito! 🛒`);
+  };
 
   const scroll = (direction) => {
     if (!scrollRef.current) return;
@@ -159,7 +111,8 @@ export default function ProductCarousel() {
           {products.map((product) => (
             <article
               key={product.id}
-              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0"
+              onClick={() => handleProductClick(product.id)}
+              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0 cursor-pointer transition-transform hover:scale-105 hover:shadow-md"
             >
               <div className="relative w-full h-44 flex justify-center items-center overflow-hidden rounded-lg">
                 {product.status && (
@@ -187,7 +140,7 @@ export default function ProductCarousel() {
               </div>
 
               <div className="mt-4">
-                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
+                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 whitespace-pre-line"> {/* El whitespace-pre-line funciona junto con el salto de linea \n , whitespace-pre-line va en la clase donde se quiere ver de manera visual, y el salto de linea \n en el texto donde se quiere hacer eso, en este caso en product.js, el producto con id: 5*/}
                   {product.name}
                 </h3>
 
@@ -196,7 +149,7 @@ export default function ProductCarousel() {
                     <Star
                       key={i}
                       size={16}
-                      className={i < (product.rating || 0) ? "text-yellow-400" : "text-gray-300"}
+                      className={i < (product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
                     />
                   ))}
                   <span className="text-xs text-gray-500 ml-2">({product.rating || 0})</span>
@@ -220,7 +173,10 @@ export default function ProductCarousel() {
                   <p className="text-gray-500 text-sm mt-1">{product.details}</p>
                 )}
 
-                <button className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600">
+                <button 
+                  className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
+                  onClick={(e) => handleAddToCart(e, product)}
+                >
                   Agregar Compra
                 </button>
               </div>

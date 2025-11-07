@@ -1,14 +1,13 @@
-import { Salad, Apple, Drumstick, Milk, Beer, Croissant, Sandwich } from "lucide-react"; 
 import '../styles/TopCategories.css'; 
 
 const categories = [
-  { name: "Vegetales", icon: Salad },
-  { name: "Frutas", icon: Apple },
-  { name: "Carne", icon: Drumstick },
-  { name: "Lácteos", icon: Milk },
-  { name: "Bebidas", icon: Beer },
-  { name: "Panadería", icon: Croissant },
-  { name: "Totadas", icon: Sandwich },
+  { name: "Vegetales", image: "/img/VegetalesIcon.png" },
+  { name: "Frutas", image: "/img/FrutasIcon.png" },
+  { name: "Carne", image: "/img/CarneIcon.png" },
+  { name: "Lácteos", image: "/img/LacteosIcon.png" },
+  { name: "Bebidas", image: "/img/BebidasIcon.png" },
+  { name: "Panadería", image: "/img/PanaderiaIcon.png" },
+  { name: "Tostadas", image: "/img/TostadasIcon.png" },
 ];
 
 export default function Categories() {
@@ -22,15 +21,17 @@ export default function Categories() {
       {/* Contenedor scroll horizontal centrado */}
       <div className="overflow-x-auto no-scrollbar px-4 justify-center">
         <div className="w-max mx-auto flex gap-6">
-          {categories.map(({ name, icon }) => {
-            const IconComponent = icon;
+          {categories.map(({ name, image }) => {
             return (
               <div
                 key={name}
                 className="flex flex-col items-center justify-center min-w-[10rem] w-40 h-32 bg-gray-50 rounded-xl shadow-sm cursor-pointer transition-transform duration-500 hover:[transform:rotateY(180deg)]"
               >
-                <IconComponent className="w-10 h-10 text-slate-700" />
-                <span className="mt-2 text-slate-700 font-semibold text-sm">{name}</span>
+                    <img 
+                      src={image} 
+                      alt={name}
+                      className="w-15 h-15 object-contain" 
+                    />
               </div>
             );
           })}

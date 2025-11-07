@@ -14,6 +14,9 @@ import OurProducts from './components/OurProducts';
 import OurLatestNews from './components/OurLatestNews';
 import Products from './components/Products.jsx'
 import ProductDetail from './components/ProductDetail.jsx';
+import Login from './components/Login.jsx'
+import Register from './components/Register.jsx';
+import { CartProvider } from './contexts/CartContext'; 
 //Aquí importamos los productos al componente App.jsx
 import { totalProductsRaw } from './components/products.js';
 
@@ -23,6 +26,7 @@ function App() {
   return (
       <div>
           <BrowserRouter>
+          <CartProvider>
             <NavbarHeader />
             <Navbar />
             <Routes>
@@ -53,8 +57,21 @@ function App() {
                 element={
                   <ProductDetail allProducts={totalProductsRaw}/> //Aquí estamos pasando los productos como props
                 }
-              />
-            </Routes>
+              />    
+              <Route
+                path='/Login'
+                element={
+                  <Login/>
+                }
+              />   
+              <Route
+                path='/Register'
+                element={
+                  <Register />
+                }
+              />  
+              </Routes>
+          </CartProvider>          
           </BrowserRouter>
       </div>
   )
