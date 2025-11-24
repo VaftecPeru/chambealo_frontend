@@ -2,55 +2,73 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [direccion, setDireccion] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
-    // Validaciones
+    setLoading(true);
+
+    // Validaciones frontend
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
+      setLoading(false);
       return;
     }
     
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres');
+      setLoading(false);
       return;
     }
-    
-    // Obtener usuarios existentes del localStorage
-    const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
-    
-    // Verificar si el email ya está registrado
-    const userExists = existingUsers.find(
-      user => user.email.toLowerCase() === email.toLowerCase()
-    );
-    
-    if (userExists) {
-      setError('Este correo ya está registrado');
-      return;
+
+    try {
+      const response = await fetch('http://localhost:8000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.toLowerCase().trim(),
+          password: password,
+          password_confirmation: confirmPassword,
+          telefono: telefono || null,
+          direccion: direccion || null,
+        }),
+      });
+      
+      const data = await response.json();
+      console.log('Register Response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error en el registro');
+      }
+
+      // ✅ Registro exitoso
+      setSuccess(data.message || '¡Registro exitoso! Redirigiendo al login...');
+      
+      setTimeout(() => {
+        navigate('/LoginPrueba');
+      }, 2000);
+
+    } catch (error) {
+      console.error('❌ Error en registro:', error);
+      setError(error.message || 'Error al conectar con el servidor');
+    } finally {
+      setLoading(false);
     }
-    
-    // Agregar nuevo usuario
-    const newUser = { email, password };
-    existingUsers.push(newUser);
-    
-    // Guardar en localStorage
-    localStorage.setItem('users', JSON.stringify(existingUsers));
-    
-    setSuccess('¡Registro exitoso! Redirigiendo al login...');
-    
-    // Redirigir al login después de 2 segundos
-    setTimeout(() => {
-      navigate('/LoginPrueba');
-    }, 2000);
   };
 
   return (
@@ -60,11 +78,26 @@ export default function Register() {
           Registrarse
         </h1>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <input
+              type="text"
+              placeholder="Nombre completo *"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setError('');
+              }}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
+              required
+              disabled={loading}
+            />
+          </div>
+
           <div>
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email *"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
@@ -72,13 +105,14 @@ export default function Register() {
               }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
               required
+              disabled={loading}
             />
           </div>
 
           <div>
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Contraseña (mínimo 8 caracteres) *"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -86,13 +120,14 @@ export default function Register() {
               }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
               required
+              disabled={loading}
             />
           </div>
 
           <div>
             <input
               type="password"
-              placeholder="Confirm Password"
+              placeholder="Confirmar contraseña *"
               value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
@@ -100,6 +135,29 @@ export default function Register() {
               }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
               required
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <input
+              type="text"
+              placeholder="Teléfono"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
+              disabled={loading}
+            />
+          </div>
+
+          <div>
+            <textarea
+              placeholder="Dirección"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
+              rows="2"
+              disabled={loading}
             />
           </div>
 
@@ -118,9 +176,10 @@ export default function Register() {
           <div className="flex justify-center pt-2">
             <button
               type="submit"
-              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-12 py-3 rounded-full transition-colors"
+              disabled={loading}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-12 py-3 rounded-full transition-colors disabled:bg-orange-400 disabled:cursor-not-allowed"
             >
-              Register
+              {loading ? 'Registrando...' : 'Register'}
             </button>
           </div>
 

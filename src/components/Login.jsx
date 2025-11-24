@@ -6,49 +6,49 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // Obtener usuarios del localStorage
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    
-    console.log('=== DEBUG LOGIN ===');
-    console.log('Usuarios en localStorage:', users);
-    console.log('Email que ingresaste:', email);
-    console.log('Password que ingresaste:', password);
-    
-    // Buscar si el usuario existe
-    const user = users.find(
-      u => u.email.toLowerCase() === email.toLowerCase()
-    );
-    
-    console.log('Usuario encontrado:', user);
-    
-    if (!user) {
-      console.log('❌ Usuario NO encontrado');
-      setError('Usuario no registrado');
-      return;
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.toLowerCase().trim(),
+          password: password
+        }),
+      });
+      
+      const data = await response.json();
+      console.log('Login Response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error en el login');
+      }
+
+      // ✅ Login exitoso
+      console.log('✅ Login exitoso');
+      localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('refresh_token', data.refresh_token);
+      localStorage.setItem('currentUser', JSON.stringify(data.user));
+      
+      navigate('/');
+      setTimeout(() => window.location.reload(), 100);
+
+    } catch (error) {
+      console.error('❌ Error en login:', error);
+      setError(error.message || 'Error al conectar con el servidor');
+    } finally {
+      setLoading(false);
     }
-    
-    console.log('Comparando passwords:');
-    console.log('- Password guardado:', user.password);
-    console.log('- Password ingresado:', password);
-    console.log('- ¿Son iguales?:', user.password === password);
-    
-    if (user.password !== password) {
-      console.log('❌ Contraseña incorrecta');
-      setError('Contraseña incorrecta');
-      return;
-    }
-    
-    // Login exitoso
-    console.log('✅ Login exitoso');
-    localStorage.setItem('currentUser', JSON.stringify({ email }));
-    navigate('/');
-    window.location.reload(); // Esto hace que NavbarHeader se actualice
   };
 
   return (
@@ -70,6 +70,7 @@ const handleSubmit = (e) => {
               }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
               required
+              disabled={loading}
             />
           </div>
 
@@ -84,6 +85,7 @@ const handleSubmit = (e) => {
               }}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-500"
               required
+              disabled={loading}
             />
           </div>
 
@@ -102,9 +104,10 @@ const handleSubmit = (e) => {
           <div className="flex justify-center pt-2">
             <button
               type="submit"
-              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-12 py-3 rounded-full transition-colors"
+              disabled={loading}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-12 py-3 rounded-full transition-colors disabled:bg-orange-400 disabled:cursor-not-allowed"
             >
-              Sign in
+              {loading ? 'Cargando...' : 'Sign in'}
             </button>
           </div>
 
