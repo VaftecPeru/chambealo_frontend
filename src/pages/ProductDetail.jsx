@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, ShoppingCart, Truck, ShieldCheck } from 'lucide-react';
+import { Star, ShoppingCart, Truck, ShieldCheck, ZoomIn } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 
@@ -11,18 +11,25 @@ const ProductDetail = ({ allProducts = [] }) => {
   const [productosRelacionados, setProductosRelacionados] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Estados para el efecto Lupa / Zoom
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: '50%', y: '50%' });
+
   const { addToCart } = useCart();
 
   useEffect(() => {
+    // Sube al inicio de la página al cambiar de producto
+    window.scrollTo(0, 0);
+
     if (allProducts && allProducts.length > 0 && id) {
-      const productId = parseInt(id);
-      // Buscar soportando id o product_id de la base de datos
+      const currentId = Number(id);
+
+      // Buscar el producto actual asegurando comparación numérica
       const foundProduct = allProducts.find(
-        (p) => (p.product_id || p.id) === productId
+        (p) => Number(p.product_id || p.id) === currentId
       );
 
       if (foundProduct) {
-        // Extraer lista de imágenes disponibles
         const imgs = [
           foundProduct.image_url || foundProduct.img1 || foundProduct.image,
           foundProduct.img2,
@@ -30,9 +37,17 @@ const ProductDetail = ({ allProducts = [] }) => {
           foundProduct.img4,
         ].filter(Boolean);
 
+        // Lee el número de stock del backend o usa 15 como valor por defecto
+        const unidadesStock = Number(
+          foundProduct.stock ??
+          foundProduct.stock_quantity ??
+          foundProduct.quantity ??
+          15
+        );
+
         const transformedProduct = {
-          id: foundProduct.product_id || foundProduct.id,
-          nombre: foundProduct.name || foundProduct.nombre,
+          id: Number(foundProduct.product_id || foundProduct.id),
+          nombre: foundProduct.name || foundProduct.nombre || 'Producto',
           precio: Number(foundProduct.price || foundProduct.precio || 0),
           precioAnterior: Number(
             foundProduct.oldPrice ||
@@ -41,33 +56,63 @@ const ProductDetail = ({ allProducts = [] }) => {
           ),
           descuento: foundProduct.discount || 20,
           rating: foundProduct.rating || 4.8,
-          reviews: foundProduct.reviews_count || 45,
+          reviews: foundProduct.reviews_count || foundProduct.reviews || 45,
           categoria:
             foundProduct.category?.name ||
             foundProduct.category_name ||
             foundProduct.category ||
-            'LÁCTEOS',
+            'General',
           presentacion: foundProduct.content_info || '1 Litro',
           conservacion: foundProduct.storage || 'Mantener refrigerado',
           descripcion:
             foundProduct.description ||
-            'Leche en botella de sabor suave y textura cremosa, ideal para acompañar desayunos, preparar bebidas, postres y distintas recetas. Su presentación de 1 litro es práctica para el consumo diario y permite conservar el producto fácilmente en refrigeración.',
-          disponibilidad: foundProduct.inStock !== false ? 'In stock' : 'Out of stock',
-          imagenes: imgs.length > 0 ? imgs : ['/img/placeholder.jpg'],
+            'Descripción del producto no disponible.',
+          // Muestra las unidades exactas en lugar de "In stock"
+          disponibilidad: unidadesStock > 0 ? `${unidadesStock} unidades` : 'Agotado',
+          imagenes: imgs.length > 0 ? imgs : ['https://via.placeholder.com/400'],
         };
 
         setProducto(transformedProduct);
         setImagenActiva(0);
+        setCantidad(1);
 
-        // Filtrar productos relacionados (excluyendo el actual)
-        const relacionados = allProducts
-          .filter((p) => (p.product_id || p.id) !== productId)
-          .slice(0, 4);
-        setProductosRelacionados(relacionados);
+        // 1. Excluir el producto actual convirtiendo ambos IDs a Number
+        const otrosProductos = allProducts.filter(
+          (p) => Number(p.product_id || p.id) !== currentId
+        );
+
+        // 2. Filtrar y eliminar duplicados por nombre
+        const productosSinDuplicados = otrosProductos.filter(
+          (prod, index, self) =>
+            index ===
+            self.findIndex(
+              (t) => (t.name || t.nombre) === (prod.name || prod.nombre)
+            )
+        );
+
+        // 3. Priorizar mostrar productos de la misma categoría
+        const deMismaCategoria = productosSinDuplicados.filter(
+          (p) =>
+            (p.category_name || p.category?.name || p.category) ===
+            transformedProduct.categoria
+        );
+
+        const listaFinalRelacionados =
+          deMismaCategoria.length > 0 ? deMismaCategoria : productosSinDuplicados;
+
+        setProductosRelacionados(listaFinalRelacionados.slice(0, 4));
       }
-      setLoading(false);
     }
+    setLoading(false);
   }, [allProducts, id]);
+
+  // Manejador del movimiento del mouse sobre la imagen para calcular la lupa
+  const handleMouseMove = (e) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x: `${x}%`, y: `${y}%` });
+  };
 
   const handleAddToCart = (itemToAdd = producto, qty = cantidad) => {
     if (itemToAdd) {
@@ -104,7 +149,7 @@ const ProductDetail = ({ allProducts = [] }) => {
         <h2 className="text-2xl font-bold text-red-500">
           ⚠️ Producto no encontrado
         </h2>
-        <Link to="/" className="text-purple-700 underline font-medium">
+        <Link to="/OurStore" className="text-purple-700 underline font-medium">
           ← Volver a la tienda
         </Link>
       </div>
@@ -121,25 +166,44 @@ const ProductDetail = ({ allProducts = [] }) => {
           Inicio
         </Link>
         <span>›</span>
+        <Link to="/OurStore" className="hover:underline">
+          Tienda
+        </Link>
+        <span>›</span>
         <span className="text-gray-600 font-medium">{prod.categoria}</span>
       </nav>
 
-      {/* 2. SECCIÓN SUPERIOR: GALERÍA Y DETALLE DE COMPRA */}
+      {/* 2. SECCIÓN SUPERIOR: GALERÍA Y COMPRA */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start mb-16">
-        {/* GALERÍA DE IMÁGENES */}
         <div className="flex flex-col gap-4">
-          <div className="bg-[#FAF9F5] rounded-3xl p-6 flex items-center justify-center min-h-[380px] border border-gray-100">
+          {/* CONTENEDOR DE LA IMAGEN PRINCIPAL CON LUPA Y ZOOM */}
+          <div
+            onMouseEnter={() => setIsZoomed(true)}
+            onMouseLeave={() => setIsZoomed(false)}
+            onMouseMove={handleMouseMove}
+            className="relative bg-[#FAF9F5] rounded-3xl p-6 flex items-center justify-center min-h-[380px] border border-gray-100 overflow-hidden cursor-zoom-in group"
+          >
+            {/* Ícono de Lupa flotante */}
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-full text-purple-700 shadow-md pointer-events-none z-10 transition-transform duration-200 group-hover:scale-110">
+              <ZoomIn size={18} />
+            </div>
+
             <img
               src={prod.imagenes[imagenActiva]}
               alt={prod.nombre}
-              className="max-h-80 w-auto object-contain drop-shadow-sm transition-all duration-300"
+              style={{
+                transformOrigin: `${zoomPos.x} ${zoomPos.y}`,
+              }}
+              className={`max-h-80 w-auto object-contain drop-shadow-sm transition-transform duration-150 ease-out ${
+                isZoomed ? 'scale-[1.8]' : 'scale-100'
+              }`}
               onError={(e) => {
                 e.target.src = 'https://via.placeholder.com/400?text=Imagen+No+Disponible';
               }}
             />
           </div>
 
-          {/* Miniaturas */}
+          {/* MINIATURAS */}
           <div className="flex items-center gap-3 overflow-x-auto pb-2">
             {prod.imagenes.map((img, idx) => (
               <button
@@ -161,7 +225,6 @@ const ProductDetail = ({ allProducts = [] }) => {
           </div>
         </div>
 
-        {/* INFORMACIÓN DEL PRODUCTO Y CAJA DE PRECIO */}
         <div className="flex flex-col gap-3">
           <span className="text-[11px] font-black tracking-widest text-purple-700 uppercase">
             {prod.categoria}
@@ -171,14 +234,12 @@ const ProductDetail = ({ allProducts = [] }) => {
             {prod.nombre}
           </h1>
 
-          {/* Reseñas */}
           <div className="flex items-center gap-2 text-xs mb-1">
             <div className="flex gap-0.5">{renderStars(prod.rating)}</div>
             <span className="font-bold text-slate-800">{prod.rating}</span>
-            <span className="text-gray-400">({prod.reviews} reseñas)</span>
+            <span className="text-gray-400">({prod.reviews} opiniones)</span>
           </div>
 
-          {/* TARJETA GRIS DE PRECIO Y COMPRA */}
           <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-100 flex flex-col gap-3 mt-1">
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400 line-through font-medium">
@@ -202,7 +263,6 @@ const ProductDetail = ({ allProducts = [] }) => {
               Stock: {prod.disponibilidad}
             </div>
 
-            {/* Contador y Botón de Carrito */}
             <div className="flex items-center gap-3 mt-2">
               <div className="flex items-center border border-gray-200 bg-white rounded-xl">
                 <button
@@ -232,7 +292,6 @@ const ProductDetail = ({ allProducts = [] }) => {
             </div>
           </div>
 
-          {/* BENEFICIOS INFERIORES */}
           <div className="flex flex-col gap-3 mt-3 text-xs text-gray-600">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-purple-50 rounded-lg text-purple-700">
@@ -261,9 +320,8 @@ const ProductDetail = ({ allProducts = [] }) => {
         </div>
       </div>
 
-      {/* 3. SECCIÓN INTERMEDIA: DESCRIPCIÓN Y ESPECIFICACIONES TÉCNICAS */}
+      {/* 3. DESCRIPCIÓN Y ESPECIFICACIONES TÉCNICAS */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-t border-gray-100 pt-10 mb-16">
-        {/* Descripción */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1.5 h-5 bg-purple-700 rounded-full"></div>
@@ -276,7 +334,6 @@ const ProductDetail = ({ allProducts = [] }) => {
           </p>
         </div>
 
-        {/* Especificaciones */}
         <div>
           <h2 className="text-base font-bold text-slate-900 mb-4">
             Especificaciones Técnicas
@@ -304,7 +361,7 @@ const ProductDetail = ({ allProducts = [] }) => {
         </div>
       </div>
 
-      {/* 4. SECCIÓN INFERIOR: PRODUCTOS RELACIONADOS */}
+      {/* 4. PRODUCTOS RELACIONADOS (SOLO EXISTENTES) */}
       {productosRelacionados.length > 0 && (
         <div className="border-t border-gray-100 pt-10">
           <div className="flex items-center justify-between mb-6">
@@ -312,7 +369,7 @@ const ProductDetail = ({ allProducts = [] }) => {
               PRODUCTOS <span className="text-purple-700">RELACIONADOS</span>
             </h2>
             <Link
-              to="/"
+              to="/OurStore"
               className="text-xs font-bold text-purple-700 hover:underline flex items-center gap-1"
             >
               Ver todos →
@@ -325,6 +382,8 @@ const ProductDetail = ({ allProducts = [] }) => {
               const relImage =
                 rel.image_url || rel.img1 || rel.image || 'https://via.placeholder.com/150';
               const relPrice = Number(rel.price || rel.precio || 0);
+              const relCategory =
+                rel.category_name || rel.category?.name || rel.category || 'GENERAL';
 
               return (
                 <div
@@ -332,16 +391,22 @@ const ProductDetail = ({ allProducts = [] }) => {
                   className="bg-white rounded-2xl border border-gray-100 p-3 flex flex-col justify-between hover:shadow-md transition"
                 >
                   <div>
-                    <div className="bg-[#FAF9F5] rounded-xl h-36 flex items-center justify-center p-2 mb-3">
-                      <img
-                        src={relImage}
-                        alt={rel.name || rel.nombre}
-                        className="max-h-28 object-contain"
-                      />
-                    </div>
+                    {/* Clic en la imagen lleva a su vista de detalle */}
+                    <Link to={`/producto/${relId}`}>
+                      <div className="bg-[#FAF9F5] rounded-xl h-36 flex items-center justify-center p-2 mb-3 cursor-pointer">
+                        <img
+                          src={relImage}
+                          alt={rel.name || rel.nombre}
+                          className="max-h-28 object-contain hover:scale-105 transition-transform"
+                        />
+                      </div>
+                    </Link>
+
                     <span className="text-[10px] text-purple-700 font-bold uppercase">
-                      {rel.category_name || rel.category?.name || 'LÁCTEOS'}
+                      {relCategory}
                     </span>
+
+                    {/* Clic en el nombre lleva a su vista de detalle */}
                     <Link to={`/producto/${relId}`}>
                       <h3 className="font-bold text-slate-800 text-xs hover:text-purple-700 transition line-clamp-1 mt-0.5">
                         {rel.name || rel.nombre}
