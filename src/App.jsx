@@ -20,6 +20,7 @@ import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
 import { CartProvider } from './contexts/CartContext'; 
 //Aquí importamos los productos al componente App.jsx
 import { totalProductsRaw } from './components/products.js';
+import MyOrders from './pages/MyOrders.jsx';
 
 
 
@@ -59,6 +60,12 @@ function App() {
                 element={
                   <PaypalCheckoutUI />
                 } 
+              />
+              <Route
+                path="/mis-pedidos"
+                element={
+                  <MyOrders />
+                }
               />
               <Route 
                 path='/producto/:id'
