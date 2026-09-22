@@ -13,7 +13,7 @@ import MainCards2 from './components/MainCards2'
 import OurProducts from './components/OurProducts';
 import OurLatestNews from './components/OurLatestNews';
 import Products from './components/Products.jsx'
-import ProductDetail from './components/ProductDetail.jsx';
+import  ProductDetail  from './pages/ProductDetail.jsx';
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx';
 import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
@@ -63,9 +63,9 @@ function App() {
               <Route 
                 path='/producto/:id'
                 element={
-                  <ProductDetail allProducts={totalProductsRaw}/> //Aquí estamos pasando los productos como props
+                  <ProductDetail allProducts={totalProductsRaw} />
                 }
-              />    
+              />   
               <Route
                 path='/Login'
                 element={
