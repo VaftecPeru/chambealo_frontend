@@ -1,12 +1,21 @@
+import { ChevronDown, Menu, PhoneCall, Search, ShoppingCart, Trash2, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
-import { Search, PhoneCall, ShoppingCart, Menu, ChevronDown, X } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import SaleCarousel from './SaleCarrousel';
 import { saleProducts, totalProductsRaw } from './products';
 
 const Navbar = () => {
-  const { getCartItemsCount, getCartTotal } = useCart();
+  const {
+    cartItems,
+    getCartItemsCount,
+    getCartTotal,
+    increaseQuantity,
+    decreaseQuantity,
+    removeFromCart
+  } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const cartRef = useRef(null);
   const [openDropdowns, setOpenDropdowns] = useState({
     bakery: false,
     chips: false,
@@ -65,6 +74,17 @@ const Navbar = () => {
     setSearchQuery('');
     setShowResults(false);
   };
+
+  // Cerrar mini-carrito al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (cartRef.current && !cartRef.current.contains(event.target)) {
+        setIsCartOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleDropdown = (name) => {
     setOpenDropdowns(prev => ({
@@ -173,7 +193,9 @@ const Navbar = () => {
               </div>
 
               {/* Cart */}
-              <div className="flex items-center">
+              <div className="flex items-center relative group/cart" ref={cartRef}
+                   onMouseEnter={() => setIsCartOpen(true)}
+                   onMouseLeave={() => setIsCartOpen(false)}>
                 <Link to="/cart" className="flex items-center group cursor-pointer">
                   <div className="relative">
                     <ShoppingCart className="h-6 w-6 md:h-8 md:w-8 text-gray-700 group-hover:text-blue-600 transition-colors" />
@@ -186,7 +208,100 @@ const Navbar = () => {
                     <div className="text-gray-600">S/ {getCartTotal().toFixed(2)}</div>
                   </div>
                 </Link>
+
+                {/* MINI-CARRITO DESPLEGABLE */}
+                {isCartOpen && (
+                  <div ref={cartRef} className="absolute right-0 top-full mt-0 pt-2 w-80 z-50 font-sans">
+                    <div className="bg-white border border-gray-200 rounded-3xl shadow-lg p-6 transition-all duration-300 ease-in-out scale-100 opacity-100 translate-y-0 origin-top-right animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex justify-between items-center mb-6">
+                        <h3 className="text-lg font-bold text-[#3a085c]">
+                          Mi Carrito ({getCartItemsCount()})
+                        </h3>
+                        <button
+                          onClick={() => setIsCartOpen(false)}
+                          className="p-1 rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+
+                      <div className="max-h-80 overflow-y-auto mb-6 space-y-6">
+                        {cartItems.length === 0 ? (
+                          <p className="text-center text-gray-500 py-8 text-sm">Tu carrito está vacío</p>
+                        ) : (
+                          cartItems.map((item) => (
+                            <div key={item.id} className="flex gap-4 items-start">
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-16 h-16 object-contain rounded-xl bg-gray-50 border border-gray-100 p-1"
+                              />
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-800 line-clamp-2">{item.name}</p>
+                                <p className="text-sm font-bold text-[#3a085c] mb-2">
+                                  S/ {Number(item.price).toFixed(2)}
+                                </p>
+                                <div className="flex items-center gap-3">
+                                  <div className="flex items-center bg-gray-100 rounded-full px-2 py-1">
+                                    <button
+                                      onClick={() => decreaseQuantity(item.id)}
+                                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-black transition-colors"
+                                    >
+                                      -
+                                    </button>
+                                    <span className="mx-2 text-xs font-medium text-gray-800">{item.quantity}</span>
+                                    <button
+                                      onClick={() => increaseQuantity(item.id)}
+                                      className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-black transition-colors"
+                                    >
+                                      +
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-gray-300 hover:text-red-500 transition-colors p-1"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="border-t pt-4">
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-sm font-medium text-gray-600">Subtotal:</span>
+                          <span className="text-xl font-black text-[#3a085c]">S/ {getCartTotal().toFixed(2)}</span>
+                        </div>
+
+                        <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-3 mb-6 flex items-center gap-2">
+                          <span className="text-xs font-medium text-yellow-700"> ¡Envío gratis por compras mayores a S/300!</span>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                          <Link
+                            to="/cart"
+                            onClick={() => setIsCartOpen(false)}
+                            className="text-center py-3 text-sm font-bold text-[#3a085c] border-2 border-[#3a085c] rounded-full hover:bg-purple-50 transition-colors"
+                          >
+                            Ver Carrito Completo
+                          </Link>
+                          <Link
+                            to="/checkout"
+                            onClick={() => setIsCartOpen(false)}
+                            className="text-center py-3 text-sm font-bold text-white bg-orange-500 rounded-full hover:bg-orange-600 transition-colors shadow-md"
+                          >
+                            Ir a Pagar
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
+
             </div>
           </div>
         </div>
