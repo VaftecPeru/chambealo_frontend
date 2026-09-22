@@ -17,7 +17,8 @@ import ProductDetail from './components/ProductDetail.jsx';
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx';
 import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
-import { CartProvider } from './contexts/CartContext'; 
+import Cart from './components/Cart.jsx';
+import { CartProvider } from './contexts/CartContext';
 //Aquí importamos los productos al componente App.jsx
 import { totalProductsRaw } from './components/products.js';
 
@@ -54,13 +55,19 @@ function App() {
                   <Products />     
                 }
               />
-              <Route 
-                path="/checkout" 
+              <Route
+                path="/checkout"
                 element={
                   <PaypalCheckoutUI />
-                } 
+                }
               />
-              <Route 
+              <Route
+                path="/cart"
+                element={
+                  <Cart />
+                }
+              />
+              <Route
                 path='/producto/:id'
                 element={
                   <ProductDetail allProducts={totalProductsRaw}/> //Aquí estamos pasando los productos como props

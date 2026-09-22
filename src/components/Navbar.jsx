@@ -1,10 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Search, PhoneCall, ShoppingCart, Menu, ChevronDown, X } from 'lucide-react';
+import { useCart } from '../contexts/CartContext';
 import SaleCarousel from './SaleCarrousel';
 import { saleProducts, totalProductsRaw } from './products';
 
 const Navbar = () => {
+  const { getCartItemsCount, getCartTotal } = useCart();
   const [openDropdowns, setOpenDropdowns] = useState({
     bakery: false,
     chips: false,
@@ -172,16 +174,18 @@ const Navbar = () => {
 
               {/* Cart */}
               <div className="flex items-center">
-                <div className="relative">
-                  <ShoppingCart className="h-6 w-6 md:h-8 md:w-8 text-gray-700" />
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    0
-                  </span>
-                </div>
-                <div className="ml-2 text-sm hidden md:block">
-                  <div className="font-medium text-gray-700">Carrito</div>
-                  <div className="text-gray-600">0,00</div>
-                </div>
+                <Link to="/cart" className="flex items-center group cursor-pointer">
+                  <div className="relative">
+                    <ShoppingCart className="h-6 w-6 md:h-8 md:w-8 text-gray-700 group-hover:text-blue-600 transition-colors" />
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {getCartItemsCount()}
+                    </span>
+                  </div>
+                  <div className="ml-2 text-sm hidden md:block">
+                    <div className="font-medium text-gray-700 group-hover:text-blue-600">Carrito</div>
+                    <div className="text-gray-600">S/ {getCartTotal().toFixed(2)}</div>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>
