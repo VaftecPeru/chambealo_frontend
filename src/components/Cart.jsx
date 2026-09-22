@@ -61,7 +61,9 @@ export default function Cart() {
                   return (
                     <div key={item.id} className="grid grid-cols-1 gap-4 px-7 py-6 md:grid-cols-[2.6fr_1fr_1.2fr_1.1fr_0.7fr] md:items-center">
                       <div className="flex gap-4">
-                        <img src={item.image} alt={item.name} className="h-16 w-16 rounded-lg object-cover" />
+                        <img src={item.image} alt={item.name} className="h-16 w-16 rounded-lg object-cover" onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/64?text=No+Image';
+                        }} />
                         <div className="flex flex-col">
                           <span className="text-[14px] font-bold text-gray-900">{item.name}</span>
                           <span className="text-[12px] text-gray-500">{item.category}</span>

@@ -11,16 +11,16 @@ export const CartProvider = ({ children }) => {
       
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id 
+          item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        return [...prevItems, { 
+        return [...prevItems, {
           id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.img1,
+          name: product.name ?? product.nombre ?? 'Producto',
+          price: product.price ?? product.precio ?? 0,
+          image: product.img1 ?? product.image ?? product.image_url ?? product.imagenes?.[0],
           quantity: quantity
         }];
       }
