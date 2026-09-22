@@ -1,15 +1,17 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// Toma la URL del .env de Vite (con fallback a tu puerto local)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json', // Obliga a Laravel a responder siempre en JSON
     },
 });
 
-// Interceptor para incluir el token en las requests
+// Interceptor para incluir el token Bearer en cada petición
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -18,19 +20,16 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Interceptor para manejar respuestas
+// Interceptor para redirigir si la sesión expira (401)
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response.status === 401) {
-            // Redirigir a login si no está autorizado
+        if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location = '/login';
+            window.location.href = '/login';
         }
         return Promise.reject(error);
     }
