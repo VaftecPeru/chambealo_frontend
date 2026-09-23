@@ -16,6 +16,7 @@ import Products from './components/Products.jsx'
 import ProductDetail from './components/ProductDetail.jsx';
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx';
+import Checkout from './components/Checkout.jsx';
 import { CartProvider } from './contexts/CartContext'; 
 //Aquí importamos los productos al componente App.jsx
 import { totalProductsRaw } from './components/products.js';
@@ -70,6 +71,12 @@ function App() {
                   <Register />
                 }
               />  
+              <Route
+                path='/checkout'
+                element={
+                  <Checkout />
+                }
+              />
               </Routes>
           </CartProvider>          
           </BrowserRouter>
