@@ -56,6 +56,15 @@ function MyOrders() {
     return `S/ ${Number(amount || 0).toFixed(2)}`;
   };
 
+  const getProductCount = (items) => {
+    if (!Array.isArray(items)) return 0;
+
+    return items.reduce(
+      (total, item) => total + Number(item.quantity || 0),
+      0
+    );
+  };
+
   const handleCancel = async (orderId) => {
     const confirmed = window.confirm(
       '¿Estás seguro de que deseas cancelar este pedido?'
@@ -86,8 +95,10 @@ function MyOrders() {
     return (
       <main className="orders-page">
         <div className="orders-container">
-          <p className="orders-breadcrumb">Inicio / Mis Pedidos</p>
-          <h1 className="orders-title">Mis Pedidos</h1>
+          <div className="orders-heading">
+            <span className="orders-heading-line"></span>
+            <h1 className="orders-title">Mis Pedidos</h1>
+          </div>
 
           <div className="orders-message-card">
             <div className="orders-loader"></div>
@@ -102,8 +113,10 @@ function MyOrders() {
     return (
       <main className="orders-page">
         <div className="orders-container">
-          <p className="orders-breadcrumb">Inicio / Mis Pedidos</p>
-          <h1 className="orders-title">Mis Pedidos</h1>
+          <div className="orders-heading">
+            <span className="orders-heading-line"></span>
+            <h1 className="orders-title">Mis Pedidos</h1>
+          </div>
 
           <div className="orders-message-card">
             <h2>No pudimos cargar tus pedidos</h2>
@@ -127,29 +140,30 @@ function MyOrders() {
   return (
     <main className="orders-page">
       <div className="orders-container">
-        <p className="orders-breadcrumb">
-          <span onClick={() => navigate('/')}>Inicio</span>
-          <span className="orders-breadcrumb-separator">›</span>
-          Mis Pedidos
-        </p>
-
-        <h1 className="orders-title">Mis Pedidos</h1>
+        <div className="orders-heading">
+          <span className="orders-heading-line"></span>
+          <h1 className="orders-title">Mis Pedidos</h1>
+        </div>
 
         {orders.length === 0 ? (
           <section className="orders-empty">
-            <div className="orders-empty-icon">▣</div>
+            <div className="orders-empty-icon">
+              <span>🛍</span>
+              <div className="orders-empty-icon-badge">✓</div>
+            </div>
 
             <h2>Aún no tienes pedidos</h2>
 
             <p>
-              Cuando realices una compra, tus pedidos aparecerán aquí
-              para que puedas revisar su estado y detalle.
+              Parece que todavía no has realizado ninguna compra.
+              ¡Explora nuestros productos y encuentra lo que necesitas!
             </p>
 
             <button
-              className="orders-primary-button"
+              className="orders-empty-button"
               onClick={() => navigate('/OurStore')}
             >
+              <span>🛒</span>
               Seguir comprando
             </button>
           </section>
@@ -157,68 +171,85 @@ function MyOrders() {
           <section className="orders-list">
             {orders.map((order) => {
               const canCancel = CANCELLABLE_STATUSES.includes(order.status);
+              const productCount = getProductCount(order.items);
 
               return (
                 <article className="order-card" key={order.order_id}>
-                  <div className="order-card-header">
-                    <div>
-                      <span className="order-label">Pedido</span>
-                      <h2>#{order.order_id}</h2>
+                  <div className="order-card-top">
+                    <div className="order-summary">
+                      <div className="order-summary-item">
+                        <span className="order-summary-label">
+                          Nº Pedido
+                        </span>
+
+                        <strong className="order-number">
+                          #{order.order_id}
+                        </strong>
+                      </div>
+
+                      <div className="order-summary-item">
+                        <span className="order-summary-label">
+                          Fecha
+                        </span>
+
+                        <strong className="order-summary-value">
+                          {formatDate(order.created_at)}
+                        </strong>
+                      </div>
+
+                      <div className="order-summary-item">
+                        <span className="order-summary-label">
+                          Total
+                        </span>
+
+                        <strong className="order-summary-total">
+                          {formatMoney(order.total_amount)}
+                        </strong>
+                      </div>
                     </div>
 
                     <span
                       className={`order-status order-status-${order.status}`}
                     >
+                      <span className="order-status-dot"></span>
+
                       {STATUS_LABELS[order.status] || order.status}
                     </span>
                   </div>
 
-                  <div className="order-info">
-                    <div>
-                      <span>Fecha</span>
-                      <strong>{formatDate(order.created_at)}</strong>
+                  <div className="order-products-section">
+                    <div className="order-products">
+                      {Array.isArray(order.items) &&
+                        order.items.slice(0, 3).map((item, index) => (
+                          <div
+                            className="order-product"
+                            key={`${order.order_id}-${
+                              item.product_id || index
+                            }`}
+                          >
+                            <div className="order-product-placeholder">
+                              {item.name?.charAt(0)?.toUpperCase() || 'P'}
+                            </div>
+
+                            <div className="order-product-info">
+                              <strong>
+                                {item.name || 'Producto'}
+                              </strong>
+
+                              <span>
+                                {item.quantity || 0} ×{' '}
+                                {formatMoney(item.price)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                     </div>
 
-                    <div>
-                      <span>Total</span>
-                      <strong>{formatMoney(order.total_amount)}</strong>
-                    </div>
-
-                    <div>
+                    <div className="order-product-count">
                       <span>Productos</span>
-                      <strong>
-                        {Array.isArray(order.items)
-                          ? order.items.reduce(
-                              (total, item) =>
-                                total + Number(item.quantity || 0),
-                              0
-                            )
-                          : 0}
-                      </strong>
+                      <strong>{productCount}</strong>
                     </div>
                   </div>
-
-                  {Array.isArray(order.items) && order.items.length > 0 && (
-                    <div className="order-products">
-                      {order.items.slice(0, 3).map((item, index) => (
-                        <div
-                          className="order-product"
-                          key={`${order.order_id}-${item.product_id || index}`}
-                        >
-                          <div className="order-product-placeholder">
-                            {item.name?.charAt(0)?.toUpperCase() || 'P'}
-                          </div>
-
-                          <div>
-                            <strong>{item.name || 'Producto'}</strong>
-                            <span>
-                              {item.quantity || 0} × {formatMoney(item.price)}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
 
                   <div className="order-actions">
                     <button
