@@ -1,0 +1,68 @@
+
+-- =====================================
+-- HISTORIAL DE ESTADOS
+-- =====================================
+CREATE TABLE historial_ordenes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    orden_id BIGINT NOT NULL,
+    estado_anterior VARCHAR(100),
+    estado_nuevo VARCHAR(100),
+    comentario TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (orden_id) REFERENCES ordenes(id)
+);
+
+-- =====================================
+-- TOKENS API
+-- =====================================
+CREATE TABLE api_tokens (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expiracion TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- =====================================
+-- LOGS DEL SISTEMA
+-- =====================================
+CREATE TABLE logs_sistema (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT,
+    accion VARCHAR(255),
+    descripcion TEXT,
+    ip VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- =====================================
+-- CUPONES
+-- =====================================
+CREATE TABLE cupones (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    codigo VARCHAR(100) UNIQUE,
+    descuento DECIMAL(10,2),
+    tipo ENUM('porcentaje','fijo'),
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    estado ENUM('activo','inactivo') DEFAULT 'activo',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =====================================
+-- RELACIÓN CUPONES Y ÓRDENES
+-- =====================================
+CREATE TABLE orden_cupon (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    orden_id BIGINT NOT NULL,
+    cupon_id BIGINT NOT NULL,
+
+    FOREIGN KEY (orden_id) REFERENCES ordenes(id),
+    FOREIGN KEY (cupon_id) REFERENCES cupones(id)
+);
