@@ -16,10 +16,15 @@ import Products from './components/Products.jsx'
 import ProductDetail from './components/ProductDetail.jsx';
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx';
+<<<<<<< HEAD
 import Checkout from './components/Checkout.jsx';
+=======
+import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
+>>>>>>> ab6582d40080cea6f38fa86adca8d1e175606109
 import { CartProvider } from './contexts/CartContext'; 
 //Aquí importamos los productos al componente App.jsx
 import { totalProductsRaw } from './components/products.js';
+
 
 
 function App() {
@@ -54,6 +59,12 @@ function App() {
                 }
               />
               <Route 
+                path="/checkout" 
+                element={
+                  <PaypalCheckoutUI />
+                } 
+              />
+              <Route 
                 path='/producto/:id'
                 element={
                   <ProductDetail allProducts={totalProductsRaw}/> //Aquí estamos pasando los productos como props
@@ -70,6 +81,7 @@ function App() {
                 element={
                   <Register />
                 }
+<<<<<<< HEAD
               />  
               <Route
                 path='/checkout'
@@ -77,6 +89,10 @@ function App() {
                   <Checkout />
                 }
               />
+=======
+              />
+               
+>>>>>>> ab6582d40080cea6f38fa86adca8d1e175606109
               </Routes>
           </CartProvider>          
           </BrowserRouter>
