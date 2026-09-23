@@ -156,6 +156,7 @@ function NavbarHeader() {
                     <>
                       <a href="#" onClick={handleOptionClick} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Compare (0)</a>
                       <a href="#" onClick={handleOptionClick} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Lista de Compras (0)</a>
+                      <Link to="/mis-pedidos" onClick={handleOptionClick} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mis Pedidos</Link>
                       <span className="block px-4 py-2 text-sm text-gray-700 border-t border-gray-200 mt-1 pt-1">
                         {currentUser.email}
                       </span>

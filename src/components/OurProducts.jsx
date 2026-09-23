@@ -8,8 +8,19 @@ export default function OurProducts() {
 
   useEffect(() => {
     getProducts()
-      .then((data) => setProducts(data))
-      .catch((err) => console.error('Error al obtener productos:', err))
+      .then((data) => {
+        const productList = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+            ? data.products
+            : [];
+
+        setProducts(productList);
+      })
+      .catch((err) => {
+        console.error('Error al obtener productos:', err);
+        setProducts([]);
+      })
       .finally(() => setLoading(false));
   }, []);
 

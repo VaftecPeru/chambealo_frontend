@@ -22,6 +22,7 @@ function MyOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [cancellingId, setCancellingId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const loadOrders = async () => {
     try {
@@ -253,16 +254,10 @@ function MyOrders() {
 
                   <div className="order-actions">
                     <button
-                      className="order-detail-button"
-                      onClick={() =>
-                        window.alert(
-                          `Pedido ${order.order_id}\nEstado: ${
-                            STATUS_LABELS[order.status] || order.status
-                          }\nTotal: ${formatMoney(order.total_amount)}`
-                        )
-                      }
+                        className="order-detail-button"
+                        onClick={() => setSelectedOrder(order)}
                     >
-                      Ver detalle
+                        Ver detalle
                     </button>
 
                     {canCancel && (
@@ -282,7 +277,85 @@ function MyOrders() {
             })}
           </section>
         )}
-      </div>
+            </div>
+
+      {selectedOrder && (
+        <div
+          className="order-modal-overlay"
+          onClick={() => setSelectedOrder(null)}
+        >
+          <div
+            className="order-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="order-modal-header">
+              <div>
+                <span className="order-modal-label">Detalle del pedido</span>
+                <h2>#{selectedOrder.order_id}</h2>
+              </div>
+
+              <button
+                className="order-modal-close"
+                onClick={() => setSelectedOrder(null)}
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="order-modal-summary">
+              <div>
+                <span>Fecha</span>
+                <strong>{formatDate(selectedOrder.created_at)}</strong>
+              </div>
+
+              <div>
+                <span>Estado</span>
+                <strong>
+                  {STATUS_LABELS[selectedOrder.status] || selectedOrder.status}
+                </strong>
+              </div>
+            </div>
+
+            <div className="order-modal-products">
+              <h3>Productos</h3>
+
+              {Array.isArray(selectedOrder.items) &&
+                selectedOrder.items.map((item, index) => (
+                  <div
+                    className="order-modal-product"
+                    key={`${selectedOrder.order_id}-detail-${item.product_id || index}`}
+                  >
+                    <div>
+                      <strong>{item.name || 'Producto'}</strong>
+                      <span>
+                        {item.quantity || 0} × {formatMoney(item.price)}
+                      </span>
+                    </div>
+
+                    <strong>
+                      {formatMoney(
+                        Number(item.quantity || 0) * Number(item.price || 0)
+                      )}
+                    </strong>
+                  </div>
+                ))}
+            </div>
+
+            <div className="order-modal-total">
+              <span>Total</span>
+              <strong>{formatMoney(selectedOrder.total_amount)}</strong>
+            </div>
+
+            <button
+              className="order-modal-button"
+              onClick={() => setSelectedOrder(null)}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
