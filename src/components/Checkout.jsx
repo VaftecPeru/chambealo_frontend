@@ -88,7 +88,7 @@ export default function Checkout() {
       throw new Error('Debes iniciar sesión para poder pagar.');
     }
 
-    const res = await fetch(`${API_BASE}/api/orders`, {
+    const res = await fetch(`${API_BASE}/orders`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ export default function Checkout() {
   async function createPaymentSession(order) {
     const token = localStorage.getItem('access_token');
 
-    const res = await fetch(`${API_BASE}/api/payment/session`, {
+    const res = await fetch(`${API_BASE}/payment/session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -193,14 +193,11 @@ export default function Checkout() {
       setStatus({ type: 'err', message: 'Revisa los datos de envío resaltados antes de continuar.' });
       return;
     }
-    setCardSubmitting(true);
-    setStatus({ type: 'info', message: 'Procesando pago…' });
-
-    // Aquí iría la llamada real a tu pasarela de tarjeta.
-    setTimeout(() => {
-      setCardSubmitting(false);
-      setStatus({ type: 'ok', message: '✓ Pago simulado con tarjeta procesado correctamente.' });
-    }, 700);
+    setCardSubmitting(false);
+    setStatus({
+      type: 'err',
+      message: 'El pago con tarjeta aún no está habilitado. Usa PayPal para completar la compra.',
+    });
   }
 
   return (
