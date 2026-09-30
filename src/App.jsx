@@ -20,7 +20,6 @@ import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
 import Checkout from './components/Checkout.jsx';
 import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
-import { totalProductsRaw } from './components/products.js';
 import MyOrders from './pages/MyOrders.jsx';
 
 function App() {
@@ -76,7 +75,7 @@ function App() {
 
             <Route
               path="/producto/:id"
-              element={<ProductDetail allProducts={totalProductsRaw} />}
+              element={<ProductDetail />}
             />
 
             <Route
