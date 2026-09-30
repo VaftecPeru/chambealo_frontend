@@ -17,6 +17,7 @@ import ProductDetail from './pages/ProductDetail.jsx';
 import Login from './components/Login.jsx';
 import Register from './components/Register.jsx';
 import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
+import Checkout from './components/Checkout.jsx';
 import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
 import { totalProductsRaw } from './components/products.js';
@@ -56,6 +57,11 @@ function App() {
             <Route
               path="/checkout"
               element={<PaypalCheckoutUI />}
+            />
+
+            <Route
+              path="/pagar"
+              element={<Checkout />}
             />
 
             <Route
