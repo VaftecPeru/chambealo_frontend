@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Star, ShoppingCart, Truck, ShieldCheck, ZoomIn } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { getProductById, getProducts } from '../services/productService';
 
-const ProductDetail = ({ allProducts = [] }) => {
+const ProductDetail = () => {
   const { id } = useParams();
   const [imagenActiva, setImagenActiva] = useState(0);
   const [cantidad, setCantidad] = useState(1);
@@ -18,93 +19,125 @@ const ProductDetail = ({ allProducts = [] }) => {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    // Sube al inicio de la página al cambiar de producto
+    let active = true;
     window.scrollTo(0, 0);
+    setLoading(true);
 
-    if (allProducts && allProducts.length > 0 && id) {
-      const currentId = Number(id);
+    const normalizeProduct = (foundProduct) => {
+      const imgs = [
+        foundProduct.image_url || foundProduct.img1 || foundProduct.image,
+        foundProduct.img2,
+        foundProduct.img3,
+        foundProduct.img4,
+      ].filter(Boolean);
 
-      // Buscar el producto actual asegurando comparación numérica
-      const foundProduct = allProducts.find(
-        (p) => Number(p.product_id || p.id) === currentId
-      );
+      const stockRaw =
+        foundProduct.stock ??
+        foundProduct.stock_quantity ??
+        foundProduct.quantity ??
+        null;
 
-      if (foundProduct) {
-        const imgs = [
-          foundProduct.image_url || foundProduct.img1 || foundProduct.image,
-          foundProduct.img2,
-          foundProduct.img3,
-          foundProduct.img4,
-        ].filter(Boolean);
+      const unidadesStock =
+        stockRaw === null || stockRaw === undefined ? null : Number(stockRaw);
 
-        // Lee el número de stock del backend o usa 15 como valor por defecto
-        const unidadesStock = Number(
-          foundProduct.stock ??
-          foundProduct.stock_quantity ??
-          foundProduct.quantity ??
-          15
-        );
+      return {
+        id: Number(foundProduct.product_id || foundProduct.id),
+        nombre: foundProduct.name || foundProduct.nombre || 'Producto',
+        precio: Number(foundProduct.price || foundProduct.precio || 0),
+        precioAnterior: Number(
+          foundProduct.oldPrice ||
+          foundProduct.original_price ||
+          foundProduct.price ||
+          foundProduct.precio ||
+          0
+        ),
+        descuento: Number(foundProduct.discount || 0),
+        rating: Number(foundProduct.rating || 0),
+        reviews: Number(foundProduct.reviews_count || foundProduct.reviews || 0),
+        categoria:
+          foundProduct.category?.name ||
+          foundProduct.category_name ||
+          foundProduct.category ||
+          'General',
+        presentacion: foundProduct.content_info || 'No especificado',
+        conservacion: foundProduct.storage || 'No especificado',
+        descripcion:
+          foundProduct.description ||
+          'Descripción del producto no disponible.',
+        stock: unidadesStock,
+        disponibilidad:
+          unidadesStock === null
+            ? 'Stock no disponible'
+            : unidadesStock > 0
+              ? `${unidadesStock} unidades`
+              : 'Agotado',
+        imagenes: imgs.length > 0 ? imgs : ['https://via.placeholder.com/400'],
+      };
+    };
 
-        const transformedProduct = {
-          id: Number(foundProduct.product_id || foundProduct.id),
-          nombre: foundProduct.name || foundProduct.nombre || 'Producto',
-          precio: Number(foundProduct.price || foundProduct.precio || 0),
-          precioAnterior: Number(
-            foundProduct.oldPrice ||
-              foundProduct.original_price ||
-              (foundProduct.price || 0) * 1.2
-          ),
-          descuento: foundProduct.discount || 20,
-          rating: foundProduct.rating || 4.8,
-          reviews: foundProduct.reviews_count || foundProduct.reviews || 45,
-          categoria:
-            foundProduct.category?.name ||
-            foundProduct.category_name ||
-            foundProduct.category ||
-            'General',
-          presentacion: foundProduct.content_info || '1 Litro',
-          conservacion: foundProduct.storage || 'Mantener refrigerado',
-          descripcion:
-            foundProduct.description ||
-            'Descripción del producto no disponible.',
-          // Muestra las unidades exactas en lugar de "In stock"
-          disponibilidad: unidadesStock > 0 ? `${unidadesStock} unidades` : 'Agotado',
-          imagenes: imgs.length > 0 ? imgs : ['https://via.placeholder.com/400'],
-        };
+    async function loadProduct() {
+      try {
+        const [productResponse, productsResponse] = await Promise.all([
+          getProductById(id),
+          getProducts(),
+        ]);
 
-        setProducto(transformedProduct);
+        if (!active) return;
+
+        const rawProduct =
+          productResponse?.product ||
+          productResponse?.data ||
+          productResponse;
+
+        if (!rawProduct || typeof rawProduct !== 'object') {
+          setProducto(null);
+          return;
+        }
+
+        const normalized = normalizeProduct(rawProduct);
+        setProducto(normalized);
         setImagenActiva(0);
         setCantidad(1);
 
-        // 1. Excluir el producto actual convirtiendo ambos IDs a Number
-        const otrosProductos = allProducts.filter(
-          (p) => Number(p.product_id || p.id) !== currentId
-        );
+        const list = Array.isArray(productsResponse)
+          ? productsResponse
+          : Array.isArray(productsResponse?.products)
+            ? productsResponse.products
+            : Array.isArray(productsResponse?.data)
+              ? productsResponse.data
+              : [];
 
-        // 2. Filtrar y eliminar duplicados por nombre
-        const productosSinDuplicados = otrosProductos.filter(
-          (prod, index, self) =>
-            index ===
-            self.findIndex(
+        const related = list
+          .filter((p) => Number(p.product_id || p.id) !== normalized.id)
+          .filter((prod, index, self) =>
+            index === self.findIndex(
               (t) => (t.name || t.nombre) === (prod.name || prod.nombre)
             )
-        );
+          );
 
-        // 3. Priorizar mostrar productos de la misma categoría
-        const deMismaCategoria = productosSinDuplicados.filter(
+        const sameCategory = related.filter(
           (p) =>
             (p.category_name || p.category?.name || p.category) ===
-            transformedProduct.categoria
+            normalized.categoria
         );
 
-        const listaFinalRelacionados =
-          deMismaCategoria.length > 0 ? deMismaCategoria : productosSinDuplicados;
-
-        setProductosRelacionados(listaFinalRelacionados.slice(0, 4));
+        setProductosRelacionados(
+          (sameCategory.length > 0 ? sameCategory : related).slice(0, 4)
+        );
+      } catch (error) {
+        console.error('Error al cargar detalle del producto:', error);
+        if (active) setProducto(null);
+      } finally {
+        if (active) setLoading(false);
       }
     }
-    setLoading(false);
-  }, [allProducts, id]);
+
+    loadProduct();
+
+    return () => {
+      active = false;
+    };
+  }, [id]);
 
   // Manejador del movimiento del mouse sobre la imagen para calcular la lupa
   const handleMouseMove = (e) => {
