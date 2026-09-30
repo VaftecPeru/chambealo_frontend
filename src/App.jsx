@@ -1,103 +1,97 @@
 import { Route, Routes } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
-import './App.css'
+import './App.css';
 import NavbarHeader from './components/NavbarHeader';
 import Navbar from './components/Navbar';
 import Slider from './components/Slider';
-import MainCards from './components/MainCards'
+import MainCards from './components/MainCards';
 import TopCategories from './components/TopCategories';
-import ShopByDepartments from './components/ShopByDepartments'
-import Banner1 from './components/Banner1'
-import BestSelling from './components/BestSelling'
-import MainCards2 from './components/MainCards2'
+import ShopByDepartments from './components/ShopByDepartments';
+import Banner1 from './components/Banner1';
+import BestSelling from './components/BestSelling';
+import MainCards2 from './components/MainCards2';
 import OurProducts from './components/OurProducts';
 import OurLatestNews from './components/OurLatestNews';
-import Products from './components/Products.jsx'
-import ProductDetail from './components/ProductDetail.jsx';
-import Login from './components/Login.jsx'
+import Products from './components/Products.jsx';
+import ProductDetail from './pages/ProductDetail.jsx';
+import Login from './components/Login.jsx';
 import Register from './components/Register.jsx';
-<<<<<<< HEAD
-import Checkout from './components/Checkout.jsx';
-=======
 import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
->>>>>>> ab6582d40080cea6f38fa86adca8d1e175606109
-import { CartProvider } from './contexts/CartContext'; 
-//Aquí importamos los productos al componente App.jsx
-import { totalProductsRaw } from './components/products.js';
-
-
+import Checkout from './components/Checkout.jsx';
+import Cart from './components/Cart.jsx';
+import { CartProvider } from './contexts/CartContext';
+import MyOrders from './pages/MyOrders.jsx';
 
 function App() {
-
   return (
-      <div>
-          <BrowserRouter>
-          <CartProvider>
-            <NavbarHeader />
-            <Navbar />
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <>
-                    <Slider />
-                    <MainCards />
-                    <TopCategories />
-                    <ShopByDepartments />
-                    <Banner1 />
-                    <BestSelling />
-                    <MainCards2 />
-                    <OurProducts />
-                    <OurLatestNews />
-                  </>
-                }
-              />
-              <Route 
-                path="/OurStore" 
-                element={
-                  <Products />     
-                }
-              />
-              <Route 
-                path="/checkout" 
-                element={
-                  <PaypalCheckoutUI />
-                } 
-              />
-              <Route 
-                path='/producto/:id'
-                element={
-                  <ProductDetail allProducts={totalProductsRaw}/> //Aquí estamos pasando los productos como props
-                }
-              />    
-              <Route
-                path='/Login'
-                element={
-                  <Login/>
-                }
-              />   
-              <Route
-                path='/Register'
-                element={
-                  <Register />
-                }
-<<<<<<< HEAD
-              />  
-              <Route
-                path='/checkout'
-                element={
-                  <Checkout />
-                }
-              />
-=======
-              />
-               
->>>>>>> ab6582d40080cea6f38fa86adca8d1e175606109
-              </Routes>
-          </CartProvider>          
-          </BrowserRouter>
-      </div>
-  )
+    <div>
+      <BrowserRouter>
+        <CartProvider>
+          <NavbarHeader />
+          <Navbar />
+
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <>
+                  <Slider />
+                  <MainCards />
+                  <TopCategories />
+                  <ShopByDepartments />
+                  <Banner1 />
+                  <BestSelling />
+                  <MainCards2 />
+                  <OurProducts />
+                  <OurLatestNews />
+                </>
+              }
+            />
+
+            <Route
+              path="/OurStore"
+              element={<Products />}
+            />
+
+            <Route
+              path="/checkout"
+              element={<PaypalCheckoutUI />}
+            />
+
+            <Route
+              path="/pagar"
+              element={<Checkout />}
+            />
+
+            <Route
+              path="/mis-pedidos"
+              element={<MyOrders />}
+            />
+
+            <Route
+              path="/cart"
+              element={<Cart />}
+            />
+
+            <Route
+              path="/producto/:id"
+              element={<ProductDetail />}
+            />
+
+            <Route
+              path="/Login"
+              element={<Login />}
+            />
+
+            <Route
+              path="/Register"
+              element={<Register />}
+            />
+          </Routes>
+        </CartProvider>
+      </BrowserRouter>
+    </div>
+  );
 }
 
 export default App;

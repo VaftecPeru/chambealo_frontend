@@ -1,9 +1,20 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('chambealo_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('chambealo_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product, quantity = 1) => {
     setCartItems(prevItems => {
@@ -11,16 +22,16 @@ export const CartProvider = ({ children }) => {
       
       if (existingItem) {
         return prevItems.map(item =>
-          item.id === product.id 
+          item.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        return [...prevItems, { 
+        return [...prevItems, {
           id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.img1,
+          name: product.name ?? product.nombre ?? 'Producto',
+          price: product.price ?? product.precio ?? 0,
+          image: product.img1 ?? product.image ?? product.image_url ?? product.imagenes?.[0],
           quantity: quantity
         }];
       }
@@ -29,6 +40,24 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = (productId) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
+  };
+
+  const increaseQuantity = (productId) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
+
+  const decreaseQuantity = (productId) => {
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === productId && item.quantity > 1
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+    );
   };
 
   const getCartItemsCount = () => {
@@ -43,6 +72,8 @@ export const CartProvider = ({ children }) => {
     cartItems,
     addToCart,
     removeFromCart,
+    increaseQuantity,
+    decreaseQuantity,
     getCartItemsCount,
     getCartTotal
   };

@@ -1,16 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
 import './Checkout.css';
 
-// TODO: reemplaza por tu Client ID real de PayPal (sandbox mientras pruebas)
-const PAYPAL_CLIENT_ID = 'YOUR_SANDBOX_CLIENT_ID';
-
-// TODO: ajusta si tu API Laravel no está en la misma raíz que el frontend
+// URL de tu backend Laravel (definida en .env como VITE_API_BASE_URL)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
-// TODO: estos dos valores son de ejemplo — reemplázalos por tu lógica real
-// de envío/descuentos (o quítalos si no aplican). Deben coincidir con lo
-// que calcule PayPalController.php en el backend.
+// Estos valores son solo de visualización. El total real lo calcula el backend.
 const SHIPPING_COST = 0;
 const DISCOUNT = 0;
 
@@ -40,13 +35,24 @@ export default function Checkout() {
   const [method, setMethod] = useState('card'); // 'card' | 'paypal'
   const [status, setStatus] = useState(null);    // { type: 'ok'|'err'|'info', message }
   const [cardSubmitting, setCardSubmitting] = useState(false);
-
-  const paypalContainerRef = useRef(null);
-  const paypalButtonsInstance = useRef(null);
+  const [paypalSubmitting, setPaypalSubmitting] = useState(false);
 
   const subtotal = getCartTotal();
   const total = Math.max(subtotal + SHIPPING_COST - DISCOUNT, 0);
   const isCartEmpty = cartItems.length === 0;
+
+  // Si el usuario vuelve atrás desde PayPal, el navegador puede restaurar la
+  // página desde caché con el botón bloqueado. Esto lo reactiva.
+  useEffect(() => {
+    function onPageShow(e) {
+      if (e.persisted) {
+        setPaypalSubmitting(false);
+        setStatus(null);
+      }
+    }
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   function handleChange(field, value) {
     setShipping(prev => ({ ...prev, [field]: value }));
@@ -66,15 +72,116 @@ export default function Checkout() {
     return Object.keys(newErrors).length === 0;
   }
 
-  // El backend recalcula el precio real por id de producto — aquí solo
-  // enviamos id + cantidad, nunca el precio ni el total.
-  function getCartPayload() {
-    return cartItems.map(item => ({ id: item.id, quantity: item.quantity }));
-  }
-
   function handleSelectMethod(next) {
     setMethod(next);
     setStatus(null);
+  }
+
+  // PASO 2: crea la Order en el backend (POST /api/orders).
+  // El backend recalcula el precio real por product_id: aquí solo
+  // enviamos product_id + cantidad, nunca el precio ni el total.
+  // Campos que valida el backend: items[].product_id, items[].quantity,
+  // shipping_address (array) y billing_address (array).
+  async function createBackendOrder() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      throw new Error('Debes iniciar sesión para poder pagar.');
+    }
+
+    const res = await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        items: cartItems.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+        })),
+        shipping_address: shipping,
+        billing_address: shipping,
+      }),
+    });
+
+    const body = await res.json().catch(() => ({}));
+
+    if (res.status === 401) {
+      throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
+    }
+    if (res.status === 422) {
+      const firstError = body.errors ? Object.values(body.errors)[0]?.[0] : null;
+      throw new Error(firstError || body.message || 'Datos del pedido inválidos.');
+    }
+    if (!res.ok || !body.success) {
+      throw new Error(body.error || body.message || 'No se pudo crear el pedido.');
+    }
+
+    return body.data;
+  }
+
+  // PASO 3: pide al backend la sesión de pago de PayPal para la Order creada.
+  // Devuelve la approve_url a la que hay que redirigir al usuario.
+  async function createPaymentSession(order) {
+    const token = localStorage.getItem('access_token');
+
+    const res = await fetch(`${API_BASE}/payment/session`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        order_id: order.id,
+        gateway: 'paypal',
+      }),
+    });
+
+    const body = await res.json().catch(() => ({}));
+
+    if (res.status === 401) {
+      throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
+    }
+    if (!res.ok) {
+      throw new Error(body.error || body.message || 'No se pudo iniciar el pago con PayPal.');
+    }
+
+    const approveUrl = body.data?.approve_url || body.approve_url;
+    if (!approveUrl) {
+      throw new Error('El servidor no devolvió el enlace de pago de PayPal.');
+    }
+
+    return approveUrl;
+  }
+
+  async function handlePayPal() {
+    if (isCartEmpty || paypalSubmitting) {
+      if (isCartEmpty) setStatus({ type: 'err', message: 'Tu carrito está vacío.' });
+      return;
+    }
+    if (!validateShipping()) {
+      setStatus({ type: 'err', message: 'Revisa los datos de envío resaltados antes de continuar.' });
+      return;
+    }
+
+    setPaypalSubmitting(true);
+    setStatus({ type: 'info', message: 'Creando tu pedido…' });
+
+    try {
+      const order = await createBackendOrder();
+
+      setStatus({ type: 'info', message: 'Redirigiendo a PayPal…' });
+      const approveUrl = await createPaymentSession(order);
+
+      // PASO 4: sale de la app hacia PayPal para que el cliente apruebe el pago.
+      // No se reactiva el botón: la página se descarga al navegar.
+      window.location.href = approveUrl;
+    } catch (err) {
+      setStatus({ type: 'err', message: err.message || 'Ocurrió un error al procesar el pago.' });
+      setPaypalSubmitting(false);
+    }
   }
 
   async function submitCardOrder() {
@@ -86,114 +193,12 @@ export default function Checkout() {
       setStatus({ type: 'err', message: 'Revisa los datos de envío resaltados antes de continuar.' });
       return;
     }
-    setCardSubmitting(true);
-    setStatus({ type: 'info', message: 'Procesando pago…' });
-
-    // Aquí iría la llamada real a tu pasarela de tarjeta (Stripe/Culqi),
-    // enviando shipping + cart a tu backend Laravel. Nunca envíes un
-    // monto calculado solo en el frontend.
-    setTimeout(() => {
-      setCardSubmitting(false);
-      setStatus({ type: 'ok', message: '✓ Pago simulado con tarjeta procesado correctamente.' });
-    }, 700);
+    setCardSubmitting(false);
+    setStatus({
+      type: 'err',
+      message: 'El pago con tarjeta aún no está habilitado. Usa PayPal para completar la compra.',
+    });
   }
-
-  // Carga el SDK de PayPal y renderiza los botones cuando el método
-  // seleccionado es 'paypal'. Se limpia el botón anterior al desmontar
-  // o al cambiar de método, para no duplicar instancias.
-  useEffect(() => {
-    if (method !== 'paypal') return;
-
-    let cancelled = false;
-
-    function renderButtons() {
-      if (cancelled || !window.paypal || !paypalContainerRef.current) return;
-
-      paypalContainerRef.current.innerHTML = '';
-
-      paypalButtonsInstance.current = window.paypal.Buttons({
-        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 45 },
-
-        onClick: (data, actions) => {
-          if (isCartEmpty) {
-            setStatus({ type: 'err', message: 'Tu carrito está vacío.' });
-            return actions.reject();
-          }
-          if (!validateShipping()) {
-            setStatus({ type: 'err', message: 'Revisa los datos de envío resaltados antes de continuar.' });
-            return actions.reject();
-          }
-          return actions.resolve();
-        },
-
-        createOrder: () => {
-          return fetch(`${API_BASE}/api/paypal/create-order`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              cart: getCartPayload(),
-              shipping,
-            }),
-          })
-            .then(res => {
-              if (!res.ok) throw new Error('create-order failed');
-              return res.json();
-            })
-            .then(order => order.id);
-        },
-
-        onApprove: (data) => {
-          return fetch(`${API_BASE}/api/paypal/capture-order/${data.orderID}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-          })
-            .then(res => {
-              if (!res.ok) throw new Error('capture failed');
-              return res.json();
-            })
-            .then(details => {
-              setStatus({
-                type: 'ok',
-                message: `✓ Pago con PayPal completado. ID de transacción: ${details.id || data.orderID}`,
-              });
-            })
-            .catch(() => {
-              setStatus({ type: 'err', message: 'No se pudo confirmar el pago. Intenta nuevamente.' });
-            });
-        },
-
-        onError: (err) => {
-          console.error('Error de PayPal:', err);
-          setStatus({ type: 'err', message: 'Ocurrió un problema al procesar el pago con PayPal.' });
-        },
-
-        onCancel: () => {
-          setStatus({ type: 'err', message: 'Pago con PayPal cancelado.' });
-        },
-      });
-
-      paypalButtonsInstance.current.render(paypalContainerRef.current);
-    }
-
-    const existingScript = document.getElementById('paypal-sdk');
-    if (existingScript && window.paypal) {
-      renderButtons();
-    } else if (existingScript) {
-      existingScript.addEventListener('load', renderButtons);
-    } else {
-      const script = document.createElement('script');
-      script.id = 'paypal-sdk';
-      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=PEN&intent=capture`;
-      script.addEventListener('load', renderButtons);
-      document.body.appendChild(script);
-    }
-
-    return () => {
-      cancelled = true;
-      if (paypalContainerRef.current) paypalContainerRef.current.innerHTML = '';
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, cartItems, isCartEmpty]);
 
   return (
     <>
@@ -254,7 +259,9 @@ export default function Checkout() {
                 <div className="paypal-note">
                   Serás redirigido a PayPal para confirmar tu pago de forma segura. El total se procesa en soles peruanos (PEN).
                 </div>
-                <div id="paypal-button-container" ref={paypalContainerRef}></div>
+                <button className="btn-primary" disabled={paypalSubmitting || isCartEmpty} onClick={handlePayPal}>
+                  {paypalSubmitting ? 'Procesando…' : `Pagar con PayPal ${money(total)}`}
+                </button>
               </div>
             )}
 
