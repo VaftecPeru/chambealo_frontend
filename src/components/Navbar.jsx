@@ -196,7 +196,7 @@ const Navbar = () => {
               <div className="flex items-center relative group/cart" ref={cartRef}
                    onMouseEnter={() => setIsCartOpen(true)}
                    onMouseLeave={() => setIsCartOpen(false)}>
-                <Link to="/cart" className="flex items-center group cursor-pointer">
+                <Link to="/carrito" className="flex items-center group cursor-pointer">
                   <div className="relative">
                     <ShoppingCart className="h-6 w-6 md:h-8 md:w-8 text-gray-700 group-hover:text-blue-600 transition-colors" />
                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -281,20 +281,21 @@ const Navbar = () => {
                         </div>
 
                         <div className="flex flex-col gap-3">
-                          <Link
-                            to="/cart"
-                            onClick={() => setIsCartOpen(false)}
-                            className="text-center py-3 text-sm font-bold text-[#3a085c] border-2 border-[#3a085c] rounded-full hover:bg-purple-50 transition-colors"
-                          >
-                            Ver Carrito Completo
-                          </Link>
-                          <Link
-                            to="/checkout"
-                            onClick={() => setIsCartOpen(false)}
-                            className="text-center py-3 text-sm font-bold text-white bg-orange-500 rounded-full hover:bg-orange-600 transition-colors shadow-md"
-                          >
-                            Ir a Pagar
-                          </Link>
+                            <Link
+                              to="/carrito"
+                              onClick={() => setIsCartOpen(false)}
+                              className="text-center py-3 text-sm font-bold text-[#3a085c] border-2 border-[#3a085c] rounded-full hover:bg-purple-50 transition-colors"
+                            >
+                              Ver Carrito Completo
+                            </Link>
+                            <Link
+                              to="/checkout"
+                              onClick={() => setIsCartOpen(false)}
+                              className="text-center py-3 text-sm font-bold text-white bg-orange-500 rounded-full hover:bg-orange-600 transition-colors shadow-md"
+                            >
+                              Ir a Pagar
+                            </Link>
+                          
                         </div>
                       </div>
                     </div>

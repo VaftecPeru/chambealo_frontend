@@ -1,26 +1,25 @@
-import { Route, Routes } from 'react-router-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
-import NavbarHeader from './components/NavbarHeader';
-import Navbar from './components/Navbar';
-import Slider from './components/Slider';
-import MainCards from './components/MainCards';
-import TopCategories from './components/TopCategories';
-import ShopByDepartments from './components/ShopByDepartments';
 import Banner1 from './components/Banner1';
 import BestSelling from './components/BestSelling';
-import MainCards2 from './components/MainCards2';
-import OurProducts from './components/OurProducts';
-import OurLatestNews from './components/OurLatestNews';
-import Products from './components/Products.jsx';
-import ProductDetail from './pages/ProductDetail.jsx';
-import Login from './components/Login.jsx';
-import Register from './components/Register.jsx';
-import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
-import Checkout from './components/Checkout.jsx';
 import Cart from './components/Cart.jsx';
+import Checkout from './components/Checkout.jsx';
+import Login from './components/Login.jsx';
+import MainCards from './components/MainCards';
+import MainCards2 from './components/MainCards2';
+import Navbar from './components/Navbar';
+import NavbarHeader from './components/NavbarHeader';
+import OurLatestNews from './components/OurLatestNews';
+import OurProducts from './components/OurProducts';
+import Products from './components/Products.jsx';
+import Register from './components/Register.jsx';
+import ShopByDepartments from './components/ShopByDepartments';
+import Slider from './components/Slider';
+import TopCategories from './components/TopCategories';
 import { CartProvider } from './contexts/CartContext';
 import MyOrders from './pages/MyOrders.jsx';
+import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
+import ProductDetail from './pages/ProductDetail.jsx';
 
 function App() {
   return (
@@ -31,6 +30,7 @@ function App() {
           <Navbar />
 
           <Routes>
+            {/* Inicio */}
             <Route
               path="/"
               element={
@@ -48,45 +48,33 @@ function App() {
               }
             />
 
-            <Route
-              path="/OurStore"
-              element={<Products />}
-            />
+            {/* Tienda y Catálogo (Ruta principal + Alias) */}
+            <Route path="/tienda" element={<Products />} />
+            <Route path="/OurStore" element={<Navigate to="/tienda" replace />} />
 
-            <Route
-              path="/checkout"
-              element={<PaypalCheckoutUI />}
-            />
+            {/* Detalle del producto */}
+            <Route path="/producto/:id" element={<ProductDetail />} />
 
-            <Route
-              path="/pagar"
-              element={<Checkout />}
-            />
+            {/* Carrito de compras (Ruta principal + Alias) */}
+            <Route path="/carrito" element={<Cart />} />
+            <Route path="/cart" element={<Navigate to="/carrito" replace />} />
 
-            <Route
-              path="/mis-pedidos"
-              element={<MyOrders />}
-            />
+            {/* Checkout y Pagos */}
+            <Route path="/checkout" element={<PaypalCheckoutUI />} />
+            <Route path="/pagar" element={<Checkout />} />
 
-            <Route
-              path="/cart"
-              element={<Cart />}
-            />
+            {/* Pedidos del usuario */}
+            <Route path="/mis-pedidos" element={<MyOrders />} />
 
-            <Route
-              path="/producto/:id"
-              element={<ProductDetail />}
-            />
+            {/* Autenticación (Ruta principal + Alias) */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/Login" element={<Navigate to="/login" replace />} />
 
-            <Route
-              path="/Login"
-              element={<Login />}
-            />
+            <Route path="/registro" element={<Register />} />
+            <Route path="/Register" element={<Navigate to="/registro" replace />} />
 
-            <Route
-              path="/Register"
-              element={<Register />}
-            />
+            {/* Manejo de rutas 404 (Redirección al inicio) */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </CartProvider>
       </BrowserRouter>
