@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Star } from 'lucide-react';
 import { getProducts } from '../services/productService';
+import { baseProducts } from './products';
+import '../styles/OurProducts.css';
 
 export default function OurProducts() {
   const [products, setProducts] = useState([]);
@@ -15,105 +18,110 @@ export default function OurProducts() {
             ? data.products
             : [];
 
-        setProducts(productList);
+        // Si la API trae productos los usamos, de lo contrario usamos los baseProducts de respaldo
+        if (productList.length > 0) {
+          setProducts(productList);
+        } else {
+          setProducts(baseProducts);
+        }
       })
       .catch((err) => {
         console.error('Error al obtener productos:', err);
-        setProducts([]);
+        // Fallback inmediato en caso de error para asegurar la vista
+        setProducts(baseProducts);
       })
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-10 text-center text-gray-500 font-semibold">
-        Cargando productos desde Laravel...
+      <div className="ourproducts-loading">
+        Cargando productos...
       </div>
     );
   }
 
+  // Tomamos los primeros 9 productos para la grilla 3x3 de Figma
+  const displayProducts = products.slice(0, 9);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-10">
-        No te pierdas nuestros Productos
-      </h2>
-
-      {/* GRID de productos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products.slice(0, 9).map((product) => (
-          <Link
-            key={product.product_id || product.id}
-            to={`/producto/${product.product_id || product.id}`}
-            className="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors group cursor-pointer"
-          >
-            {/* Imagen con borde y hover */}
-            <div className="relative w-30 h-30 flex-shrink-0 rounded-xl shadow-sm bg-white flex items-center justify-center overflow-hidden">
-              {/* Badge Sale si aplica */}
-              {(product.status === "sale" || product.original_price) && (
-                <span className="absolute bottom-1 left-1 text-red-500 text-[10px] font-semibold">
-                  Sale
-                </span>
-              )}
-
-              {/* Imagen con zoom al hover */}
-              <img
-                src={product.image_url || product.img1 || "https://via.placeholder.com/150"}
-                alt={product.name}
-                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
-              />
-            </div>
-
-            {/* Info */}
-            <div className="flex flex-col">
-              <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-purple-700 transition-colors">
-                {product.name}
-              </h3>
-
-              {/* Estrellas */}
-              <div className="flex items-center gap-1 mt-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className={`text-sm ${
-                      i < (product.rating || 4)
-                        ? "text-yellow-400"
-                        : "text-gray-300"
-                    }`}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-
-              {/* Precio */}
-              <div className="mt-2 flex items-center gap-2">
-                {(product.original_price || product.oldPrice) && (
-                  <span className="line-through text-gray-400 text-sm">
-                    S/. {Number(product.original_price || product.oldPrice).toFixed(2)}
-                  </span>
-                )}
-                <span className="text-lg font-bold text-red-600">
-                  S/. {Number(product.price || 0).toFixed(2)}
-                </span>
-                {product.discount && (
-                  <span className="bg-purple-600 text-white text-xs font-semibold px-1.5 py-1 rounded-md">
-                    {product.discount}
-                  </span>
-                )}
-              </div>
-            </div>
-          </Link>
-        ))}
+    <section className="ourproducts-container">
+      {/* Título en Morado con subrayado Amarillo */}
+      <div className="ourproducts-header">
+        <h2 className="ourproducts-title">No te pierdas nuestros productos</h2>
+        <div className="ourproducts-title-line"></div>
       </div>
 
-      {/* Botón View All */}
-      <div className="flex justify-center mt-10">
-        <Link to="/OurStore">
-          <button className="bg-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-orange-600 transition-colors">
-            Ver más
-          </button>
+      {/* Grilla 3x3 de tarjetas */}
+      <div className="ourproducts-grid">
+        {displayProducts.map((product) => {
+          const productId = product.product_id || product.id;
+          const categoryName = (product.category || "SNACKS").toUpperCase();
+          const discountText = product.discount || (product.oldPrice || product.original_price ? "-15%" : null);
+          const ratingVal = product.rating || 4.5;
+          const currentPrice = Number(product.price || 0).toFixed(2);
+          const oldPriceVal = product.oldPrice || product.original_price;
+
+          return (
+            <Link
+              key={productId}
+              to={`/producto/${productId}`}
+              className="ourproducts-card"
+            >
+              {/* Contenedor de Imagen con Badge morado */}
+              <div className="ourproducts-img-box">
+                {discountText && (
+                  <span className="ourproducts-badge">{discountText}</span>
+                )}
+                <img
+                  src={product.image_url || product.img1 || "https://via.placeholder.com/200"}
+                  alt={product.name}
+                  className="ourproducts-img"
+                />
+              </div>
+
+              {/* Información del Producto */}
+              <div className="ourproducts-info">
+                <span className="ourproducts-category">{categoryName}</span>
+                <h3 className="ourproducts-name">{product.name}</h3>
+
+                {/* Rating con estrellas y número */}
+                <div className="ourproducts-rating">
+                  <div className="ourproducts-stars">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={i < Math.floor(ratingVal) ? "star-active" : "star-inactive"}
+                      />
+                    ))}
+                  </div>
+                  <span className="ourproducts-rating-num">({ratingVal})</span>
+                </div>
+
+                {/* Precios (Anterior y Actual) */}
+                <div className="ourproducts-price-box">
+                  {oldPriceVal && (
+                    <span className="ourproducts-old-price">
+                      S/. {Number(oldPriceVal).toFixed(2)}
+                    </span>
+                  )}
+                  <span className="ourproducts-current-price">
+                    S/. {currentPrice}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Botón Naranja Inferior Redondeado */}
+      <div className="ourproducts-footer">
+        <Link to="/OurStore" className="ourproducts-btn">
+          Ver más
         </Link>
       </div>
-    </div>
+    </section>
   );
 }

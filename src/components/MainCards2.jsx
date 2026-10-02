@@ -1,61 +1,62 @@
-const bannerData = [
-  {
-    id: 1,
-    bgColor: "bg-blue-100",
-    discountText: "Up to 45% OFF",
-    title: "¡No te pierdas estas deliciosas Ofertas de comestibles!",
-    buttonText: "View More",
-    imgSrc: "/img/CerealBar1.png",
-  },
-  {
-    id: 2,
-    bgColor: "bg-yellow-50",
-    discountText: "Flat 15% OFF",
-    title: (
-      <>
-        Jugo de Frutas Delicioso y Sabroso de Granja
-      </>
-    ),
-    buttonText: "View More",
-    imgSrc: "/img/CerealBar2.png",
-  },
-];
+import { useNavigate } from "react-router-dom";
+import '../styles/MainCard2.css';
 
-export default function BannerCards() {
+// Importación de las imágenes desde src/assets/
+import fotoHogar from '../assets/foto_ofertas_para_tu_hogar.png';
+import fotoSeleccionados from '../assets/foto_de_productos_seleccionados.png';
+
+export default function MainCards2() {
+  const navigate = useNavigate();
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      {/* Contenedor responsive: grid en md+, scroll horizontal en sm */}
-      <div className="md:grid md:grid-cols-2 md:gap-6 flex gap-4 overflow-x-auto md:overflow-visible scrollbar-hide">
-        {bannerData.map((banner) => (
-          <div
-            key={banner.id}
-            className={`${banner.bgColor} rounded-xl flex-shrink-0 md:flex md:flex-row flex-col items-center p-6 gap-4 w-80 md:w-auto`}
-          >
-            {/* Texto */}
-            <div className="flex flex-col gap-2 md:gap-4 w-full md:max-w-[60%]">
-              <span className="text-sm md:text-base font-medium text-violet-600">
-                {banner.discountText}
-              </span>
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                {banner.title}
-              </h2>
-              {/* Botón centrado solo en móviles */}
-              <button className="mt-2 bg-orange-500 text-white px-4 md:px-5 py-2 rounded-full font-semibold hover:bg-violet-500 w-fit md:self-start self-center">
-                {banner.buttonText}
-              </button>
-            </div>
+    <section className="maincards2-container">
+      <div className="maincards2-grid">
+        
+        {/* Banner 1: Ofertas para tu hogar */}
+        <div 
+          className="maincards2-card card-hogar"
+          style={{ backgroundImage: `url(${fotoHogar})` }}
+        >
+          <div className="maincards2-overlay dark-overlay"></div>
 
-            {/* Imagen */}
-            <div className="flex-shrink-0 w-full md:w-auto flex justify-center">
-              <img
-                src={banner.imgSrc}
-                alt={banner.title}
-                className="w-32 md:w-48 h-32 md:h-48 object-contain transition-transform duration-300 hover:scale-110"
-              />
-            </div>
+          <div className="maincards2-content">
+            <span className="maincards2-tag tag-yellow">Hasta 40% OFF</span>
+            <h2 className="maincards2-title text-white">Ofertas para tu hogar</h2>
+            <p className="maincards2-description text-gray">
+              Productos esenciales para hacer tu día más fácil.
+            </p>
+            <button
+              onClick={() => navigate("/OurStore")}
+              className="maincards2-btn"
+            >
+              Ver más
+            </button>
           </div>
-        ))}
+        </div>
+
+        {/* Banner 2: Productos seleccionados */}
+        <div 
+          className="maincards2-card card-seleccionados"
+          style={{ backgroundImage: `url(${fotoSeleccionados})` }}
+        >
+          <div className="maincards2-overlay light-overlay"></div>
+
+          <div className="maincards2-content">
+            <span className="maincards2-tag tag-purple">Solo por esta semana</span>
+            <h2 className="maincards2-title text-purple">Productos seleccionados</h2>
+            <p className="maincards2-description text-purple-dark">
+              Encuentra tus favoritos a precios especiales.
+            </p>
+            <button
+              onClick={() => navigate("/OurStore")}
+              className="maincards2-btn"
+            >
+              Ver más
+            </button>
+          </div>
+        </div>
+
       </div>
-    </div>
+    </section>
   );
 }

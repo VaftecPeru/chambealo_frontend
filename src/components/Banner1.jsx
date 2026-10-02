@@ -1,35 +1,22 @@
+import { useNavigate } from "react-router-dom";
+import mascotaBanner from "../assets/mascota_banner.png"; 
+
 export default function Banner() {
+  const navigate = useNavigate();
+
   return (
-    <div className="max-w-7xl mx-auto bg-pink-50 rounded-xl overflow-hidden flex flex-col sm:flex-row items-center justify-between p-6 sm:p-10 gap-6">
-      
-      {/* Imagen izquierda */}
-      <div className="flex-1 flex justify-center sm:justify-start">
+    <section className="max-w-7xl mx-auto px-4 my-8">
+      <div 
+        onClick={() => navigate("/OurStore")}
+        className="cursor-pointer overflow-hidden rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 transform "
+        title="Ver todas las ofertas en la tienda"
+      >
         <img
-          src="/img/CerealBar1.png"
-          alt="Left Product"
-          className="h-48 object-contain"
+          src={mascotaBanner} 
+          alt="Todo lo que quieres en un solo clic - Chambealo"
+          className="w-full h-auto object-cover block"
         />
       </div>
-
-      {/* Texto central */}
-      <div className="flex-1 text-center sm:text-center">
-        <p className="text-sm text-violet-600 mb-2">Hasta un 35% de descuento</p>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-          Deliciosas comidas de <br /> los más vendidos <br /> de la India
-        </h2>
-        <button className="bg-orange-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-violet-600 transition">
-          Ver más &rarr;
-        </button>
-      </div>
-
-      {/* Imagen derecha */}
-      <div className="flex-1 flex justify-center sm:justify-end">
-        <img
-          src="/img/CerealBar2.png"
-          alt="Right Product"
-          className="h-48 object-contain"
-        />
-      </div>
-    </div>
+    </section>
   );
 }

@@ -1,42 +1,47 @@
-import '../styles/TopCategories.css'; 
+import { useNavigate } from 'react-router-dom';
+import '../styles/TopCategories.css';
 
 const categories = [
-  { name: "Vegetales", image: "/img/VegetalesIcon.png" },
-  { name: "Frutas", image: "/img/FrutasIcon.png" },
-  { name: "Carne", image: "/img/CarneIcon.png" },
-  { name: "Lácteos", image: "/img/LacteosIcon.png" },
-  { name: "Bebidas", image: "/img/BebidasIcon.png" },
-  { name: "Panadería", image: "/img/PanaderiaIcon.png" },
-  { name: "Tostadas", image: "/img/TostadasIcon.png" },
+  { name: "Lácteos", image: "/img/Protein_Cookie_2.png" },
+  { name: "Vegetales", image: "/img/Monterra1.png" },
+  { name: "Panadería", image: "/img/CakeWorld.png" },
+  { name: "Frutos Secos", image: "/img/Monterra1.png" },
+  { name: "Galletas", image: "/img/Protein_Cookie_2.png" },
 ];
 
-export default function Categories() {
-  return (
-    <div className="mt-10 px-4">
-      {/* Título centrado */}
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
-        Categorías Principales
-      </h2>
+export default function TopCategories() {
+  const navigate = useNavigate();
 
-      {/* Contenedor scroll horizontal centrado */}
-      <div className="overflow-x-auto no-scrollbar px-4 justify-center">
-        <div className="w-max mx-auto flex gap-6">
-          {categories.map(({ name, image }) => {
-            return (
-              <div
-                key={name}
-                className="flex flex-col items-center justify-center min-w-[10rem] w-40 h-32 bg-gray-50 rounded-xl shadow-sm cursor-pointer transition-transform duration-500 hover:[transform:rotateY(180deg)]"
-              >
-                    <img 
-                      src={image} 
-                      alt={name}
-                      className="w-15 h-15 object-contain" 
-                    />
-              </div>
-            );
-          })}
-        </div>
+  return (
+    <section className="top-categories-section">
+      <div className="top-categories-header">
+        <h2>Categorías Principales</h2>
+        <button 
+          onClick={() => navigate('/OurStore')}
+          className="top-categories-link"
+        >
+          Ver todas
+        </button>
       </div>
-    </div>
+
+      <div className="top-categories-grid">
+        {categories.map(({ name, image }) => (
+          <div
+            key={name}
+            onClick={() => navigate(`/OurStore?category=${encodeURIComponent(name)}`)}
+            className="top-category-card"
+          >
+            <div className="category-icon-wrapper">
+              <img 
+                src={image} 
+                alt={name}
+                className="category-icon" 
+              />
+            </div>
+            <span className="category-name">{name}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

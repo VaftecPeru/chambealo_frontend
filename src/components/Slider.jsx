@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const images = [
   {
@@ -14,6 +15,7 @@ const images = [
 
 export default function Slider() {
   const [current, setCurrent] = useState(0);
+  const navigate = useNavigate();
 
   const prevSlide = () => {
     setCurrent((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -23,18 +25,19 @@ export default function Slider() {
     setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
-  // ✅ Auto-slide cada 5s
+  // Auto-slide cada 6s
   useEffect(() => {
     const interval = setInterval(nextSlide, 6000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative w-full max-w-8xl mx-auto overflow-hidden rounded-2xl shadow-lg">
-      {/* Contenedor de imágenes - se adapta automáticamente */}
+    <div className="relative w-full max-w-8xl mx-auto overflow-hidden rounded-2xl shadow-lg mt-0 mb-4">
+      {/* Contenedor de imágenes */}
       <div
-        className="flex transition-transform duration-500 ease-in-out"
+        className="flex transition-transform duration-500 ease-in-out cursor-pointer"
         style={{ transform: `translateX(-${current * 100}%)` }}
+        onClick={() => navigate("/OurStore")}
       >
         {images.map((image, index) => (
           <div key={index} className="w-full flex-shrink-0">
@@ -43,7 +46,7 @@ export default function Slider() {
               <source media="(max-width: 767px)" srcSet={image.mobile} />
               <img
                 src={image.desktop}
-                alt={`Slide ${index}`}
+                alt={`Banner ${index + 1}`}
                 className="w-full h-auto object-contain"
               />
             </picture>

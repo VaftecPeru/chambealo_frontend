@@ -1,60 +1,208 @@
-/* responsive */
-@media (max-width: 480px) {
-  .NavbarHeader .max-w-7xl {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .NavbarHeader span {
-    font-size: 0.65rem;
-  }
-
-  .NavbarHeader .flex.gap-2 .relative button {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
-  }
-
-  .NavbarHeader .flex.gap-2 svg {
-    width: 16px;
-    height: 16px;
-  }
+/* --- Barra Superior Morada --- */
+.chambealo-header {
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-@media (min-width: 481px) and (max-width: 640px) {
-  .NavbarHeader .max-w-7xl {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .NavbarHeader span {
-    font-size: 0.75rem;
-  }
-
-  .NavbarHeader .flex.gap-2 .relative button {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-  }
-
-  .NavbarHeader .flex.gap-2 svg {
-    width: 18px;
-    height: 18px;
-  }
+.top-bar {
+  background-color: #4A0080;
+  color: #ffffff;
+  font-size: 13px;
+  padding: 6px 0;
 }
 
-@media (min-width: 641px) and (max-width: 768px) {
-  .NavbarHeader span {
-    font-size: 0.85rem;
-  }
+.top-bar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .NavbarHeader .flex.gap-2 .relative button {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-  }
+.top-bar-link {
+  color: #ffffff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s;
+}
 
-  .NavbarHeader .flex.gap-2 svg {
-    width: 20px;
-    height: 20px;
-  }
+.top-bar-link:hover {
+  opacity: 0.85;
+}
+
+/* --- Cabecera Principal Amarilla --- */
+.main-header {
+  background-color: #FFCC00;
+  padding: 15px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.main-header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Logo */
+.header-logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-size: 28px;
+  font-weight: 800;
+  color: #5B06BE;
+  letter-spacing: -0.5px;
+  font-style: italic;
+}
+
+/* Formulario de Búsqueda */
+.header-search-form {
+  flex: 1;
+  max-width: 550px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 25px;
+  padding: 3px 3px 3px 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+.search-icon-inside {
+  color: #888888;
+  margin-right: 10px;
+  font-size: 15px;
+}
+
+.header-search-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  color: #333333;
+}
+
+.header-search-button {
+  background-color: #FF5500;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.header-search-button:hover {
+  background-color: #E04B00;
+}
+
+/* Acciones (Soporte + Carrito) */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Soporte */
+.support-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.support-icon-circle {
+  width: 38px;
+  height: 38px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FF5500;
+  font-size: 14px;
+}
+
+.support-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.support-label {
+  font-size: 11px;
+  color: #666666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.support-number {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111111;
+}
+
+/* Carrito */
+.header-cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #111111;
+}
+
+.cart-icon-circle {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111111;
+  font-size: 16px;
+}
+
+.cart-badge-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #FF5500;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-text-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-label {
+  font-size: 11px;
+  color: #666666;
+}
+
+.cart-amount {
+  font-size: 14px;
+  font-weight: 700;
 }

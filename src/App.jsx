@@ -21,10 +21,11 @@ import Checkout from './components/Checkout.jsx';
 import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
 import MyOrders from './pages/MyOrders.jsx';
+import Footer from './components/Footer.jsx';
 
 function App() {
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <BrowserRouter>
         <CartProvider>
           <NavbarHeader />
@@ -37,7 +38,7 @@ function App() {
                 <>
                   <Slider />
                   <MainCards />
-                  <TopCategories />
+                  {/* <TopCategories /> */}
                   <ShopByDepartments />
                   <Banner1 />
                   <BestSelling />
@@ -88,6 +89,9 @@ function App() {
               element={<Register />}
             />
           </Routes>
+
+          {/* Footer global para todas las rutas */}
+          <Footer />
         </CartProvider>
       </BrowserRouter>
     </div>
