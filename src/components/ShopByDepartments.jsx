@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { baseProducts } from "./products";
+import { getProducts } from "../services/productService";
 import { useCart } from "../contexts/CartContext";
 import '../styles/ShopByDepartments.css';
 
 export default function ShopByDepartments() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("lacteos");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -23,36 +25,46 @@ export default function ShopByDepartments() {
     { key: "galletas", label: "Galletas" },
   ];
 
-  // Filtra de forma flexible sobre baseProducts
-  const filteredProducts = baseProducts.filter((product) => {
-    const cat = (product.category || "").toLowerCase();
-    const type = (product.type || "").toLowerCase();
-    const name = (product.name || "").toLowerCase();
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        const productList = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+            ? data.products
+            : [];
+        setProducts(productList);
+      })
+      .catch((err) => console.error("Error al obtener productos en ShopByDepartments:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Filtra dinámicamente los productos recibidos del backend
+  const filteredProducts = products.filter((product) => {
+    const cat = (typeof product.category === 'object' ? product.category?.name : product.category || "").toLowerCase();
+    const name = (product.name || product.nombre || "").toLowerCase();
 
     switch (activeCategory) {
       case "lacteos":
-        return cat.includes("lácteo") || cat.includes("lacteo") || type.includes("lacteo") || cat.includes("leche");
+        return cat.includes("lácteo") || cat.includes("lacteo") || cat.includes("leche");
       case "vegetales":
         return cat.includes("vegetal") || cat.includes("verdura") || cat.includes("fruta");
       case "panaderia":
-        return cat.includes("panad") || cat.includes("pan") || cat.includes("pastel") || type.includes("pan");
+        return cat.includes("panad") || cat.includes("pan") || cat.includes("pastel");
       case "frutos_secos":
         return cat.includes("fruto") || cat.includes("seco") || cat.includes("nueces") || name.includes("nueces");
       case "galletas":
-        return cat.includes("galleta") || cat.includes("snack") || type.includes("galleta");
+        return cat.includes("galleta") || cat.includes("snack");
       default:
         return cat.includes(activeCategory);
     }
   });
 
-  // Evalúa si se requiere scroll y actualiza la posición de las flechas y puntos
   const checkScrollState = () => {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
     
     const maxScroll = scrollWidth - clientWidth;
-    
-    // Si no sobrepasa el ancho visible, no hay scroll posible
     const hasOverflow = maxScroll > 10;
     
     setCanScrollLeft(hasOverflow && scrollLeft > 10);
@@ -101,7 +113,6 @@ export default function ShopByDepartments() {
 
   return (
     <section className="shop-departments-section">
-      {/* Encabezado y Pestañas */}
       <div className="departments-header">
         <div>
           <h2 className="departments-title">Comprar por Categorías</h2>
@@ -121,9 +132,7 @@ export default function ShopByDepartments() {
         </div>
       </div>
 
-      {/* Carrusel */}
       <div className="carousel-wrapper">
-        {/* Flecha Izquierda (Sólo si hay elementos ocultos a la izquierda) */}
         {canScrollLeft && (
           <button
             onClick={() => scroll("left")}
@@ -139,59 +148,75 @@ export default function ShopByDepartments() {
           onScroll={checkScrollState}
           className="carousel-track"
         >
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <article key={product.id} className="dept-product-card">
-                <div onClick={() => handleProductClick(product.id)}>
-                  <div className="dept-card-image-wrapper">
-                    <div className="dept-badges-container">
-                      <span className="badge-venta">VENTA</span>
-                      {product.discount && (
-                        <span className="badge-discount">{product.discount}</span>
+          {loading ? (
+            <div className="empty-category-message">
+              <p>Cargando categorías...</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => {
+              const productId = product.product_id || product.id;
+              const name = product.name || product.nombre || 'Producto';
+              const price = Number(product.price || 0).toFixed(2);
+              const oldPrice = product.original_price || product.oldPrice;
+              const image = product.image_url || product.img1 || product.image || "https://via.placeholder.com/200";
+
+              return (
+                <article key={productId} className="dept-product-card">
+                  <div onClick={() => handleProductClick(productId)}>
+                    <div className="dept-card-image-wrapper">
+                      <div className="dept-badges-container">
+                        <span className="badge-venta">VENTA</span>
+                        {product.discount && (
+                          <span className="badge-discount">{product.discount}</span>
+                        )}
+                      </div>
+                      <img
+                        src={image}
+                        alt={name}
+                        className="dept-card-image"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://via.placeholder.com/200?text=Sin+Imagen";
+                        }}
+                      />
+                    </div>
+
+                    <div className="rating-row">
+                      <div className="stars">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
+                          />
+                        ))}
+                      </div>
+                      <span className="reviews-count">({product.reviews || product.rating || 5})</span>
+                    </div>
+
+                    <h3 className="product-title">{name}</h3>
+                    <p className="product-content">
+                      {product.details || "Producto disponible"}
+                    </p>
+
+                    <div className="price-row">
+                      <span className="current-price">S/. {price}</span>
+                      {oldPrice && (
+                        <span className="old-price">S/. {Number(oldPrice).toFixed(2)}</span>
                       )}
                     </div>
-                    <img
-                      src={product.img1 || product.image}
-                      alt={product.name}
-                      className="dept-card-image"
-                    />
                   </div>
 
-                  <div className="rating-row">
-                    <div className="stars">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
-                        />
-                      ))}
-                    </div>
-                    <span className="reviews-count">({product.reviews || product.rating || 12})</span>
-                  </div>
-
-                  <h3 className="product-title">{product.name}</h3>
-                  <p className="product-content">
-                    {product.details || product.content || "Contenido: 1 Litro"}
-                  </p>
-
-                  <div className="price-row">
-                    <span className="current-price">S/. {Number(product.price).toFixed(2)}</span>
-                    {product.oldPrice && (
-                      <span className="old-price">S/. {Number(product.oldPrice).toFixed(2)}</span>
-                    )}
-                  </div>
-                </div>
-
-                <button
-                  onClick={(e) => handleAddToCart(e, product)}
-                  className="dept-add-cart-btn"
-                >
-                  <ShoppingCart size={18} />
-                  <span>Agregar al carrito</span>
-                </button>
-              </article>
-            ))
+                  <button
+                    onClick={(e) => handleAddToCart(e, product)}
+                    className="dept-add-cart-btn"
+                  >
+                    <ShoppingCart size={18} />
+                    <span>Agregar al carrito</span>
+                  </button>
+                </article>
+              );
+            })
           ) : (
             <div className="empty-category-message">
               <p>No se encontraron productos en esta categoría.</p>
@@ -199,7 +224,6 @@ export default function ShopByDepartments() {
           )}
         </div>
 
-        {/* Flecha Derecha (Sólo si hay elementos ocultos a la derecha) */}
         {canScrollRight && (
           <button
             onClick={() => scroll("right")}
@@ -211,7 +235,6 @@ export default function ShopByDepartments() {
         )}
       </div>
 
-      {/* Puntos Indicadores (Sólo se muestran si realmente se puede scrollear) */}
       {isScrollable && (
         <div className="dots-indicators">
           <span className={`dot ${activeDot === 0 ? "active" : ""}`}></span>
