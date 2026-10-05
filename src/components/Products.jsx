@@ -2,20 +2,31 @@ import { useEffect, useMemo, useState } from "react";
 import { Star } from "lucide-react";
 import Filter from "./Filter";
 import { Link } from "react-router-dom";
-import { totalProductsRaw } from "./products";
-import { useCart } from "../contexts/CartContext"; // ✅ Importar useCart
+import { getProducts } from "../services/productService";
+import { useCart } from "../contexts/CartContext";
+
+// Auxiliar para normalizar el nombre de categoría independientemente de si viene como String u Objeto desde la API
+function getCategoryName(category) {
+  if (!category) return "";
+  if (typeof category === "object") return category.name || "";
+  return category;
+}
 
 function applyFilters(products, filters) {
   return products.filter((p) => {
-    if (filters.availability && !p.inStock) return false;
+    const pPrice = Number(p.price || 0);
+    const pInStock = p.inStock !== undefined ? p.inStock : (p.stock === undefined || p.stock > 0);
+    const pCategory = getCategoryName(p.category);
+
+    if (filters.availability && !pInStock) return false;
     if (typeof filters.priceMin === "number" && filters.priceMin > 0) {
-      if (p.price < filters.priceMin) return false;
+      if (pPrice < filters.priceMin) return false;
     }
     if (typeof filters.priceMax === "number" && filters.priceMax > 0) {
-      if (p.price > filters.priceMax) return false;
+      if (pPrice > filters.priceMax) return false;
     }
     if (filters.categories && filters.categories.size > 0) {
-      if (!filters.categories.has(p.category)) return false;
+      if (!filters.categories.has(pCategory)) return false;
     }
     if (filters.types && filters.types.size > 0) {
       if (!filters.types.has(p.type)) return false;
@@ -42,7 +53,8 @@ function getUniqueOptions(products) {
   const setTags = new Set();
 
   products.forEach((p) => {
-    if (p.category) setCat.add(p.category);
+    const catName = getCategoryName(p.category);
+    if (catName) setCat.add(catName);
     if (p.type) setType.add(p.type);
     if (p.brand) setBrand.add(p.brand);
     if (p.weight) setWeight.add(p.weight);
@@ -68,7 +80,7 @@ function getCountsByGroup(filteredProducts, allOptions) {
   };
 
   (allOptions.categories || []).forEach((name) => {
-    counts.categories[name] = filteredProducts.filter((p) => p.category === name).length;
+    counts.categories[name] = filteredProducts.filter((p) => getCategoryName(p.category) === name).length;
   });
   (allOptions.types || []).forEach((name) => {
     counts.types[name] = filteredProducts.filter((p) => p.type === name).length;
@@ -87,6 +99,10 @@ function getCountsByGroup(filteredProducts, allOptions) {
 }
 
 export default function Products() {
+  const [allProducts, setAllProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState("Destacados");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -120,11 +136,25 @@ export default function Products() {
     brand: false,
   });
 
-  // ✅ Obtener addToCart del context
   const { addToCart } = useCart();
 
-  //Aquí estamos exportando totalProductsRaw de products.js
-  const [allProducts] = useState(totalProductsRaw);
+  // Carga de productos desde el backend (API)
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        const productList = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+            ? data.products
+            : [];
+        setAllProducts(productList);
+      })
+      .catch((err) => {
+        console.error("Error al cargar productos de la API:", err);
+        setError(true);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const allOptions = useMemo(() => getUniqueOptions(allProducts), [allProducts]);
 
@@ -140,13 +170,13 @@ export default function Products() {
       case "Más vendidos":
         return list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       case "Orden alfabético A-Z":
-        return list.sort((a, b) => a.name.localeCompare(b.name));
+        return list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       case "Orden alfabético Z-A":
-        return list.sort((a, b) => b.name.localeCompare(a.name));
+        return list.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
       case "Precio de mayor a menor":
-        return list.sort((a, b) => b.price - a.price);
+        return list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       case "Precio de menor a mayor":
-        return list.sort((a, b) => a.price - b.price);
+        return list.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       default:
         return list;
     }
@@ -161,9 +191,8 @@ export default function Products() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage, sortOption]);
 
-  // ✅ Función para agregar al carrito
   const handleAddToCart = (e, product) => {
-    e.preventDefault(); // Prevenir la navegación del Link
+    e.preventDefault();
     e.stopPropagation();
     addToCart(product, 1);
     alert(`"${product.name}" agregado al carrito! 🛒`);
@@ -209,13 +238,20 @@ export default function Products() {
     setCurrentPage(1);
   };
 
+  if (loading) {
+    return (
+      <div className="w-full text-center py-20 text-gray-600 font-medium">
+        Cargando catálogo de productos...
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-gray-50">
-      {/* Contenedor principal centrado */}
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
         <div className="flex flex-col lg:flex-row gap-6">
           
-          {/* SIDEBAR DESKTOP - Oculto en móvil/tablet */}
+          {/* SIDEBAR DESKTOP */}
           <aside className="hidden lg:block lg:w-72 flex-shrink-0">
             <div>
               <Filter
@@ -250,7 +286,7 @@ export default function Products() {
             </button>
           </div>
 
-          {/* SIDEBAR MÓVIL - Modal overlay */}
+          {/* SIDEBAR MÓVIL */}
           {showMobileFilters && (
             <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setShowMobileFilters(false)}>
               <div 
@@ -326,78 +362,96 @@ export default function Products() {
             </div>
 
             {/* GRID DE PRODUCTOS */}
-            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-              {currentProducts.map((product) => (
-                // Enlace al detalle del producto
-                <Link to={`/producto/${product.id}`} key={product.id}>
-                  <article
-                    className="rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group p-4 bg-white relative"
-                  >
-                    <div className="relative w-full h-40 sm:h-44 flex justify-center items-center overflow-hidden rounded-lg">
-                      {product.status && (
-                        <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
-                          {product.status === "sale" ? "Sale" : product.status === "sold out" ? "Sold out" : product.status}
-                        </span>
-                      )}
-                      <img
-                        src={product.img1}
-                        alt={product.name}
-                        className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
-                      />
-                      <img
-                        src={product.img2}
-                        alt={product.name + " alt"}
-                        className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                      />
-                    </div>
+            {currentProducts.length > 0 ? (
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {currentProducts.map((product) => {
+                  const productId = product.product_id || product.id;
+                  const mainImg = product.image_url || product.img1 || "https://via.placeholder.com/200";
+                  const hoverImg = product.img2 || mainImg;
+                  const priceVal = Number(product.price || 0);
+                  const oldPriceVal = product.oldPrice || product.original_price;
+                  const discountText = product.discount || (oldPriceVal ? "-15%" : null);
+                  const ratingVal = product.rating || 0;
 
-                    <div className="mt-4">
-                      <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-center gap-1 mt-2">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            size={16}
-                            className={i < (product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
-                          />
-                        ))}
-                        <span className="text-xs text-gray-500 ml-2">({product.rating || 0})</span>
-                      </div>
-
-                      <div className="mt-3 flex items-center gap-2 flex-wrap">
-                        {product.oldPrice && (
-                          <span className="line-through text-gray-400 text-sm">
-                            ${product.oldPrice.toFixed(2)}
-                          </span>
-                        )}
-                        <span className="text-lg font-bold text-red-600">
-                          ${product.price.toFixed(2)}
-                        </span>
-                        {product.discount && (
-                          <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                            {product.discount}
-                          </span>
-                        )}
-                      </div>
-
-                      {product.details && (
-                        <p className="text-gray-500 text-sm mt-1">{product.details}</p>
-                      )}
-
-                      {/* ✅ BOTÓN ACTUALIZADO para usar el carrito */}
-                      <button 
-                        className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition"
-                        onClick={(e) => handleAddToCart(e, product)}
+                  return (
+                    <Link to={`/producto/${productId}`} key={productId}>
+                      <article
+                        className="rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group p-4 bg-white relative"
                       >
-                        Agregar Compra
-                      </button>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
+                        <div className="relative w-full h-40 sm:h-44 flex justify-center items-center overflow-hidden rounded-lg">
+                          {product.status && (
+                            <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
+                              {product.status === "sale" ? "Sale" : product.status === "sold out" ? "Sold out" : product.status}
+                            </span>
+                          )}
+                          <img
+                            src={mainImg}
+                            alt={product.name}
+                            className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
+                          />
+                          <img
+                            src={hoverImg}
+                            alt={(product.name || "") + " alt"}
+                            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                          />
+                        </div>
+
+                        <div className="mt-4">
+                          <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center gap-1 mt-2">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                size={16}
+                                className={i < ratingVal ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+                              />
+                            ))}
+                            <span className="text-xs text-gray-500 ml-2">({ratingVal})</span>
+                          </div>
+
+                          <div className="mt-3 flex items-center gap-2 flex-wrap">
+                            {oldPriceVal && (
+                              <span className="line-through text-gray-400 text-sm">
+                                S/. {Number(oldPriceVal).toFixed(2)}
+                              </span>
+                            )}
+                            <span className="text-lg font-bold text-red-600">
+                              S/. {priceVal.toFixed(2)}
+                            </span>
+                            {discountText && (
+                              <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
+                                {discountText}
+                              </span>
+                            )}
+                          </div>
+
+                          {product.details && (
+                            <p className="text-gray-500 text-sm mt-1">{product.details}</p>
+                          )}
+
+                          <button 
+                            className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition"
+                            onClick={(e) => handleAddToCart(e, product)}
+                          >
+                            Agregar Compra
+                          </button>
+                        </div>
+                      </article>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                <p className="text-gray-600 text-lg">
+                  {error 
+                    ? "No se pudo conectar con el catálogo del servidor." 
+                    : "No hay productos disponibles con los filtros aplicados."}
+                </p>
+              </div>
+            )}
 
             {/* PAGINACIÓN */}
             {totalPages > 1 && (
