@@ -46,7 +46,7 @@ export default function BestSelling() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  // Mantenemos tus productos sin eliminar ninguno
+  // Filtrado sobre productos
   const products = baseProducts.filter(
     (product) => product.status === "sale" || product.rating >= 4
   );
@@ -58,7 +58,6 @@ export default function BestSelling() {
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
     addToCart(product, 1);
-    alert(`"${product.name}" agregado al carrito! 🛒`);
   };
 
   const scroll = (direction) => {
@@ -93,90 +92,100 @@ export default function BestSelling() {
       </div>
 
       <div className="bestselling-carousel-wrapper">
-        <button
-          onClick={() => scroll("left")}
-          aria-label="Anterior"
-          className="bestselling-nav-btn prev"
-        >
-          <ChevronLeft className="icon" />
-        </button>
+        {products.length > 0 && (
+          <button
+            onClick={() => scroll("left")}
+            aria-label="Anterior"
+            className="bestselling-nav-btn prev"
+          >
+            <ChevronLeft className="icon" />
+          </button>
+        )}
 
         <div ref={scrollRef} className="bestselling-track">
-          {products.map((product) => (
-            <article
-              key={product.id}
-              onClick={() => handleProductClick(product.id)}
-              className="bestselling-card"
-            >
-              <div className="bestselling-card-content">
-                {/* Contenedor de Imagen */}
-                <div className="bestselling-img-box">
-                  <span className="bestselling-badge-sale">
-                    {product.discount || "-15%"}
-                  </span>
-
-                  <CountdownTimer productId={product.id} />
-
-                  <img
-                    src={product.img1}
-                    alt={product.name}
-                    className="bestselling-img img-primary"
-                  />
-
-                  {product.img2 && (
-                    <img
-                      src={product.img2}
-                      alt={product.name + " alt"}
-                      className="bestselling-img img-hover"
-                    />
-                  )}
-                </div>
-
-                {/* Estrellas amarillas */}
-                <div className="bestselling-stars">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={15}
-                      className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
-                    />
-                  ))}
-                </div>
-
-                {/* Título en Morado */}
-                <h3 className="bestselling-product-title">{product.name}</h3>
-
-                {/* Precio en Naranja */}
-                <div className="bestselling-price-box">
-                  {product.oldPrice && (
-                    <span className="bestselling-old-price">
-                      S/ {Number(product.oldPrice).toFixed(2)}
-                    </span>
-                  )}
-                  <span className="bestselling-current-price">
-                    S/ {Number(product.price).toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Botón Naranja Figma */}
-              <button
-                onClick={(e) => handleAddToCart(e, product)}
-                className="bestselling-add-btn"
+          {products.length > 0 ? (
+            products.map((product) => (
+              <article
+                key={product.id}
+                onClick={() => handleProductClick(product.id)}
+                className="bestselling-card"
               >
-                Agregar al carrito
-              </button>
-            </article>
-          ))}
+                <div className="bestselling-card-content">
+                  {/* Contenedor de Imagen */}
+                  <div className="bestselling-img-box">
+                    <span className="bestselling-badge-sale">
+                      {product.discount || "-15%"}
+                    </span>
+
+                    <CountdownTimer productId={product.id} />
+
+                    <img
+                      src={product.img1}
+                      alt={product.name}
+                      className="bestselling-img img-primary"
+                    />
+
+                    {product.img2 && (
+                      <img
+                        src={product.img2}
+                        alt={product.name + " alt"}
+                        className="bestselling-img img-hover"
+                      />
+                    )}
+                  </div>
+
+                  {/* Estrellas amarillas */}
+                  <div className="bestselling-stars">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={15}
+                        className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Título */}
+                  <h3 className="bestselling-product-title">{product.name}</h3>
+
+                  {/* Precio */}
+                  <div className="bestselling-price-box">
+                    {product.oldPrice && (
+                      <span className="bestselling-old-price">
+                        S/ {Number(product.oldPrice).toFixed(2)}
+                      </span>
+                    )}
+                    <span className="bestselling-current-price">
+                      S/ {Number(product.price).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Botón Naranja Figma */}
+                <button
+                  onClick={(e) => handleAddToCart(e, product)}
+                  className="bestselling-add-btn"
+                >
+                  Agregar al carrito
+                </button>
+              </article>
+            ))
+          ) : (
+            <div className="empty-category-message" style={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
+              <p>No hay productos destacados disponibles actualmente en el servidor.</p>
+            </div>
+          )}
         </div>
 
-        <button
-          onClick={() => scroll("right")}
-          aria-label="Siguiente"
-          className="bestselling-nav-btn next"
-        >
-          <ChevronRight className="icon" />
-        </button>
+        {products.length > 0 && (
+          <button
+            onClick={() => scroll("right")}
+            aria-label="Siguiente"
+            className="bestselling-nav-btn next"
+          >
+            <ChevronRight className="icon" />
+          </button>
+        )}
       </div>
     </section>
   );

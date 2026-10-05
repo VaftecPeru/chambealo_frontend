@@ -23,7 +23,7 @@ export default function ShopByDepartments() {
     { key: "galletas", label: "Galletas" },
   ];
 
-  // Filtra de forma flexible sobre baseProducts
+  // Filtra sobre baseProducts
   const filteredProducts = baseProducts.filter((product) => {
     const cat = (product.category || "").toLowerCase();
     const type = (product.type || "").toLowerCase();
@@ -45,14 +45,11 @@ export default function ShopByDepartments() {
     }
   });
 
-  // Evalúa si se requiere scroll y actualiza la posición de las flechas y puntos
   const checkScrollState = () => {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
     
     const maxScroll = scrollWidth - clientWidth;
-    
-    // Si no sobrepasa el ancho visible, no hay scroll posible
     const hasOverflow = maxScroll > 10;
     
     setCanScrollLeft(hasOverflow && scrollLeft > 10);
@@ -123,7 +120,6 @@ export default function ShopByDepartments() {
 
       {/* Carrusel */}
       <div className="carousel-wrapper">
-        {/* Flecha Izquierda (Sólo si hay elementos ocultos a la izquierda) */}
         {canScrollLeft && (
           <button
             onClick={() => scroll("left")}
@@ -199,7 +195,6 @@ export default function ShopByDepartments() {
           )}
         </div>
 
-        {/* Flecha Derecha (Sólo si hay elementos ocultos a la derecha) */}
         {canScrollRight && (
           <button
             onClick={() => scroll("right")}
@@ -211,7 +206,6 @@ export default function ShopByDepartments() {
         )}
       </div>
 
-      {/* Puntos Indicadores (Sólo se muestran si realmente se puede scrollear) */}
       {isScrollable && (
         <div className="dots-indicators">
           <span className={`dot ${activeDot === 0 ? "active" : ""}`}></span>
