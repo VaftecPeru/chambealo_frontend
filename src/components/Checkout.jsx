@@ -118,7 +118,7 @@ export default function Checkout() {
       throw new Error(body.error || body.message || 'No se pudo crear el pedido.');
     }
 
-    return body.data;
+    return body.order ?? body.data;
   }
 
   // PASO 3: pide al backend la sesión de pago de PayPal para la Order creada.
