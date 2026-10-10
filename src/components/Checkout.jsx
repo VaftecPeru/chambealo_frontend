@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../contexts/CartContext';
+import { authFetch, getToken } from '../services/authService';
 import './Checkout.css';
 
-// URL de tu backend Laravel (definida en .env como VITE_API_BASE_URL)
+// URL de tu backend Laravel (definida 
+// en .env como VITE_API_BASE_URL)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 // Estos valores son solo de visualización. El total real lo calcula el backend.
@@ -83,18 +85,12 @@ export default function Checkout() {
   // Campos que valida el backend: items[].product_id, items[].quantity,
   // shipping_address (array) y billing_address (array).
   async function createBackendOrder() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
+    if (!getToken()) {
       throw new Error('Debes iniciar sesión para poder pagar.');
     }
 
-    const res = await fetch(`${API_BASE}/orders`, {
+    const res = await authFetch('/orders', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
       body: JSON.stringify({
         items: cartItems.map(item => ({
           product_id: item.id,
@@ -118,21 +114,15 @@ export default function Checkout() {
       throw new Error(body.error || body.message || 'No se pudo crear el pedido.');
     }
 
-    return body.order ?? body.data;
+        return body.order ?? body.data;
+
   }
 
   // PASO 3: pide al backend la sesión de pago de PayPal para la Order creada.
   // Devuelve la approve_url a la que hay que redirigir al usuario.
   async function createPaymentSession(order) {
-    const token = localStorage.getItem('access_token');
-
-    const res = await fetch(`${API_BASE}/payment/session`, {
+        const res = await authFetch('/payment/session', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
       body: JSON.stringify({
         order_id: order.id,
         gateway: 'paypal',

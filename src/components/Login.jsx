@@ -28,7 +28,7 @@ export default function Login() {
       });
       
       const data = await response.json();
-      console.log('Login Response:', data);
+    
 
       if (!response.ok) {
         throw new Error(data.message || 'Error en el login');
@@ -37,7 +37,7 @@ export default function Login() {
       // ✅ Login exitoso
       console.log('✅ Login exitoso');
       localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
+      
       localStorage.setItem('currentUser', JSON.stringify(data.user));
       
       navigate('/');

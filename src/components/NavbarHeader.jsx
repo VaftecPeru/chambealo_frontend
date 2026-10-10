@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { User, Globe, DollarSign } from "lucide-react"
 import { Link } from "react-router-dom"
+import { logout } from "../services/authService";
 
 function NavbarHeader() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -35,10 +36,8 @@ function NavbarHeader() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    setCurrentUser(null);
-    window.location.href = "/";
-  };
+  logout(); // llama a /api/logout, borra access_token y currentUser, y va a /login
+};
 
   const toggleDropdown = (dropdown) => {
     setOpenDropdown(openDropdown === dropdown ? null : dropdown);

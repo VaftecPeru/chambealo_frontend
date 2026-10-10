@@ -26,13 +26,20 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Interceptor para redirigir si la sesión expira
+// Interceptor para limpiar la sesión y redirigir si el token venció
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const url = error.config?.url || '';
+        const esRutaDeAuth = url.includes('/login') || url.includes('/register');
+
+        if (error.response?.status === 401 && !esRutaDeAuth) {
             localStorage.removeItem('access_token');
-            window.location.href = '/login';
+            localStorage.removeItem('currentUser');
+
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login';
+            }
         }
 
         return Promise.reject(error);

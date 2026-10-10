@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { authFetch, getToken } from '../services/authService';
 import './Checkout.css';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -27,28 +28,19 @@ export default function PagoExitoso() {
         return;
       }
 
-      const token = localStorage.getItem('access_token');
-      if (!token) {
+            if (!getToken()) {
         setState({ phase: 'error', message: 'Tu sesión expiró. Inicia sesión de nuevo.' });
         return;
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/payment/confirm`, {
+        const res = await authFetch('/payment/confirm', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
+          redirectOnExpire: false,
           body: JSON.stringify({ gateway: 'paypal', payment_id: paymentId }),
         });
 
         const body = await res.json().catch(() => ({}));
-
-        if (res.status === 401) {
-          throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
-        }
         if (!res.ok || !body.success) {
           throw new Error(body.error || body.message || 'No se pudo confirmar el pago.');
         }
