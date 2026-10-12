@@ -112,19 +112,25 @@ export default function ShopByDepartments() {
   const isScrollable = canScrollLeft || canScrollRight;
 
   return (
-    <section className="shop-departments-section">
-      <div className="departments-header">
+    <section className="shop-departments-section w-full max-w-7xl mx-auto px-4 sm:px-6 my-8">
+      {/* Cabecera alineada: Título a la izquierda, Píldoras a la derecha en Desktop */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div>
-          <h2 className="departments-title">Comprar por Categorías</h2>
-          <p className="departments-subtitle">Frescura y calidad directamente a tu mesa</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#3a085c]">Comprar por Categorías</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Frescura y calidad directamente a tu mesa</p>
         </div>
 
-        <div className="pills-container">
+        {/* Contenedor de botones restaurado a los estilos del diseño */}
+        <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar bg-gray-100/80 p-1.5 rounded-full border border-gray-200/60 self-start md:self-auto">
           {categories.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => handleCategoryChange(key)}
-              className={`pill-btn ${activeCategory === key ? "active" : ""}`}
+              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 shrink-0 ${
+                activeCategory === key
+                  ? "bg-[#670cb7] text-white shadow-md scale-105"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+              }`}
             >
               {label}
             </button>
@@ -132,7 +138,7 @@ export default function ShopByDepartments() {
         </div>
       </div>
 
-      <div className="carousel-wrapper">
+      <div className="carousel-wrapper relative">
         {canScrollLeft && (
           <button
             onClick={() => scroll("left")}
@@ -146,10 +152,10 @@ export default function ShopByDepartments() {
         <div 
           ref={scrollRef} 
           onScroll={checkScrollState}
-          className="carousel-track"
+          className="carousel-track flex gap-4 overflow-x-auto scroll-smooth pb-4"
         >
           {loading ? (
-            <div className="empty-category-message">
+            <div className="empty-category-message w-full text-center py-8">
               <p>Cargando categorías...</p>
             </div>
           ) : filteredProducts.length > 0 ? (
@@ -161,7 +167,7 @@ export default function ShopByDepartments() {
               const image = product.image_url || product.img1 || product.image || "https://via.placeholder.com/200";
 
               return (
-                <article key={productId} className="dept-product-card">
+                <article key={productId} className="dept-product-card shrink-0 w-[240px] sm:w-[260px]">
                   <div onClick={() => handleProductClick(productId)}>
                     <div className="dept-card-image-wrapper">
                       <div className="dept-badges-container">
@@ -218,7 +224,7 @@ export default function ShopByDepartments() {
               );
             })
           ) : (
-            <div className="empty-category-message">
+            <div className="empty-category-message w-full text-center py-8">
               <p>No se encontraron productos en esta categoría.</p>
             </div>
           )}

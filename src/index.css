@@ -1,1 +1,19 @@
-@import 'tailwindcss'
+@import 'tailwindcss';
+
+/* Corrección de desbordamiento horizontal para C-015 */
+html, body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+img, svg, video {
+  max-width: 100% !important;
+  height: auto;
+}

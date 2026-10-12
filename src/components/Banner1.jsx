@@ -5,10 +5,10 @@ export default function Banner() {
   const navigate = useNavigate();
 
   return (
-    <section className="max-w-7xl mx-auto px-4 my-8">
+    <section className="w-full my-8">
       <div 
         onClick={() => navigate("/OurStore")}
-        className="cursor-pointer overflow-hidden rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 transform "
+        className="cursor-pointer overflow-hidden transition-all duration-300 w-full"
         title="Ver todas las ofertas en la tienda"
       >
         <img

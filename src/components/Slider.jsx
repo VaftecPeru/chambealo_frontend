@@ -32,10 +32,10 @@ export default function Slider() {
   }, []);
 
   return (
-    <div className="relative w-full max-w-8xl mx-auto overflow-hidden rounded-2xl shadow-lg mt-0 mb-4">
-      {/* Contenedor de imágenes */}
+    <div className="relative w-full overflow-hidden mt-0 mb-4 bg-gray-50">
+      {/* Contenedor de imágenes a ancho completo */}
       <div
-        className="flex transition-transform duration-500 ease-in-out cursor-pointer"
+        className="flex transition-transform duration-500 ease-in-out cursor-pointer w-full"
         style={{ transform: `translateX(-${current * 100}%)` }}
         onClick={() => navigate("/OurStore")}
       >
@@ -47,7 +47,7 @@ export default function Slider() {
               <img
                 src={image.desktop}
                 alt={`Banner ${index + 1}`}
-                className="w-full h-auto object-contain"
+                className="w-full h-auto object-cover block"
               />
             </picture>
           </div>
@@ -57,7 +57,7 @@ export default function Slider() {
       {/* Botón Izquierda */}
       <button
         onClick={prevSlide}
-        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 md:p-3 rounded-full hover:bg-black/70 transition z-10"
+        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2.5 md:p-3.5 rounded-full hover:bg-black/70 transition z-10 shadow-md"
         aria-label="Imagen anterior"
       >
         <ChevronLeft size={20} className="md:w-7 md:h-7" />
@@ -66,7 +66,7 @@ export default function Slider() {
       {/* Botón Derecha */}
       <button
         onClick={nextSlide}
-        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 md:p-3 rounded-full hover:bg-black/70 transition z-10"
+        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2.5 md:p-3.5 rounded-full hover:bg-black/70 transition z-10 shadow-md"
         aria-label="Siguiente imagen"
       >
         <ChevronRight size={20} className="md:w-7 md:h-7" />
@@ -78,8 +78,8 @@ export default function Slider() {
           <button
             key={index}
             onClick={() => setCurrent(index)}
-            className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all ${
-              index === current ? 'bg-white' : 'bg-white/50'
+            className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all shadow-sm ${
+              index === current ? 'bg-white scale-110' : 'bg-white/50'
             }`}
             aria-label={`Ir a imagen ${index + 1}`}
           />

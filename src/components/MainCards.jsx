@@ -32,14 +32,14 @@ export default function PromoCards() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4">
-      {/* Scroll horizontal en Mobile */}
-      <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide lg:hidden pb-4">
+    <div className="w-full max-w-7xl mx-auto py-8 px-4 overflow-x-hidden">
+      {/* Scroll horizontal optimizado en Mobile/Tablet para evitar desbordes */}
+      <div className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide lg:hidden pb-4 px-1">
         {cards.map((card) => (
           <div
             key={card.id}
             onClick={() => handleCardClick(card.link)}
-            className="flex-none w-80 sm:w-96 rounded-2xl overflow-hidden group snap-start cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+            className="flex-none w-[280px] sm:w-80 md:w-96 rounded-2xl overflow-hidden group snap-start cursor-pointer transition-transform duration-300 hover:scale-[1.02] bg-white shadow-sm border border-gray-100 flex-shrink-0"
           >
             <img
               src={card.image}
@@ -56,7 +56,7 @@ export default function PromoCards() {
           <div
             key={card.id}
             onClick={() => handleCardClick(card.link)}
-            className="w-full rounded-2xl overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-[1.02]"
+            className="w-full rounded-2xl overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-[1.02] shadow-sm border border-gray-100"
           >
             <img
               src={card.image}
