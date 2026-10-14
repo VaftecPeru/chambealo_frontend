@@ -30,7 +30,7 @@ export default function ShopByDepartments() {
       .then((data) => {
         const productList = Array.isArray(data)
           ? data
-          : Array.isArray(data?.products)
+          : data && Array.isArray(data.products)
             ? data.products
             : [];
         setProducts(productList);
@@ -41,7 +41,10 @@ export default function ShopByDepartments() {
 
   // Filtra dinámicamente los productos recibidos del backend
   const filteredProducts = products.filter((product) => {
-    const cat = (typeof product.category === 'object' ? product.category?.name : product.category || "").toLowerCase();
+    const catObj = product.category;
+    const rawCat = typeof catObj === 'object' && catObj !== null ? catObj.name : catObj;
+    const cat = (rawCat || "").toLowerCase();
+    
     const name = (product.name || product.nombre || "").toLowerCase();
 
     switch (activeCategory) {

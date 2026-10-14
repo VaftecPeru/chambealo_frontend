@@ -21,7 +21,7 @@ export default function OurProducts({ products: propProducts }) {
       .then((data) => {
         const productList = Array.isArray(data)
           ? data
-          : Array.isArray(data?.products)
+          : data && Array.isArray(data.products)
             ? data.products
             : [];
 
@@ -61,11 +61,9 @@ export default function OurProducts({ products: propProducts }) {
             const productId = product.product_id || product.id;
             const productName = product.name || product.nombre || 'Producto';
             
-            const categoryName = (
-              typeof product.category === 'object' 
-                ? product.category?.name 
-                : product.category || "GENERAL"
-            ).toUpperCase();
+            const catObj = product.category;
+            const rawCategory = typeof catObj === 'object' && catObj !== null ? catObj.name : catObj;
+            const categoryName = (rawCategory || "GENERAL").toUpperCase();
 
             const currentPriceNum = Number(product.price || 0);
             const currentPrice = currentPriceNum.toFixed(2);
