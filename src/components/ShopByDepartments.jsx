@@ -1,215 +1,253 @@
-import { useState, useRef } from "react";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Star, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { baseProducts } from "./products"; //Importamos los productos reales
+import { getProducts } from "../services/productService";
 import { useCart } from "../contexts/CartContext";
-
 import '../styles/ShopByDepartments.css';
 
-// Categorías mapeadas a los productos reales
-const getProductsByCategory = (categoryKey) => {
-  const categoryMap = {
-    milk: ["Lácteos", "Snacks", "Postres"],
-    vegetables: ["Vegetales", "Frutas"], 
-    bakery: ["Panadería", "Galletas", "Pasteles"]
-  };
+export default function ShopByDepartments() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("lacteos");
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [activeDot, setActiveDot] = useState(0);
 
-  return baseProducts.filter(product => 
-    categoryMap[categoryKey]?.includes(product.category) || 
-    categoryMap[categoryKey]?.includes(product.type)
-  );
-};
-
-export default function ProductCarousel() {
-  const [activeCategory, setActiveCategory] = useState("milk");
   const scrollRef = useRef(null);
   const navigate = useNavigate();
-  const { addToCart } = useCart(); // ✅ Hook del carrito
+  const { addToCart } = useCart();
 
   const categories = [
-    { key: "milk", label: "Lácteos" },
-    { key: "vegetables", label: "Vegetales" },
-    { key: "bakery", label: "Panadería" },
+    { key: "lacteos", label: "Lácteos" },
+    { key: "vegetales", label: "Vegetales" },
+    { key: "panaderia", label: "Panadería" },
+    { key: "frutos_secos", label: "Frutos Secos" },
+    { key: "galletas", label: "Galletas" },
   ];
 
-  // Obtener productos filtrados por categoría
-  const filteredProducts = getProductsByCategory(activeCategory);
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        const productList = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+            ? data.products
+            : [];
+        setProducts(productList);
+      })
+      .catch((err) => console.error("Error al obtener productos en ShopByDepartments:", err))
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Función para redirigir al detalle del producto
-  const handleProductClick = (productId) => {
-    navigate(`/producto/${productId}`); // ✅ CORREGIDO: usa "/producto/" no "/product/"
+  // Filtra dinámicamente los productos recibidos del backend
+  const filteredProducts = products.filter((product) => {
+    const cat = (typeof product.category === 'object' ? product.category?.name : product.category || "").toLowerCase();
+    const name = (product.name || product.nombre || "").toLowerCase();
+
+    switch (activeCategory) {
+      case "lacteos":
+        return cat.includes("lácteo") || cat.includes("lacteo") || cat.includes("leche");
+      case "vegetales":
+        return cat.includes("vegetal") || cat.includes("verdura") || cat.includes("fruta");
+      case "panaderia":
+        return cat.includes("panad") || cat.includes("pan") || cat.includes("pastel");
+      case "frutos_secos":
+        return cat.includes("fruto") || cat.includes("seco") || cat.includes("nueces") || name.includes("nueces");
+      case "galletas":
+        return cat.includes("galleta") || cat.includes("snack");
+      default:
+        return cat.includes(activeCategory);
+    }
+  });
+
+  const checkScrollState = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    
+    const maxScroll = scrollWidth - clientWidth;
+    const hasOverflow = maxScroll > 10;
+    
+    setCanScrollLeft(hasOverflow && scrollLeft > 10);
+    setCanScrollRight(hasOverflow && scrollLeft < maxScroll - 10);
+
+    if (hasOverflow && maxScroll > 0) {
+      const ratio = scrollLeft / maxScroll;
+      if (ratio < 0.33) setActiveDot(0);
+      else if (ratio < 0.66) setActiveDot(1);
+      else setActiveDot(2);
+    } else {
+      setActiveDot(0);
+    }
   };
 
-  // ✅ Función para agregar al carrito
+  useEffect(() => {
+    checkScrollState();
+    window.addEventListener("resize", checkScrollState);
+    return () => window.removeEventListener("resize", checkScrollState);
+  }, [filteredProducts, activeCategory]);
+
+  const handleProductClick = (productId) => {
+    navigate(`/producto/${productId}`);
+  };
+
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
-    addToCart(product, 1); // ✅ Agrega 1 unidad al carrito
-    alert(`"${product.name}" agregado al carrito! 🛒`);
+    addToCart(product, 1);
   };
 
-  // Scroll que centra cada card por click
   const scroll = (direction) => {
     if (!scrollRef.current) return;
-    const container = scrollRef.current;
-    const cards = Array.from(container.children);
-    if (!cards.length) return;
-
-    const gap = 24;
-    const cardWidth = cards[0].offsetWidth + gap;
-    const scrollLeft = container.scrollLeft;
-
-    let targetIndex;
-    if (direction === "right") {
-      targetIndex = Math.round(scrollLeft / cardWidth) + 1;
-      if (targetIndex >= cards.length) targetIndex = cards.length - 1;
-    } else {
-      targetIndex = Math.round(scrollLeft / cardWidth) - 1;
-      if (targetIndex < 0) targetIndex = 0;
-    }
-
-    const targetScroll = targetIndex * cardWidth;
-    container.scrollTo({ left: targetScroll, behavior: "smooth" });
+    const scrollAmount = direction === "left" ? -300 : 300;
+    scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
-  const handleCategory = (key) => {
+  const handleCategoryChange = (key) => {
     setActiveCategory(key);
-    if (scrollRef.current) scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    }
+    setTimeout(checkScrollState, 150);
   };
+
+  const isScrollable = canScrollLeft || canScrollRight;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      {/* Título */}
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
-        Comprar por Categorías
-      </h2>
-
-      {/* Botones de categoría */}
-      <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        {categories.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => handleCategory(key)}
-            className={`px-5 py-2 rounded-full font-medium transition ${
-              activeCategory === key
-                ? "bg-purple-600 text-white shadow"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Carrusel con flechas */}
-      <div className="relative">
-        {/* Flecha izquierda */}
-        <button
-          onClick={() => scroll("left")}
-          aria-label="Scroll left"
-          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 hover:bg-gray-100 z-10 hidden sm:flex"
-        >
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
-        </button>
-
-        {/* Contenedor scrollable */}
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-2 sm:px-8"
-          style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
-        >
-          {filteredProducts.map((product) => (
-            <article
-              key={product.id}
-              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0 cursor-pointer transition-transform hover:scale-105 hover:shadow-md"
-            >
-              {/* Contenido clickeable para ir al detalle */}
-              <div 
-                onClick={() => handleProductClick(product.id)}
-                className="cursor-pointer"
-              >
-                {/* Imagen + Badge */}
-                <div className="relative w-full h-44 flex justify-center items-center overflow-hidden rounded-lg">
-                  {product.status && (
-                    <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
-                      {product.status === "sale"
-                        ? "Sale"
-                        : product.status === "sold out"
-                        ? "Sold out"
-                        : product.status}
-                    </span>
-                  )}
-                  <img
-                    src={product.img1}
-                    alt={product.name}
-                    className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
-                  />
-                  <img
-                    src={product.img2}
-                    alt={product.name + " alt"}
-                    className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                  />
-                </div>
-
-                {/* Contenido inferior */}
-                <div className="mt-4">
-                  <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
-                    {product.name}
-                  </h3>
-
-                  {/* Estrellas */}
-                  <div className="flex items-center gap-1 mt-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        className={i < (product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
-                      />
-                    ))}
-                    <span className="text-xs text-gray-500 ml-2">({product.rating || 0})</span>
-                  </div>
-
-                  {/* Precio y descuento */}
-                  <div className="mt-3 flex items-center gap-2 flex-wrap">
-                    {product.oldPrice && (
-                      <span className="line-through text-gray-400 text-sm">
-                        ${product.oldPrice.toFixed(2)}
-                      </span>
-                    )}
-                    <span className="text-lg font-bold text-red-600">${product.price.toFixed(2)}</span>
-                    {product.discount && (
-                      <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                        {product.discount}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Detalles */}
-                  {product.details && (
-                    <p className="text-gray-500 text-sm mt-1">{product.details}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Botón Agregar Compra - SEPARADO */}
-              <button 
-                className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
-                onClick={(e) => handleAddToCart(e, product)}
-              >
-                Agregar compra
-              </button>
-            </article>
-          ))}
+    <section className="shop-departments-section w-full max-w-7xl mx-auto px-4 sm:px-6 my-8">
+      {/* Cabecera alineada: Título a la izquierda, Píldoras a la derecha en Desktop */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#3a085c]">Comprar por Categorías</h2>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Frescura y calidad directamente a tu mesa</p>
         </div>
 
-        {/* Flecha derecha */}
-        <button
-          onClick={() => scroll("right")}
-          aria-label="Scroll right"
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 hover:bg-gray-100 z-10 hidden sm:flex"
-        >
-          <ChevronRight className="w-6 h-6 text-gray-600" />
-        </button>
+        {/* Contenedor de botones restaurado a los estilos del diseño */}
+        <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 no-scrollbar bg-gray-100/80 p-1.5 rounded-full border border-gray-200/60 self-start md:self-auto">
+          {categories.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => handleCategoryChange(key)}
+              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 shrink-0 ${
+                activeCategory === key
+                  ? "bg-[#670cb7] text-white shadow-md scale-105"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+
+      <div className="carousel-wrapper relative">
+        {canScrollLeft && (
+          <button
+            onClick={() => scroll("left")}
+            aria-label="Anterior"
+            className="carousel-nav-btn left"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        )}
+
+        <div 
+          ref={scrollRef} 
+          onScroll={checkScrollState}
+          className="carousel-track flex gap-4 overflow-x-auto scroll-smooth pb-4"
+        >
+          {loading ? (
+            <div className="empty-category-message w-full text-center py-8">
+              <p>Cargando categorías...</p>
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => {
+              const productId = product.product_id || product.id;
+              const name = product.name || product.nombre || 'Producto';
+              const price = Number(product.price || 0).toFixed(2);
+              const oldPrice = product.original_price || product.oldPrice;
+              const image = product.image_url || product.img1 || product.image || "https://via.placeholder.com/200";
+
+              return (
+                <article key={productId} className="dept-product-card shrink-0 w-[240px] sm:w-[260px]">
+                  <div onClick={() => handleProductClick(productId)}>
+                    <div className="dept-card-image-wrapper">
+                      <div className="dept-badges-container">
+                        <span className="badge-venta">VENTA</span>
+                        {product.discount && (
+                          <span className="badge-discount">{product.discount}</span>
+                        )}
+                      </div>
+                      <img
+                        src={image}
+                        alt={name}
+                        className="dept-card-image"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://via.placeholder.com/200?text=Sin+Imagen";
+                        }}
+                      />
+                    </div>
+
+                    <div className="rating-row">
+                      <div className="stars">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
+                          />
+                        ))}
+                      </div>
+                      <span className="reviews-count">({product.reviews || product.rating || 5})</span>
+                    </div>
+
+                    <h3 className="product-title">{name}</h3>
+                    <p className="product-content">
+                      {product.details || "Producto disponible"}
+                    </p>
+
+                    <div className="price-row">
+                      <span className="current-price">S/. {price}</span>
+                      {oldPrice && (
+                        <span className="old-price">S/. {Number(oldPrice).toFixed(2)}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={(e) => handleAddToCart(e, product)}
+                    className="dept-add-cart-btn"
+                  >
+                    <ShoppingCart size={18} />
+                    <span>Agregar al carrito</span>
+                  </button>
+                </article>
+              );
+            })
+          ) : (
+            <div className="empty-category-message w-full text-center py-8">
+              <p>No se encontraron productos en esta categoría.</p>
+            </div>
+          )}
+        </div>
+
+        {canScrollRight && (
+          <button
+            onClick={() => scroll("right")}
+            aria-label="Siguiente"
+            className="carousel-nav-btn right"
+          >
+            <ChevronRight size={20} />
+          </button>
+        )}
+      </div>
+
+      {isScrollable && (
+        <div className="dots-indicators">
+          <span className={`dot ${activeDot === 0 ? "active" : ""}`}></span>
+          <span className={`dot ${activeDot === 1 ? "active" : ""}`}></span>
+          <span className={`dot ${activeDot === 2 ? "active" : ""}`}></span>
+        </div>
+      )}
+    </section>
   );
 }

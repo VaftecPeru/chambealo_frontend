@@ -1,90 +1,88 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
-
-import "swiper/css";
-import "swiper/css/navigation";
+import { Bell, Star } from "lucide-react";
+import '../styles/OurLatestNews.css';
 
 export default function OurLatestNews() {
-  const newsData = [
-    {
-      id: 1,
-      img: "/img/estratosfera.png",
-      date: "July 5, 2024",
-      author: "Seenu Rawat",
-      title: "9 Content Marketing Trends You Need to Follow in 2024",
-      link: "#",
-    },
-    {
-      id: 2,
-      img: "/img/paisaje.jpg",
-      date: "June 22, 2024",
-      author: "Sarah Miller",
-      title: "How to Boost Engagement with Social Media Campaigns",
-      link: "#",
-    },
-    {
-      id: 3,
-      img: "/img/montaña.jpg",
-      date: "May 10, 2024",
-      author: "John Carter",
-      title: "Email Marketing Strategies for Better Conversion Rates",
-      link: "#",
-    },
-    {
-      id: 4,
-      img: "/img/paisaje.jpg",
-      date: "April 18, 2024",
-      author: "Emily Davis",
-      title: "Top SEO Tips to Improve Your Google Rankings",
-      link: "#",
-    },
-  ];
-
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-10">
-        Últimas Novedades
-      </h2>
+    <section className="latestnews-container">
+      {/* Encabezado con la barra morada de Figma */}
+      <div className="latestnews-header">
+        <span className="latestnews-bar"></span>
+        <h2 className="latestnews-title">Novedades y Comentarios</h2>
+      </div>
 
-      <Swiper
-        modules={[Navigation]}
-        navigation
-        spaceBetween={30}
-        breakpoints={{
-          320: { slidesPerView: 1 },
-          640: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 },
-        }}
-      >
-        {newsData.map((news) => (
-          <SwiperSlide key={news.id}>
-            <div className="bg-white rounded-2xl overflow-hidden">
-              {/* Imagen */}
+      {/* Grilla de 3 Tarjetas */}
+      <div className="latestnews-grid">
+        
+        {/* Tarjeta 1: Julio Vega */}
+        <article className="latestnews-card">
+          <div>
+            <div className="latestnews-user-header">
               <img
-                src={news.img}
-                alt={news.title}
-                className="w-full h-56 object-cover"
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200"
+                alt="Julio Vega"
+                className="latestnews-avatar"
               />
-
-              {/* Contenido */}
-              <div className="p-4">
-                <p className="text-sm text-gray-500 mb-1">
-                  {news.date} • {news.author}
-                </p>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 line-clamp-2">
-                  {news.title}
-                </h3>
-                <a
-                  href={news.link}
-                  className="text-orange-500 font-medium hover:underline"
-                >
-                  Leer más →
-                </a>
-              </div>
+              <h3 className="latestnews-user-name">Julio Vega</h3>
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
+            <p className="latestnews-comment">
+              "Las verduras llegaron súper frescas hoy. ¡Excelente calidad!"
+            </p>
+          </div>
+
+          <div className="latestnews-stars">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} size={16} className="star-active" />
+            ))}
+          </div>
+        </article>
+
+        {/* Tarjeta 2: Notificación - Nuevo Producto */}
+        <article className="latestnews-card notification-card">
+          <div className="decorative-purple-circle"></div>
+
+          <div>
+            <div className="latestnews-user-header">
+              <div className="latestnews-bell-icon">
+                <Bell size={18} className="bell-svg" />
+              </div>
+              <h3 className="latestnews-user-name">Nuevo Producto</h3>
+            </div>
+            <p className="latestnews-comment notification-text">
+              Pan artesanal de masa madre disponible todos los martes.
+            </p>
+          </div>
+
+          <div className="latestnews-time">
+            <span className="green-dot"></span>
+            <span>Publicado hace 2 horas</span>
+          </div>
+        </article>
+
+        {/* Tarjeta 3: José Vega */}
+        <article className="latestnews-card">
+          <div>
+            <div className="latestnews-user-header">
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200"
+                alt="José Vega"
+                className="latestnews-avatar"
+              />
+              <h3 className="latestnews-user-name">José Vega</h3>
+            </div>
+            <p className="latestnews-comment">
+              "Me encanta la nueva sección orgánica, muy variada y saludable."
+            </p>
+          </div>
+
+          <div className="latestnews-stars">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Star key={i} size={16} className="star-active" />
+            ))}
+            <Star size={16} className="star-half" />
+          </div>
+        </article>
+
+      </div>
+    </section>
   );
 }

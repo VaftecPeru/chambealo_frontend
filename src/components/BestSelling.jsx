@@ -2,20 +2,14 @@ import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react"; 
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
-import { baseProducts } from "./products"; // ✅ Importar productos reales
-import '../styles/ShopByDepartments.css'
+import { getProducts } from "../services/productService";
+import '../styles/BestSelling.css';
 
-// ✅ Usar productos reales en lugar de datos hardcodeados
-const products = baseProducts.filter(product => 
-  product.status === "sale" || product.rating >= 4
-).slice(0, 6); // Limitar a 6 productos
-
-// Función para obtener o crear endTime persistente en localStorage
 const getProductEndTime = (productId) => {
   const key = `productEndTime_${productId}`;
   const stored = localStorage.getItem(key);
   if (stored) return parseInt(stored, 10);
-  const endTime = Date.now() + 48 * 60 * 60 * 1000; // 48 horas
+  const endTime = Date.now() + 48 * 60 * 60 * 1000;
   localStorage.setItem(key, endTime);
   return endTime;
 };
@@ -41,27 +35,40 @@ function CountdownTimer({ productId }) {
   };
 
   return (
-    <span className="absolute top-3 right-3 bg-yellow-400 text-black text-xs px-2 py-1 rounded z-20 font-semibold">
+    <span className="bestselling-timer">
       {formatTime(timeLeft)}
     </span>
   );
 }
 
-export default function ProductCarousel() {
+export default function BestSelling() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const scrollRef = useRef(null);
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  // ✅ Función para redirigir al detalle del producto
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        const productList = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.products)
+            ? data.products
+            : [];
+        setProducts(productList);
+      })
+      .catch((err) => console.error("Error al obtener productos en BestSelling:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
   const handleProductClick = (productId) => {
     navigate(`/producto/${productId}`);
   };
 
-  // ✅ Función para agregar al carrito
   const handleAddToCart = (e, product) => {
     e.stopPropagation();
     addToCart(product, 1);
-    alert(`"${product.name}" agregado al carrito! 🛒`);
   };
 
   const scroll = (direction) => {
@@ -70,7 +77,7 @@ export default function ProductCarousel() {
     const cards = Array.from(container.children);
     if (!cards.length) return;
 
-    const gap = 24;
+    const gap = 20;
     const cardWidth = cards[0].offsetWidth + gap;
     const scrollLeft = container.scrollLeft;
 
@@ -88,110 +95,113 @@ export default function ProductCarousel() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10">
-      {/* Título */}
-      <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">
-        Productos más Vendidos
-      </h2>
+    <section className="bestselling-container">
+      <div className="bestselling-header">
+        <h2 className="bestselling-title">Productos más vendidos</h2>
+        <p className="bestselling-subtitle">Top ventas en base a usuarios reales</p>
+      </div>
 
-      <div className="relative">
-        <button
-          onClick={() => scroll("left")}
-          aria-label="Scroll left"
-          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 hover:bg-gray-100 z-10 hidden sm:flex"
-        >
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
-        </button>
+      <div className="bestselling-carousel-wrapper">
+        {products.length > 0 && (
+          <button
+            onClick={() => scroll("left")}
+            aria-label="Anterior"
+            className="bestselling-nav-btn prev"
+          >
+            <ChevronLeft className="icon" />
+          </button>
+        )}
 
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide px-2 sm:px-8"
-          style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
-        >
-          {products.map((product) => (
-            <article
-              key={product.id}
-              onClick={() => handleProductClick(product.id)}
-              className="min-w-[70%] sm:min-w-[250px] sm:max-w-[250px] rounded-2xl overflow-hidden shadow-sm group p-4 bg-white relative flex-shrink-0 cursor-pointer transition-transform hover:scale-105 hover:shadow-md"
-            >
-              <div className="relative w-full h-44 flex justify-center items-center overflow-hidden rounded-lg">
-                {product.status && (
-                  <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
-                    {product.status === "sale"
-                      ? "Sale"
-                      : product.status === "sold out"
-                      ? "Sold out"
-                      : product.status}
-                  </span>
-                )}
+        <div ref={scrollRef} className="bestselling-track">
+          {loading ? (
+            <div className="empty-category-message" style={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
+              <p>Cargando productos...</p>
+            </div>
+          ) : products.length > 0 ? (
+            products.map((product) => {
+              const productId = product.product_id || product.id;
+              const name = product.name || product.nombre || 'Producto';
+              const price = Number(product.price || product.precio || 0);
+              const oldPrice = product.original_price || product.oldPrice;
+              const image = product.image_url || product.img1 || product.image || "https://via.placeholder.com/200";
 
-                <CountdownTimer productId={product.id} />
-
-                <img
-                  src={product.img1}
-                  alt={product.name}
-                  className="w-full h-full object-contain transition-opacity duration-300 group-hover:opacity-0"
-                />
-                <img
-                  src={product.img2}
-                  alt={product.name + " alt"}
-                  className="absolute inset-0 w-full h-full object-contain transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                />
-              </div>
-
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 whitespace-pre-line"> {/* El whitespace-pre-line funciona junto con el salto de linea \n , whitespace-pre-line va en la clase donde se quiere ver de manera visual, y el salto de linea \n en el texto donde se quiere hacer eso, en este caso en product.js, el producto con id: 5*/}
-                  {product.name}
-                </h3>
-
-                <div className="flex items-center gap-1 mt-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < (product.rating || 0) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
-                    />
-                  ))}
-                  <span className="text-xs text-gray-500 ml-2">({product.rating || 0})</span>
-                </div>
-
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  {product.oldPrice && (
-                    <span className="line-through text-gray-400 text-sm">
-                      ${product.oldPrice.toFixed(2)}
-                    </span>
-                  )}
-                  <span className="text-lg font-bold text-red-600">${product.price.toFixed(2)}</span>
-                  {product.discount && (
-                    <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                      {product.discount}
-                    </span>
-                  )}
-                </div>
-
-                {product.details && (
-                  <p className="text-gray-500 text-sm mt-1">{product.details}</p>
-                )}
-
-                <button 
-                  className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition-colors"
-                  onClick={(e) => handleAddToCart(e, product)}
+              return (
+                <article
+                  key={productId}
+                  onClick={() => handleProductClick(productId)}
+                  className="bestselling-card"
                 >
-                  Agregar Compra
-                </button>
-              </div>
-            </article>
-          ))}
+                  <div className="bestselling-card-content">
+                    <div className="bestselling-img-box">
+                      {product.discount && (
+                        <span className="bestselling-badge-sale">
+                          {product.discount}
+                        </span>
+                      )}
+
+                      <CountdownTimer productId={productId} />
+
+                      <img
+                        src={image}
+                        alt={name}
+                        className="bestselling-img img-primary"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "https://via.placeholder.com/200?text=Sin+Imagen";
+                        }}
+                      />
+                    </div>
+
+                    <div className="bestselling-stars">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          size={15}
+                          className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
+                        />
+                      ))}
+                    </div>
+
+                    <h3 className="bestselling-product-title">{name}</h3>
+
+                    <div className="bestselling-price-box">
+                      {oldPrice && (
+                        <span className="bestselling-old-price">
+                          S/ {Number(oldPrice).toFixed(2)}
+                        </span>
+                      )}
+                      <span className="bestselling-current-price">
+                        S/ {price.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={(e) => handleAddToCart(e, product)}
+                    className="bestselling-add-btn"
+                  >
+                    Agregar al carrito
+                  </button>
+                </article>
+              );
+            })
+          ) : (
+            <div className="empty-category-message" style={{ width: "100%", textAlign: "center", padding: "20px 0" }}>
+              <p>No hay productos disponibles actualmente en el servidor.</p>
+            </div>
+          )}
         </div>
 
-        <button
-          onClick={() => scroll("right")}
-          aria-label="Scroll right"
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full p-2 hover:bg-gray-100 z-10 hidden sm:flex"
-        >
-          <ChevronRight className="w-6 h-6 text-gray-600" />
-        </button>
+        {products.length > 0 && (
+          <button
+            onClick={() => scroll("right")}
+            aria-label="Siguiente"
+            className="bestselling-nav-btn next"
+          >
+            <ChevronRight className="icon" />
+          </button>
+        )}
       </div>
-    </div>
+    </section>
   );
 }
