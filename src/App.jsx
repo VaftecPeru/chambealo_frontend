@@ -56,7 +56,7 @@ function App() {
 
             <Route
               path="/checkout"
-              element={<PaypalCheckoutUI />}
+              element={<Checkout />}
             />
 
             <Route
