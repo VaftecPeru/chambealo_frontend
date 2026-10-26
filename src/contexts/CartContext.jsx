@@ -48,26 +48,30 @@ export const CartProvider = ({ children }) => {
 };
 
   const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-  };
+  setCartItems(prevItems =>
+    prevItems.filter(item => String(item.id) !== String(productId))
+  );
+};
 
-  const increaseQuantity = (productId) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
-  };
+const increaseQuantity = (productId) => {
+  setCartItems(prevItems =>
+    prevItems.map(item =>
+      String(item.id) === String(productId)
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+    )
+  );
+};
 
-  const decreaseQuantity = (productId) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === productId && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-  };
+const decreaseQuantity = (productId) => {
+  setCartItems(prevItems =>
+    prevItems.map(item =>
+      String(item.id) === String(productId) && item.quantity > 1
+        ? { ...item, quantity: item.quantity - 1 }
+        : item
+    )
+  );
+};
 
   const getCartItemsCount = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
