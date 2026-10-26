@@ -17,26 +17,35 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product, quantity = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.id);
-      
-      if (existingItem) {
-        return prevItems.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prevItems, {
-          id: product.id,
-          name: product.name ?? product.nombre ?? 'Producto',
-          price: product.price ?? product.precio ?? 0,
-          image: product.img1 ?? product.image ?? product.image_url ?? product.imagenes?.[0],
-          quantity: quantity
-        }];
-      }
-    });
-  };
+  const productId = product.product_id ?? product.id;
+
+  if (productId == null) {
+    console.error('No se puede agregar un producto sin identificador:', product);
+    return;
+  }
+
+  setCartItems(prevItems => {
+    const existingItem = prevItems.find(
+      item => String(item.id) === String(productId)
+    );
+
+    if (existingItem) {
+      return prevItems.map(item =>
+        String(item.id) === String(productId)
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
+    }
+
+    return [...prevItems, {
+      id: productId,
+      name: product.name ?? product.nombre ?? 'Producto',
+      price: product.price ?? product.precio ?? 0,
+      image: product.img1 ?? product.image ?? product.image_url ?? product.imagenes?.[0],
+      quantity
+    }];
+  });
+};
 
   const removeFromCart = (productId) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
