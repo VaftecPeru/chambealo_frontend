@@ -1,6 +1,8 @@
+
 import { useEffect, useState, useRef } from "react";
 import { User, ChevronDown, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
+import { canAccessAdminPanel } from "../services/session";
 
 function NavbarHeader() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -16,12 +18,18 @@ function NavbarHeader() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setIsDropdownOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -33,7 +41,7 @@ function NavbarHeader() {
   return (
     <div className="bg-[#670cb7] text-white text-xs sm:text-sm py-2 border-b border-purple-900/20">
       <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6">
-        
+
         {/* Banner Promocional */}
         <div className="flex items-center gap-2">
           <Truck size={16} className="text-white" />
@@ -41,10 +49,10 @@ function NavbarHeader() {
             Envíos gratis por compras mayores a <strong>S/ 99</strong>
           </span>
         </div>
-        
-        {/* Desplegable de Usuario (Hover / Click) */}
-        <div 
-          className="relative" 
+
+        {/* Desplegable de Usuario */}
+        <div
+          className="relative"
           ref={dropdownRef}
           onMouseEnter={() => setIsDropdownOpen(true)}
           onMouseLeave={() => setIsDropdownOpen(false)}
@@ -55,26 +63,30 @@ function NavbarHeader() {
           >
             <User size={15} />
             <span className="font-medium">
-              {currentUser ? currentUser.email : "Mi cuenta / Iniciar sesión"}
+              {currentUser
+                ? currentUser.email
+                : "Mi cuenta / Iniciar sesión"}
             </span>
             <ChevronDown size={14} />
           </button>
-          
+
           {isDropdownOpen && (
             <div className="absolute right-0 top-full pt-1 w-48 z-50">
               <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-2 text-gray-800 text-sm">
+
                 {!currentUser ? (
                   <>
-                    <Link 
-                      to="/Login" 
-                      onClick={() => setIsDropdownOpen(false)} 
+                    <Link
+                      to="/Login"
+                      onClick={() => setIsDropdownOpen(false)}
                       className="block px-4 py-2 hover:bg-purple-50 font-medium text-gray-700"
                     >
                       Iniciar Sesión
                     </Link>
-                    <Link 
-                      to="/Register" 
-                      onClick={() => setIsDropdownOpen(false)} 
+
+                    <Link
+                      to="/Register"
+                      onClick={() => setIsDropdownOpen(false)}
                       className="block px-4 py-2 hover:bg-purple-50 font-medium text-gray-700"
                     >
                       Registrarse
@@ -82,14 +94,25 @@ function NavbarHeader() {
                   </>
                 ) : (
                   <>
-                    <Link 
-                      to="/mis-pedidos" 
-                      onClick={() => setIsDropdownOpen(false)} 
+                    <Link
+                      to="/mis-pedidos"
+                      onClick={() => setIsDropdownOpen(false)}
                       className="block px-4 py-2 hover:bg-purple-50 font-medium text-gray-700"
                     >
                       Mis Pedidos
                     </Link>
-                    <button 
+
+                    {canAccessAdminPanel(currentUser) && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="block px-4 py-2 hover:bg-purple-50 font-medium text-gray-700"
+                      >
+                        Panel admin
+                      </Link>
+                    )}
+
+                    <button
                       onClick={() => {
                         setIsDropdownOpen(false);
                         handleLogout();
@@ -100,6 +123,7 @@ function NavbarHeader() {
                     </button>
                   </>
                 )}
+
               </div>
             </div>
           )}

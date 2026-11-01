@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import NavbarHeader from './components/NavbarHeader';
@@ -22,6 +22,11 @@ import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
 import MyOrders from './pages/MyOrders.jsx';
 import Footer from './components/Footer.jsx';
+import AdminRoute from './components/admin/AdminRoute.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminProducts from './pages/admin/AdminProducts.jsx';
+import AdminCategories from './pages/admin/AdminCategories.jsx';
+import AdminInventory from './pages/admin/AdminInventory.jsx';
 
 function App() {
   return (
@@ -88,6 +93,27 @@ function App() {
               path="/Register"
               element={<Register />}
             />
+                        {/* Panel administrativo (C-016) */}
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<Navigate to="productos" replace />} />
+              <Route path="productos" element={<AdminProducts />} />
+              <Route
+                path="categorias"
+                element={
+                  <AdminRoute roles={['admin']}>
+                    <AdminCategories />
+                  </AdminRoute>
+                }
+              />
+              <Route path="inventario" element={<AdminInventory />} />
+            </Route>
           </Routes>
 
           {/* Footer global para todas las rutas */}
