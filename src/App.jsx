@@ -18,6 +18,8 @@ import Login from './components/Login.jsx';
 import Register from './components/Register.jsx';
 import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
 import Checkout from './components/Checkout.jsx';
+import PagoExitoso from './components/PagoExitoso.jsx';
+import PagoCancelado from './components/PagoCancelado.jsx';
 import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
 import MyOrders from './pages/MyOrders.jsx';
@@ -62,6 +64,16 @@ function App() {
             <Route
               path="/pagar"
               element={<Checkout />}
+            />
+
+            <Route
+              path="/pago-exitoso"
+              element={<PagoExitoso />}
+            />
+
+            <Route
+              path="/pago-cancelado"
+              element={<PagoCancelado />}
             />
 
             <Route

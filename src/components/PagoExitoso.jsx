@@ -34,7 +34,7 @@ export default function PagoExitoso() {
       }
 
       try {
-        const res = await fetch(`${API_BASE}/api/payment/confirm`, {
+        const res = await fetch(`${API_BASE}/payment/confirm`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
