@@ -65,7 +65,7 @@ export default function Cart() {
                   const itemImage = item.image || item.image_url || item.img1 || 'https://via.placeholder.com/64?text=No+Image';
                   const itemCategory = item.category?.name || item.category_name || item.category || 'General';
                   const itemSubtotal = itemPrice * item.quantity;
-                  const maxStock = item.stock || item.stock_quantity || 99;
+                  const maxStock = item.stock == null ? Infinity : Number(item.stock);
 
                   return (
                     <div 
