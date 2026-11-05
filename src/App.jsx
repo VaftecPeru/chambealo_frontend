@@ -20,6 +20,7 @@ import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
 import Checkout from './components/Checkout.jsx';
 import PagoExitoso from './components/PagoExitoso.jsx';
 import PagoCancelado from './components/PagoCancelado.jsx';
+import PagoFallido from './components/PagoFallido.jsx';
 import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
 import MyOrders from './pages/MyOrders.jsx';
@@ -74,6 +75,11 @@ function App() {
             <Route
               path="/pago-cancelado"
               element={<PagoCancelado />}
+            />
+
+            <Route
+              path="/pago-fallido"
+              element={<PagoFallido />}
             />
 
             <Route

@@ -1,5 +1,6 @@
+
 import { useEffect, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import './Checkout.css';
 
@@ -7,14 +8,18 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
 export default function PagoExitoso() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { clearCart } = useCart();
 
-  // PayPal vuelve con ?token=<id de la orden de PayPal>&PayerID=...
+  // PayPal devuelve el identificador de la orden en "token".
   const paymentId = searchParams.get('token');
 
-  const [state, setState] = useState({ phase: 'loading', message: 'Confirmando tu pago…' });
+  const [state, setState] = useState({
+    phase: 'loading',
+    message: 'Confirmando tu pago…',
+  });
 
-  // Evita la doble ejecución del efecto en StrictMode (capturaría el pago dos veces).
+  // Evita ejecutar dos veces el efecto en StrictMode.
   const startedRef = useRef(false);
 
   useEffect(() => {
@@ -23,63 +28,182 @@ export default function PagoExitoso() {
 
     async function confirmPayment() {
       if (!paymentId) {
-        setState({ phase: 'error', message: 'No se encontró la referencia del pago.' });
+        setState({
+          phase: 'error',
+          message: 'No se encontró la referencia del pago.',
+        });
         return;
       }
 
       const token = localStorage.getItem('access_token');
+
       if (!token) {
-        setState({ phase: 'error', message: 'Tu sesión expiró. Inicia sesión de nuevo.' });
+        setState({
+          phase: 'error',
+          message: 'Tu sesión expiró. Inicia sesión de nuevo.',
+        });
         return;
       }
 
-      try {
-        const res = await fetch(`${API_BASE}/payment/confirm`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ gateway: 'paypal', payment_id: paymentId }),
-        });
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `Bearer ${token}`,
+      };
 
-        const body = await res.json().catch(() => ({}));
+      // Consulta el estado registrado en el backend.
+      // No realiza capturas ni cobros.
+      async function checkPaymentStatus() {
+        const response = await fetch(
+          `${API_BASE}/payment/status/${encodeURIComponent(paymentId)}`,
+          { headers }
+        );
 
-        if (res.status === 401) {
-          throw new Error('Tu sesión expiró. Inicia sesión de nuevo.');
-        }
-        if (!res.ok || !body.success) {
-          throw new Error(body.error || body.message || 'No se pudo confirmar el pago.');
+        if (!response.ok) {
+          throw new Error('No se pudo consultar el estado del pago.');
         }
 
-        if (body.status === 'completed') {
-          if (typeof clearCart === 'function') clearCart();
-          setState({ phase: 'ok', message: '¡Pago confirmado! Gracias por tu compra.' });
-        } else if (body.status === 'pending') {
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error('No se pudo verificar el pago.');
+        }
+
+        return result.status;
+      }
+
+      // Muestra el resultado confirmado por el backend.
+      function showPaymentStatus(status) {
+        if (status === 'completed' || status === 'paid') {
+          if (typeof clearCart === 'function') {
+            clearCart();
+          }
+
+          setState({
+            phase: 'ok',
+            message: '¡Pago confirmado! Gracias por tu compra.',
+          });
+
+          return true;
+        }
+
+        if (status === 'failed') {
+          navigate('/pago-fallido', { replace: true });
+          return true;
+        }
+
+        if (status === 'pending') {
           setState({
             phase: 'pending',
-            message: 'Tu pago está en revisión. Te avisaremos cuando se confirme.',
+            message:
+              'Tu pago todavía está pendiente. ' +
+              'Revisa tu pedido antes de volver a intentarlo.',
           });
-        } else {
-          setState({ phase: 'error', message: `El pago quedó en estado: ${body.status}.` });
+
+          return true;
         }
-      } catch (err) {
-        setState({ phase: 'error', message: err.message });
+
+        return false;
+      }
+
+      try {
+        // Confirmar el pago con el backend.
+        const response = await fetch(`${API_BASE}/payment/confirm`, {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            gateway: 'paypal',
+            payment_id: paymentId,
+          }),
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (response.status === 401) {
+          throw new Error(
+            'Tu sesión expiró. Inicia sesión de nuevo.'
+          );
+        }
+
+        if (!response.ok || !result.success) {
+          throw new Error(
+            result.error ||
+            result.message ||
+            'No pudimos confirmar el pago.'
+          );
+        }
+
+        if (showPaymentStatus(result.status)) {
+          return;
+        }
+
+        setState({
+          phase: 'error',
+          message:
+            'El backend devolvió un estado desconocido. ' +
+            'Revisa tu pedido antes de volver a pagar.',
+        });
+
+      } catch (error) {
+        // Si falla la confirmación, consultar el estado guardado.
+        // No asumir que un error significa que PayPal rechazó el pago.
+        try {
+          const status = await checkPaymentStatus();
+
+          if (showPaymentStatus(status)) {
+            return;
+          }
+
+          setState({
+            phase: 'pending',
+            message:
+              'No pudimos determinar el resultado final del pago. ' +
+              'Verifica tu pedido antes de volver a intentarlo.',
+          });
+
+        } catch {
+          setState({
+            phase: 'error',
+            message:
+              error.message ||
+              'No pudimos verificar el estado de tu pago.',
+          });
+        }
       }
     }
 
     confirmPayment();
-  }, [paymentId, clearCart]);
+  }, [paymentId, clearCart, navigate]);
 
   const bannerType =
-    state.phase === 'ok' ? 'ok' : state.phase === 'error' ? 'err' : 'info';
+    state.phase === 'ok'
+      ? 'ok'
+      : state.phase === 'error'
+        ? 'err'
+        : 'info';
 
   return (
     <div className="wrap">
-      <div className="card" style={{ maxWidth: 520, margin: '40px auto', textAlign: 'center' }}>
-        <h2>{state.phase === 'ok' ? 'Pago exitoso' : 'Estado de tu pago'}</h2>
-        <div className={`status-banner ${bannerType}`}>{state.message}</div>
+      <div
+        className="card"
+        style={{
+          maxWidth: 520,
+          margin: '40px auto',
+          textAlign: 'center',
+        }}
+      >
+        <h2>
+          {state.phase === 'ok'
+            ? 'Pago exitoso'
+            : 'Estado de tu pago'}
+        </h2>
+
+        <div className={`status-banner ${bannerType}`}>
+          {state.message}
+        </div>
+
         {state.phase !== 'loading' && (
           <p style={{ marginTop: 16 }}>
             <Link to="/">Volver al inicio</Link>
