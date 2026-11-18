@@ -17,7 +17,7 @@ export default function PagoFallido() {
 
         <div className="status-banner err">
           Ocurrió un problema al procesar tu pago con PayPal.
-          Puedes volver a intentarlo. Tu carrito se mantiene intacto.
+          Tu carrito se mantiene intacto. Consulta «Mis Pedidos» y verifica el estado anterior antes de iniciar un nuevo pago.
         </div>
 
         <p style={{ marginTop: 16 }}>
