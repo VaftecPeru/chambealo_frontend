@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
 import { Star } from "lucide-react";
-import Filter from "./Filter";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProducts } from "../services/productService";
 import { useCart } from "../contexts/CartContext";
+import { getProducts } from "../services/productService";
+import Filter from "./Filter";
 
 // Auxiliar para normalizar el nombre de categoría independientemente de si viene como String u Objeto desde la API
 function getCategoryName(category) {
@@ -32,7 +32,11 @@ function applyFilters(products, filters) {
       if (!filters.types.has(p.type)) return false;
     }
     if (filters.brands && filters.brands.size > 0) {
-      if (!filters.brands.has(p.brand)) return false;
+      const brandName = typeof p.brand === "object"
+  ? p.brand?.name
+  : p.brand;
+
+if (!filters.brands.has(brandName)) return false;
     }
     if (filters.weights && filters.weights.size > 0) {
       if (!filters.weights.has(p.weight)) return false;
@@ -56,7 +60,11 @@ function getUniqueOptions(products) {
     const catName = getCategoryName(p.category);
     if (catName) setCat.add(catName);
     if (p.type) setType.add(p.type);
-    if (p.brand) setBrand.add(p.brand);
+    const brandName = typeof p.brand === "object"
+  ? p.brand?.name
+  : p.brand;
+
+if (brandName) setBrand.add(brandName);
     if (p.weight) setWeight.add(p.weight);
     (p.tags || []).forEach((t) => setTags.add(t));
   });
@@ -86,7 +94,13 @@ function getCountsByGroup(filteredProducts, allOptions) {
     counts.types[name] = filteredProducts.filter((p) => p.type === name).length;
   });
   (allOptions.brands || []).forEach((name) => {
-    counts.brands[name] = filteredProducts.filter((p) => p.brand === name).length;
+    counts.brands[name] = filteredProducts.filter((p) => {
+  const brandName = typeof p.brand === "object"
+    ? p.brand?.name
+    : p.brand;
+
+  return brandName === name;
+}).length;
   });
   (allOptions.weights || []).forEach((name) => {
     counts.weights[name] = filteredProducts.filter((p) => p.weight === name).length;
