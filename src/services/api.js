@@ -26,15 +26,21 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Interceptor para redirigir si la sesión expira
+// Expirar la sesión solo si falló una ruta protegida.
+// Un login con credenciales inválidas debe permanecer en la pantalla.
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const url = String(error.config?.url || '').split('?')[0].toLowerCase();
+        const isPublicAuth = url === '/login' || url === '/register';
+        if (error.response?.status === 401 && !isPublicAuth) {
             localStorage.removeItem('access_token');
-            window.location.href = '/login';
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('currentUser');
+            if (window.location.pathname.toLowerCase() !== '/login') {
+                window.location.replace('/Login');
+            }
         }
-
         return Promise.reject(error);
     }
 );

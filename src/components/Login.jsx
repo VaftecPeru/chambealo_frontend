@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,37 +14,22 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.toLowerCase().trim(),
-          password: password
-        }),
+      const { data } = await api.post('/login', {
+        email: email.toLowerCase().trim(),
+        password,
       });
-      
-      const data = await response.json();
-      console.log('Login Response:', data);
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Error en el login');
+      if (!data?.access_token || !data?.user) {
+        throw new Error('El servidor devolvió una sesión incompleta.');
       }
 
-      // ✅ Login exitoso
-      console.log('✅ Login exitoso');
       localStorage.setItem('access_token', data.access_token);
-      localStorage.setItem('refresh_token', data.refresh_token);
       localStorage.setItem('currentUser', JSON.stringify(data.user));
-      
-      navigate('/');
-      setTimeout(() => window.location.reload(), 100);
-
+      localStorage.removeItem('refresh_token');
+      window.location.replace('/');
     } catch (error) {
       console.error('❌ Error en login:', error);
-      setError(error.message || 'Error al conectar con el servidor');
+      setError(error.response?.data?.message || error.message || 'Error al conectar con el servidor');
     } finally {
       setLoading(false);
     }
@@ -114,7 +98,7 @@ export default function Login() {
           <div className="text-center pt-2">
             <p className="text-gray-700">
               No account?{' '}
-              <Link to="/RegisterPrueba" className="text-teal-700 hover:text-teal-800">
+              <Link to="/Register" className="text-teal-700 hover:text-teal-800">
                 Create one here
               </Link>
             </p>
