@@ -1,11 +1,10 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import NavbarHeader from './components/NavbarHeader';
 import Navbar from './components/Navbar';
 import Slider from './components/Slider';
 import MainCards from './components/MainCards';
-import TopCategories from './components/TopCategories';
 import ShopByDepartments from './components/ShopByDepartments';
 import Banner1 from './components/Banner1';
 import BestSelling from './components/BestSelling';
@@ -16,12 +15,19 @@ import Products from './components/Products.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import Login from './components/Login.jsx';
 import Register from './components/Register.jsx';
-import PaypalCheckoutUI from './pages/Paypal_Checkout_Ui.jsx';
 import Checkout from './components/Checkout.jsx';
+import PagoExitoso from './components/PagoExitoso.jsx';
+import PagoCancelado from './components/PagoCancelado.jsx';
+import PagoFallido from './components/PagoFallido.jsx';
 import Cart from './components/Cart.jsx';
 import { CartProvider } from './contexts/CartContext';
 import MyOrders from './pages/MyOrders.jsx';
 import Footer from './components/Footer.jsx';
+import AdminRoute from './components/admin/AdminRoute.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminProducts from './pages/admin/AdminProducts.jsx';
+import AdminCategories from './pages/admin/AdminCategories.jsx';
+import AdminInventory from './pages/admin/AdminInventory.jsx';
 
 function App() {
   return (
@@ -56,13 +62,17 @@ function App() {
 
             <Route
               path="/checkout"
-              element={<PaypalCheckoutUI />}
+              element={<Checkout />}
             />
 
             <Route
               path="/pagar"
               element={<Checkout />}
             />
+
+            <Route path="/pago-exitoso" element={<PagoExitoso />} />
+            <Route path="/pago-cancelado" element={<PagoCancelado />} />
+            <Route path="/pago-fallido" element={<PagoFallido />} />
 
             <Route
               path="/mis-pedidos"
@@ -88,6 +98,27 @@ function App() {
               path="/Register"
               element={<Register />}
             />
+                        {/* Panel administrativo (C-016) */}
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }
+            >
+              <Route index element={<Navigate to="productos" replace />} />
+              <Route path="productos" element={<AdminProducts />} />
+              <Route
+                path="categorias"
+                element={
+                  <AdminRoute roles={['admin']}>
+                    <AdminCategories />
+                  </AdminRoute>
+                }
+              />
+              <Route path="inventario" element={<AdminInventory />} />
+            </Route>
           </Routes>
 
           {/* Footer global para todas las rutas */}
