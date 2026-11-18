@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { User, ChevronDown, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { canAccessAdminPanel } from "../services/session";
+import api from "../services/api";
 
 function NavbarHeader() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -32,10 +33,20 @@ function NavbarHeader() {
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    setCurrentUser(null);
-    window.location.href = "/";
+  const handleLogout = async () => {
+    try {
+      if (localStorage.getItem('access_token')) {
+        await api.post('/logout');
+      }
+    } catch {
+      // La sesión local debe cerrarse incluso si el servidor no responde.
+    } finally {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('currentUser');
+      setCurrentUser(null);
+      window.location.replace('/Login');
+    }
   };
 
   return (

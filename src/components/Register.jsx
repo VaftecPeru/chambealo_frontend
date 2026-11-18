@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -33,39 +34,20 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.toLowerCase().trim(),
-          password: password,
-          password_confirmation: confirmPassword,
-          telefono: telefono || null,
-          direccion: direccion || null,
-        }),
+      const { data } = await api.post('/register', {
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        password,
+        password_confirmation: confirmPassword,
+        telefono: telefono || null,
+        direccion: direccion || null,
       });
-      
-      const data = await response.json();
-      console.log('Register Response:', data);
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Error en el registro');
-      }
-
-      // ✅ Registro exitoso
-      setSuccess(data.message || '¡Registro exitoso! Redirigiendo al login...');
-      
-      setTimeout(() => {
-        navigate('/LoginPrueba');
-      }, 2000);
-
+      setSuccess(data?.message || 'Registro exitoso. Redirigiendo al inicio de sesión.');
+      setTimeout(() => navigate('/Login'), 1000);
     } catch (error) {
       console.error('❌ Error en registro:', error);
-      setError(error.message || 'Error al conectar con el servidor');
+      setError(error.response?.data?.message || error.message || 'Error al conectar con el servidor');
     } finally {
       setLoading(false);
     }
@@ -186,7 +168,7 @@ export default function Register() {
           <div className="text-center pt-2">
             <p className="text-gray-700">
               Already have an account?{' '}
-              <a href="/login" className="text-teal-700 hover:text-teal-800">
+              <a href="/Login" className="text-teal-700 hover:text-teal-800">
                 Login here
               </a>
             </p>
