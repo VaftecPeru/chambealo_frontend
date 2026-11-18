@@ -3,7 +3,7 @@ import { useCart } from '../contexts/CartContext';
 import './Checkout.css';
 
 // URL de tu backend Laravel (definida en .env como VITE_API_BASE_URL)
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
 
 // Estos valores son solo de visualización. El total real lo calcula el backend.
 const SHIPPING_COST = 0;
@@ -124,6 +124,9 @@ export default function Checkout() {
   // PASO 3: pide al backend la sesión de pago de PayPal para la Order creada.
   // Devuelve la approve_url a la que hay que redirigir al usuario.
   async function createPaymentSession(order) {
+    if (!Number.isSafeInteger(Number(order?.id)) || Number(order.id) < 1) {
+      throw new Error('El servidor no devolvió un identificador de pedido válido. Verifica tu pedido antes de reintentar.');
+    }
     const token = localStorage.getItem('access_token');
 
     const res = await fetch(`${API_BASE}/payment/session`, {
