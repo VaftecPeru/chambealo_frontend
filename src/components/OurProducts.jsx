@@ -69,15 +69,16 @@ export default function OurProducts({ products: propProducts }) {
             const currentPriceNum = hasPrice ? Number(product.price) : null;
             const currentPrice = hasPrice ? currentPriceNum.toFixed(2) : null;
             
-            const oldPriceVal = product.oldPrice || product.original_price;
-            const oldPriceNum = oldPriceVal ? Number(oldPriceVal) : null;
+            const oldPriceVal = product.oldPrice ?? product.original_price;
+            const oldPriceNum = oldPriceVal !== null && oldPriceVal !== undefined && oldPriceVal !== '' && Number.isFinite(Number(oldPriceVal))
+              ? Number(oldPriceVal)
+              : null;
 
-            // Cálculo dinámico del porcentaje de descuento si existe precio anterior
-            let discountText = product.discount || null;
-            if (!discountText && hasPrice && oldPriceNum && oldPriceNum > currentPriceNum && currentPriceNum > 0) {
-              const calcDiscount = Math.round(((oldPriceNum - currentPriceNum) / oldPriceNum) * 100);
-              discountText = `-${calcDiscount}%`;
-            }
+            // Mostrar descuentos solo cuando ambos precios verificables los sustentan.
+            const hasDiscount = hasPrice && oldPriceNum !== null && oldPriceNum > currentPriceNum && oldPriceNum > 0;
+            const discountText = hasDiscount
+              ? `-${Math.round(((oldPriceNum - currentPriceNum) / oldPriceNum) * 100)}%`
+              : null;
 
             const ratingVal = product.rating === null || product.rating === undefined || product.rating === '' ? null : Number(product.rating);
             const hasRating = ratingVal !== null && Number.isFinite(ratingVal) && ratingVal >= 0 && ratingVal <= 5;
@@ -125,7 +126,7 @@ export default function OurProducts({ products: propProducts }) {
 
                   {/* Precios (Anterior y Actual) */}
                   <div className="ourproducts-price-box">
-                    {hasPrice && oldPriceNum && oldPriceNum > currentPriceNum && (
+                    {hasDiscount && (
                       <span className="ourproducts-old-price">
                         S/. {oldPriceNum.toFixed(2)}
                       </span>
