@@ -67,7 +67,7 @@ export default function OurProducts({ products: propProducts }) {
 
             const hasPrice = product.price !== null && product.price !== undefined && product.price !== '' && Number.isFinite(Number(product.price)) && Number(product.price) >= 0;
             const currentPriceNum = hasPrice ? Number(product.price) : null;
-            const currentPrice = currentPriceNum.toFixed(2);
+            const currentPrice = hasPrice ? currentPriceNum.toFixed(2) : null;
             
             const oldPriceVal = product.oldPrice || product.original_price;
             const oldPriceNum = oldPriceVal ? Number(oldPriceVal) : null;
