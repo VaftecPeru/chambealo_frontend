@@ -65,20 +65,23 @@ export default function OurProducts({ products: propProducts }) {
             const rawCategory = typeof catObj === 'object' && catObj !== null ? catObj.name : catObj;
             const categoryName = (rawCategory || "GENERAL").toUpperCase();
 
-            const currentPriceNum = Number(product.price || 0);
-            const currentPrice = currentPriceNum.toFixed(2);
+            const hasPrice = product.price !== null && product.price !== undefined && product.price !== '' && Number.isFinite(Number(product.price)) && Number(product.price) >= 0;
+            const currentPriceNum = hasPrice ? Number(product.price) : null;
+            const currentPrice = hasPrice ? currentPriceNum.toFixed(2) : null;
             
-            const oldPriceVal = product.oldPrice || product.original_price;
-            const oldPriceNum = oldPriceVal ? Number(oldPriceVal) : null;
+            const oldPriceVal = product.oldPrice ?? product.original_price;
+            const oldPriceNum = oldPriceVal !== null && oldPriceVal !== undefined && oldPriceVal !== '' && Number.isFinite(Number(oldPriceVal))
+              ? Number(oldPriceVal)
+              : null;
 
-            // Cálculo dinámico del porcentaje de descuento si existe precio anterior
-            let discountText = product.discount || null;
-            if (!discountText && oldPriceNum && oldPriceNum > currentPriceNum && currentPriceNum > 0) {
-              const calcDiscount = Math.round(((oldPriceNum - currentPriceNum) / oldPriceNum) * 100);
-              discountText = `-${calcDiscount}%`;
-            }
+            // Mostrar descuentos solo cuando ambos precios verificables los sustentan.
+            const hasDiscount = hasPrice && oldPriceNum !== null && oldPriceNum > currentPriceNum && oldPriceNum > 0;
+            const discountText = hasDiscount
+              ? `-${Math.round(((oldPriceNum - currentPriceNum) / oldPriceNum) * 100)}%`
+              : null;
 
-            const ratingVal = Number(product.rating || 4.5);
+            const ratingVal = product.rating === null || product.rating === undefined || product.rating === '' ? null : Number(product.rating);
+            const hasRating = ratingVal !== null && Number.isFinite(ratingVal) && ratingVal >= 0 && ratingVal <= 5;
 
             return (
               <Link
@@ -108,7 +111,7 @@ export default function OurProducts({ products: propProducts }) {
                   <h3 className="ourproducts-name">{productName}</h3>
 
                   {/* Rating con estrellas */}
-                  <div className="ourproducts-rating">
+                  {hasRating && <div className="ourproducts-rating">
                     <div className="ourproducts-stars">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
@@ -119,17 +122,17 @@ export default function OurProducts({ products: propProducts }) {
                       ))}
                     </div>
                     <span className="ourproducts-rating-num">({ratingVal.toFixed(1)})</span>
-                  </div>
+                  </div>}
 
                   {/* Precios (Anterior y Actual) */}
                   <div className="ourproducts-price-box">
-                    {oldPriceNum && oldPriceNum > currentPriceNum && (
+                    {hasDiscount && (
                       <span className="ourproducts-old-price">
                         S/. {oldPriceNum.toFixed(2)}
                       </span>
                     )}
                     <span className="ourproducts-current-price">
-                      S/. {currentPrice}
+                      {hasPrice ? `S/. ${currentPrice}` : 'Precio no disponible'}
                     </span>
                   </div>
                 </div>
