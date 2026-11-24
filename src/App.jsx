@@ -10,7 +10,6 @@ import Banner1 from './components/Banner1';
 import BestSelling from './components/BestSelling';
 import MainCards2 from './components/MainCards2';
 import OurProducts from './components/OurProducts';
-import OurLatestNews from './components/OurLatestNews';
 import Products from './components/Products.jsx';
 import ProductDetail from './pages/ProductDetail.jsx';
 import Login from './components/Login.jsx';
@@ -50,7 +49,7 @@ function App() {
                   <BestSelling />
                   <MainCards2 />
                   <OurProducts />
-                  <OurLatestNews />
+                  
                 </>
               }
             />

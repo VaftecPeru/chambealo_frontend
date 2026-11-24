@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { getProducts } from "../services/productService";
 import Filter from "./Filter";
+import { getPricing, getRating, getStockInfo } from "../utils/catalog";
 
 // Auxiliar para normalizar el nombre de categoría independientemente de si viene como String u Objeto desde la API
 function getCategoryName(category) {
@@ -181,8 +182,6 @@ export default function Products() {
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
     switch (sortOption) {
-      case "Más vendidos":
-        return list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       case "Orden alfabético A-Z":
         return list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       case "Orden alfabético Z-A":
@@ -264,7 +263,7 @@ export default function Products() {
     <div className="w-full bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
         <div className="flex flex-col lg:flex-row gap-6">
-          
+
           {/* SIDEBAR DESKTOP */}
           <aside className="hidden lg:block lg:w-72 flex-shrink-0">
             <div>
@@ -317,7 +316,7 @@ export default function Products() {
                       ×
                     </button>
                   </div>
-                  
+
                   <Filter
                     allOptions={allOptions}
                     counts={counts}
@@ -366,7 +365,6 @@ export default function Products() {
                   className="w-full sm:w-auto border border-violet-200 bg-white rounded-md px-3 py-2 text-sky-800 focus:outline-none focus:ring-2 focus:ring-violet-300"
                 >
                   <option>Destacados</option>
-                  <option>Más vendidos</option>
                   <option>Orden alfabético A-Z</option>
                   <option>Orden alfabético Z-A</option>
                   <option>Precio de mayor a menor</option>
@@ -382,10 +380,9 @@ export default function Products() {
                   const productId = product.product_id || product.id;
                   const mainImg = product.image_url || product.img1 || "https://via.placeholder.com/200";
                   const hoverImg = product.img2 || mainImg;
-                  const priceVal = Number(product.price || 0);
-                  const oldPriceVal = product.oldPrice || product.original_price;
-                  const discountText = product.discount || (oldPriceVal ? "-15%" : null);
-                  const ratingVal = product.rating || 0;
+                  const { price: priceVal, oldPrice: oldPriceVal, percent } = getPricing(product);
+                  const ratingVal = getRating(product);
+                  const stock = getStockInfo(product);
 
                   return (
                     <Link to={`/producto/${productId}`} key={productId}>
@@ -393,9 +390,9 @@ export default function Products() {
                         className="rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group p-4 bg-white relative"
                       >
                         <div className="relative w-full h-40 sm:h-44 flex justify-center items-center overflow-hidden rounded-lg">
-                          {product.status && (
+                          {stock.soldOut && (
                             <span className="absolute top-3 left-3 bg-red-500 text-white text-xs px-2 py-1 rounded z-20">
-                              {product.status === "sale" ? "Sale" : product.status === "sold out" ? "Sold out" : product.status}
+                              Agotado
                             </span>
                           )}
                           <img
@@ -414,42 +411,50 @@ export default function Products() {
                           <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">
                             {product.name}
                           </h3>
-                          <div className="flex items-center gap-1 mt-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                size={16}
-                                className={i < ratingVal ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
-                              />
-                            ))}
-                            <span className="text-xs text-gray-500 ml-2">({ratingVal})</span>
-                          </div>
+
+                          {ratingVal !== null && (
+                            <div className="flex items-center gap-1 mt-2">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  size={16}
+                                  className={i < Math.round(ratingVal) ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+                                />
+                              ))}
+                              <span className="text-xs text-gray-500 ml-2">({ratingVal.toFixed(1)})</span>
+                            </div>
+                          )}
 
                           <div className="mt-3 flex items-center gap-2 flex-wrap">
                             {oldPriceVal && (
                               <span className="line-through text-gray-400 text-sm">
-                                S/. {Number(oldPriceVal).toFixed(2)}
+                                S/. {oldPriceVal.toFixed(2)}
                               </span>
                             )}
                             <span className="text-lg font-bold text-red-600">
                               S/. {priceVal.toFixed(2)}
                             </span>
-                            {discountText && (
+                            {percent > 0 && (
                               <span className="text-xs bg-purple-600 text-white px-2 py-0.5 rounded-full">
-                                {discountText}
+                                -{percent}%
                               </span>
                             )}
                           </div>
+
+                          {stock.low && (
+                            <p className="mt-1 text-xs font-semibold text-amber-600">{stock.label}</p>
+                          )}
 
                           {product.details && (
                             <p className="text-gray-500 text-sm mt-1">{product.details}</p>
                           )}
 
                           <button 
-                            className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition"
+                            className="mt-4 w-full bg-orange-500 text-white py-2 rounded-full font-semibold hover:bg-orange-600 transition disabled:cursor-not-allowed disabled:bg-gray-300"
                             onClick={(e) => handleAddToCart(e, product)}
+                            disabled={stock.soldOut}
                           >
-                            Agregar Compra
+                            {stock.soldOut ? "Agotado" : "Agregar Compra"}
                           </button>
                         </div>
                       </article>

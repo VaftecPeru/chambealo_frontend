@@ -1,8 +1,10 @@
+
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Star, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getProducts } from "../services/productService";
 import { useCart } from "../contexts/CartContext";
+import { getPricing, getRating, getStockInfo } from "../utils/catalog";
 import '../styles/ShopByDepartments.css';
 
 export default function ShopByDepartments() {
@@ -44,7 +46,7 @@ export default function ShopByDepartments() {
     const catObj = product.category;
     const rawCat = typeof catObj === 'object' && catObj !== null ? catObj.name : catObj;
     const cat = (rawCat || "").toLowerCase();
-    
+
     const name = (product.name || product.nombre || "").toLowerCase();
 
     switch (activeCategory) {
@@ -66,10 +68,10 @@ export default function ShopByDepartments() {
   const checkScrollState = () => {
     if (!scrollRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    
+
     const maxScroll = scrollWidth - clientWidth;
     const hasOverflow = maxScroll > 10;
-    
+
     setCanScrollLeft(hasOverflow && scrollLeft > 10);
     setCanScrollRight(hasOverflow && scrollLeft < maxScroll - 10);
 
@@ -152,8 +154,8 @@ export default function ShopByDepartments() {
           </button>
         )}
 
-        <div 
-          ref={scrollRef} 
+        <div
+          ref={scrollRef}
           onScroll={checkScrollState}
           className="carousel-track flex gap-4 overflow-x-auto scroll-smooth pb-4"
         >
@@ -165,8 +167,10 @@ export default function ShopByDepartments() {
             filteredProducts.map((product) => {
               const productId = product.product_id || product.id;
               const name = product.name || product.nombre || 'Producto';
-              const price = Number(product.price || 0).toFixed(2);
-              const oldPrice = product.original_price || product.oldPrice;
+              const { price: priceNum, oldPrice, percent } = getPricing(product);
+              const price = priceNum.toFixed(2);
+              const rating = getRating(product);
+              const stock = getStockInfo(product);
               const image = product.image_url || product.img1 || product.image || "https://via.placeholder.com/200";
 
               return (
@@ -174,10 +178,8 @@ export default function ShopByDepartments() {
                   <div onClick={() => handleProductClick(productId)}>
                     <div className="dept-card-image-wrapper">
                       <div className="dept-badges-container">
-                        <span className="badge-venta">VENTA</span>
-                        {product.discount && (
-                          <span className="badge-discount">{product.discount}</span>
-                        )}
+                        {stock.soldOut && <span className="badge-venta">AGOTADO</span>}
+                        {percent > 0 && <span className="badge-discount">-{percent}%</span>}
                       </div>
                       <img
                         src={image}
@@ -190,22 +192,24 @@ export default function ShopByDepartments() {
                       />
                     </div>
 
-                    <div className="rating-row">
-                      <div className="stars">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            size={14}
-                            className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
-                          />
-                        ))}
+                    {rating !== null && (
+                      <div className="rating-row">
+                        <div className="stars">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              size={14}
+                              className={i < Math.round(rating) ? "star-active" : "star-inactive"}
+                            />
+                          ))}
+                        </div>
+                        <span className="reviews-count">({rating.toFixed(1)})</span>
                       </div>
-                      <span className="reviews-count">({product.reviews || product.rating || 5})</span>
-                    </div>
+                    )}
 
                     <h3 className="product-title">{name}</h3>
                     <p className="product-content">
-                      {product.details || "Producto disponible"}
+                      {product.details || stock.label}
                     </p>
 
                     <div className="price-row">
@@ -218,10 +222,11 @@ export default function ShopByDepartments() {
 
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    className="dept-add-cart-btn"
+                    className="dept-add-cart-btn disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={stock.soldOut}
                   >
                     <ShoppingCart size={18} />
-                    <span>Agregar al carrito</span>
+                    <span>{stock.soldOut ? "Agotado" : "Agregar al carrito"}</span>
                   </button>
                 </article>
               );
