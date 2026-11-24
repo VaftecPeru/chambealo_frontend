@@ -68,9 +68,12 @@ export async function fetchAllProducts() {
   return items;
 }
 
+// El backend devuelve las categorías con "category_id"; el panel usa "id".
+const withId = (item) => ({ ...item, id: item.id ?? item.category_id });
+
 export async function fetchCategories() {
   const { data } = await api.get('/categories');
-  return toList(data);
+  return toList(data).map(withId);
 }
 
 export async function fetchBrands() {

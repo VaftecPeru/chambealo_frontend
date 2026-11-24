@@ -22,10 +22,10 @@ export default function MainCards2() {
 
           <div className="maincards2-content relative z-10 max-w-[280px] sm:max-w-xs">
             <span className="inline-block bg-yellow-400 text-slate-900 text-[11px] sm:text-xs font-black px-3 py-1 rounded-full uppercase mb-2 shadow-sm">
-              Hasta 40% OFF
+              Para tu hogar
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mb-2">
-              Ofertas para tu hogar
+              Productos para tu hogar
             </h2>
             <p className="text-xs sm:text-sm text-gray-200 mb-4 font-medium">
               Productos esenciales para hacer tu día más fácil.
@@ -52,13 +52,13 @@ export default function MainCards2() {
 
           <div className="maincards2-content relative z-10 max-w-[280px] sm:max-w-xs">
             <span className="inline-block bg-purple-600 text-white text-[11px] sm:text-xs font-black px-3 py-1 rounded-full uppercase mb-2 shadow-sm">
-              Solo por esta semana
+              Selección Chambealo
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-purple-900 leading-tight mb-2">
               Productos seleccionados
             </h2>
             <p className="text-xs sm:text-sm text-purple-800 mb-4 font-medium">
-              Encuentra tus favoritos a precios especiales.
+              Encuentra tus favoritos en un solo lugar.
             </p>
             <button
               onClick={(e) => {

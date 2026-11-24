@@ -1,5 +1,4 @@
-import { CreditCard, ShieldCheck, ShoppingBag, Smartphone, Ticket, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { CreditCard, ShieldCheck, ShoppingBag, Smartphone, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 
@@ -18,11 +17,9 @@ export default function Cart() {
     getCartItemsCount
   } = useCart();
 
-  const [coupon, setCoupon] = useState('');
   const subtotal = getCartTotal();
   const shipping = 0;
-  const discount = 0;
-  const total = subtotal + shipping - discount;
+  const total = subtotal + shipping;
 
   return (
     <main className="min-h-screen bg-[#f8f9fa] font-sans">
@@ -45,7 +42,7 @@ export default function Cart() {
 
             {/* TABLA / LISTA DE PRODUCTOS */}
             <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-              
+
               {/* HEADER TABLA (Solo Desktop) */}
               <div className="hidden grid-cols-[2.6fr_1fr_1.2fr_1.1fr_0.7fr] border-b border-gray-100 px-7 py-4 text-[11px] font-bold uppercase tracking-[0.27px] text-gray-400 md:grid">
                 <div>Producto</div>
@@ -68,19 +65,19 @@ export default function Cart() {
                   const maxStock = item.stock == null ? Infinity : Number(item.stock);
 
                   return (
-                    <div 
-                      key={itemId} 
+                    <div
+                      key={itemId}
                       className="flex flex-col gap-4 px-5 py-5 sm:px-7 md:grid md:grid-cols-[2.6fr_1fr_1.2fr_1.1fr_0.7fr] md:items-center"
                     >
                       {/* Información del Producto */}
                       <div className="flex items-center gap-4">
-                        <img 
-                          src={itemImage} 
-                          alt={itemName} 
-                          className="h-16 w-16 flex-shrink-0 rounded-lg border border-gray-100 object-cover p-1" 
+                        <img
+                          src={itemImage}
+                          alt={itemName}
+                          className="h-16 w-16 flex-shrink-0 rounded-lg border border-gray-100 object-cover p-1"
                           onError={(e) => {
                             e.target.src = 'https://via.placeholder.com/64?text=No+Image';
-                          }} 
+                          }}
                         />
                         <div className="flex flex-col min-w-0">
                           <span className="text-[14px] font-bold text-gray-900 truncate">{itemName}</span>
@@ -100,8 +97,8 @@ export default function Cart() {
                       <div className="flex items-center justify-between md:justify-start gap-3">
                         <span className="text-xs text-gray-500 md:hidden font-medium">Cantidad:</span>
                         <div className="flex items-center gap-3">
-                          <button 
-                            onClick={() => decreaseQuantity(itemId)} 
+                          <button
+                            onClick={() => decreaseQuantity(itemId)}
                             disabled={item.quantity <= 1}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-50 active:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent"
                             aria-label="Disminuir cantidad"
@@ -111,8 +108,8 @@ export default function Cart() {
                           <span className="min-w-[20px] text-center text-[14px] font-bold text-gray-900">
                             {item.quantity}
                           </span>
-                          <button 
-                            onClick={() => increaseQuantity(itemId)} 
+                          <button
+                            onClick={() => increaseQuantity(itemId)}
                             disabled={item.quantity >= maxStock}
                             className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-600 transition hover:bg-gray-50 active:bg-gray-100 disabled:opacity-40 disabled:hover:bg-transparent"
                             aria-label="Aumentar cantidad"
@@ -132,8 +129,8 @@ export default function Cart() {
 
                       {/* Botón Eliminar */}
                       <div className="flex justify-end pt-2 border-t border-gray-50 md:border-0 md:pt-0">
-                        <button 
-                          onClick={() => removeFromCart(itemId)} 
+                        <button
+                          onClick={() => removeFromCart(itemId)}
                           className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-700 font-medium transition"
                           title="Eliminar producto"
                         >
@@ -146,25 +143,10 @@ export default function Cart() {
                 })}
               </div>
 
-              {/* BARRA DE CUPÓN Y SEGUIR COMPRANDO */}
-              <div className="flex flex-col gap-4 border-t border-gray-100 bg-white px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-                <div className="flex w-full max-w-[377px]">
-                  <div className="flex h-11 flex-1 items-center rounded-l-lg border border-r-0 border-gray-200 bg-white px-3.5 focus-within:border-sky-900">
-                    <Ticket size={16} className="mr-2 flex-shrink-0 text-gray-400" />
-                    <input
-                      type="text"
-                      value={coupon}
-                      onChange={(e) => setCoupon(e.target.value)}
-                      placeholder="Código de cupón"
-                      className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
-                    />
-                  </div>
-                  <button className="h-11 rounded-r-lg bg-sky-900 px-5 text-sm font-semibold text-white transition hover:bg-sky-800">
-                    Aplicar
-                  </button>
-                </div>
-                <Link 
-                  to="/OurStore" 
+              {/* SEGUIR COMPRANDO */}
+              <div className="flex items-center justify-end border-t border-gray-100 bg-white px-5 py-6 sm:px-7">
+                <Link
+                  to="/OurStore"
                   className="flex items-center justify-center gap-2 text-sm font-semibold text-violet-600 transition hover:text-violet-700 hover:underline"
                 >
                   <ShoppingBag size={15} /> Seguir Comprando
@@ -185,11 +167,6 @@ export default function Cart() {
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500">Envío estimado</span>
                   <span className="rounded bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-600">Gratis</span>
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Descuento</span>
-                  <span className="text-gray-500">{formatPrice(discount)}</span>
                 </div>
               </div>
 
@@ -235,8 +212,8 @@ function EmptyCart() {
       <p className="mt-2 max-w-md text-sm text-gray-500 leading-relaxed">
         Parece que aún no has agregado productos. Explora el catálogo para comenzar tu compra.
       </p>
-      <Link 
-        to="/OurStore" 
+      <Link
+        to="/OurStore"
         className="mt-6 rounded-full bg-orange-500 px-8 py-3 text-sm font-bold text-white hover:bg-orange-600 transition shadow-md hover:shadow-lg"
       >
         Ir a la tienda

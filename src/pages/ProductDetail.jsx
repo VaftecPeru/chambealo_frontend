@@ -3,6 +3,7 @@ import { Star, ShoppingCart, Truck, ShieldCheck, ZoomIn } from 'lucide-react';
 import { useParams, Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { getProductById, getProducts } from '../services/productService';
+import { getPricing, getRating, getStockInfo } from '../utils/catalog';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -31,28 +32,16 @@ const ProductDetail = () => {
         foundProduct.img4,
       ].filter(Boolean);
 
-      const stockRaw =
-        foundProduct.stock ??
-        foundProduct.stock_quantity ??
-        foundProduct.quantity ??
-        null;
-
-      const unidadesStock =
-        stockRaw === null || stockRaw === undefined ? null : Number(stockRaw);
+      const pricing = getPricing(foundProduct);
+      const stockInfo = getStockInfo(foundProduct);
 
       return {
         id: Number(foundProduct.product_id || foundProduct.id),
         nombre: foundProduct.name || foundProduct.nombre || 'Producto',
         precio: Number(foundProduct.price || foundProduct.precio || 0),
-        precioAnterior: Number(
-          foundProduct.oldPrice ||
-          foundProduct.original_price ||
-          foundProduct.price ||
-          foundProduct.precio ||
-          0
-        ),
-        descuento: Number(foundProduct.discount || 0),
-        rating: Number(foundProduct.rating || 0),
+        precioAnterior: pricing.oldPrice,
+        descuento: pricing.percent,
+        rating: getRating(foundProduct),
         reviews: Number(foundProduct.reviews_count || foundProduct.reviews || 0),
         categoria:
           foundProduct.category?.name ||
@@ -64,13 +53,10 @@ const ProductDetail = () => {
         descripcion:
           foundProduct.description ||
           'Descripción del producto no disponible.',
-        stock: unidadesStock,
-        disponibilidad:
-          unidadesStock === null
-            ? 'Stock no disponible'
-            : unidadesStock > 0
-              ? `${unidadesStock} unidades`
-              : 'Agotado',
+        stock: stockInfo.units,
+        agotado: stockInfo.soldOut,
+        stockBajo: stockInfo.low,
+        disponibilidad: stockInfo.label,
         imagenes: imgs.length > 0 ? imgs : ['https://via.placeholder.com/400'],
       };
     };
@@ -267,21 +253,27 @@ const ProductDetail = () => {
             {prod.nombre}
           </h1>
 
-          <div className="flex items-center gap-2 text-xs mb-1">
-            <div className="flex gap-0.5">{renderStars(prod.rating)}</div>
-            <span className="font-bold text-slate-800">{prod.rating}</span>
-            <span className="text-gray-400">({prod.reviews} opiniones)</span>
-          </div>
+          {prod.rating !== null && (
+            <div className="flex items-center gap-2 text-xs mb-1">
+              <div className="flex gap-0.5">{renderStars(prod.rating)}</div>
+              <span className="font-bold text-slate-800">{prod.rating.toFixed(1)}</span>
+              {prod.reviews > 0 && (
+                <span className="text-gray-400">({prod.reviews} opiniones)</span>
+              )}
+            </div>
+          )}
 
           <div className="bg-gray-50/80 rounded-2xl p-5 border border-gray-100 flex flex-col gap-3 mt-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 line-through font-medium">
-                S/. {prod.precioAnterior.toFixed(2)}
-              </span>
-              <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded uppercase">
-                {prod.descuento}% OFF
-              </span>
-            </div>
+            {prod.descuento > 0 && prod.precioAnterior && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 line-through font-medium">
+                  S/. {prod.precioAnterior.toFixed(2)}
+                </span>
+                <span className="bg-amber-400 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded uppercase">
+                  {prod.descuento}% OFF
+                </span>
+              </div>
+            )}
 
             <div className="text-3xl font-black text-slate-900">
               S/. {prod.precio.toFixed(2)}
@@ -291,8 +283,16 @@ const ProductDetail = () => {
               Presentación: {prod.presentacion}
             </p>
 
-            <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <div
+              className={`flex items-center gap-2 text-xs font-semibold ${
+                prod.agotado ? 'text-red-600' : prod.stockBajo ? 'text-amber-600' : 'text-emerald-600'
+              }`}
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  prod.agotado ? 'bg-red-500' : prod.stockBajo ? 'bg-amber-500' : 'bg-emerald-500'
+                }`}
+              ></span>
               Stock: {prod.disponibilidad}
             </div>
 
@@ -308,8 +308,11 @@ const ProductDetail = () => {
                   {cantidad}
                 </span>
                 <button
-                  onClick={() => setCantidad((q) => q + 1)}
-                  className="px-3 py-1.5 text-gray-500 font-bold hover:bg-gray-100 rounded-r-xl transition"
+                  onClick={() =>
+                    setCantidad((q) => (prod.stock !== null ? Math.min(q + 1, Math.max(prod.stock, 1)) : q + 1))
+                  }
+                  disabled={prod.agotado}
+                  className="px-3 py-1.5 text-gray-500 font-bold hover:bg-gray-100 rounded-r-xl transition disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   +
                 </button>
@@ -317,10 +320,11 @@ const ProductDetail = () => {
 
               <button
                 onClick={() => handleAddToCart(prod, cantidad)}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-md shadow-orange-100"
+                disabled={prod.agotado}
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-4 rounded-xl transition flex items-center justify-center gap-2 text-xs shadow-md shadow-orange-100 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
               >
                 <ShoppingCart size={16} />
-                Agregar al carrito
+                {prod.agotado ? 'Producto agotado' : 'Agregar al carrito'}
               </button>
             </div>
           </div>
@@ -453,7 +457,9 @@ const ProductDetail = () => {
                     </span>
                     <button
                       onClick={() => handleAddToCart(rel, 1)}
-                      className="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg flex items-center justify-center text-sm shadow-sm transition"
+                      disabled={getStockInfo(rel).soldOut}
+                      aria-label={`Agregar ${rel.name || rel.nombre} al carrito`}
+                      className="w-7 h-7 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg flex items-center justify-center text-sm shadow-sm transition disabled:cursor-not-allowed disabled:bg-gray-300"
                     >
                       +
                     </button>

@@ -1,45 +1,11 @@
+
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react"; 
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext";
 import { getProducts } from "../services/productService";
+import { getPricing, getRating, getStockInfo } from "../utils/catalog";
 import '../styles/BestSelling.css';
-
-const getProductEndTime = (productId) => {
-  const key = `productEndTime_${productId}`;
-  const stored = localStorage.getItem(key);
-  if (stored) return parseInt(stored, 10);
-  const endTime = Date.now() + 48 * 60 * 60 * 1000;
-  localStorage.setItem(key, endTime);
-  return endTime;
-};
-
-function CountdownTimer({ productId }) {
-  const [timeLeft, setTimeLeft] = useState(getProductEndTime(productId) - Date.now());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const remaining = getProductEndTime(productId) - Date.now();
-      setTimeLeft(remaining > 0 ? remaining : 0);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [productId]);
-
-  const formatTime = ms => {
-    if (ms <= 0) return "00h:00m:00s";
-    const hours = Math.floor(ms / (1000 * 60 * 60));
-    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((ms % (1000 * 60)) / 1000);
-    return `${hours.toString().padStart(2,"0")}h:${minutes.toString().padStart(2,"0")}m:${seconds.toString().padStart(2,"0")}s`;
-  };
-
-  return (
-    <span className="bestselling-timer">
-      {formatTime(timeLeft)}
-    </span>
-  );
-}
 
 export default function BestSelling() {
   const [products, setProducts] = useState([]);
@@ -97,8 +63,8 @@ export default function BestSelling() {
   return (
     <section className="bestselling-container">
       <div className="bestselling-header">
-        <h2 className="bestselling-title">Productos más vendidos</h2>
-        <p className="bestselling-subtitle">Top ventas en base a usuarios reales</p>
+        <h2 className="bestselling-title">Productos destacados</h2>
+        <p className="bestselling-subtitle">Elige entre los productos disponibles en nuestro catálogo</p>
       </div>
 
       <div className="bestselling-carousel-wrapper">
@@ -121,8 +87,9 @@ export default function BestSelling() {
             products.map((product) => {
               const productId = product.product_id || product.id;
               const name = product.name || product.nombre || 'Producto';
-              const price = Number(product.price || product.precio || 0);
-              const oldPrice = product.original_price || product.oldPrice;
+              const { price, oldPrice, percent } = getPricing(product);
+              const rating = getRating(product);
+              const stock = getStockInfo(product);
               const image = product.image_url || product.img1 || product.image || "https://via.placeholder.com/200";
 
               return (
@@ -133,13 +100,13 @@ export default function BestSelling() {
                 >
                   <div className="bestselling-card-content">
                     <div className="bestselling-img-box">
-                      {product.discount && (
-                        <span className="bestselling-badge-sale">
-                          {product.discount}
-                        </span>
+                      {stock.soldOut ? (
+                        <span className="bestselling-badge-sale">Agotado</span>
+                      ) : (
+                        percent > 0 && (
+                          <span className="bestselling-badge-sale">-{percent}%</span>
+                        )
                       )}
-
-                      <CountdownTimer productId={productId} />
 
                       <img
                         src={image}
@@ -152,15 +119,17 @@ export default function BestSelling() {
                       />
                     </div>
 
-                    <div className="bestselling-stars">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={15}
-                          className={i < (product.rating || 5) ? "star-active" : "star-inactive"}
-                        />
-                      ))}
-                    </div>
+                    {rating !== null && (
+                      <div className="bestselling-stars">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={15}
+                            className={i < Math.round(rating) ? "star-active" : "star-inactive"}
+                          />
+                        ))}
+                      </div>
+                    )}
 
                     <h3 className="bestselling-product-title">{name}</h3>
 
@@ -178,9 +147,10 @@ export default function BestSelling() {
 
                   <button
                     onClick={(e) => handleAddToCart(e, product)}
-                    className="bestselling-add-btn"
+                    className="bestselling-add-btn disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={stock.soldOut}
                   >
-                    Agregar al carrito
+                    {stock.soldOut ? "Agotado" : "Agregar al carrito"}
                   </button>
                 </article>
               );

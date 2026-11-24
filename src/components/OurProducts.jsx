@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Star } from 'lucide-react';
 import { getProducts } from '../services/productService';
+import { getPricing, getRating, getStockInfo } from '../utils/catalog';
 import '../styles/OurProducts.css';
 
 export default function OurProducts({ products: propProducts }) {
@@ -60,25 +62,15 @@ export default function OurProducts({ products: propProducts }) {
           {displayProducts.map((product) => {
             const productId = product.product_id || product.id;
             const productName = product.name || product.nombre || 'Producto';
-            
+
             const catObj = product.category;
             const rawCategory = typeof catObj === 'object' && catObj !== null ? catObj.name : catObj;
             const categoryName = (rawCategory || "GENERAL").toUpperCase();
 
-            const currentPriceNum = Number(product.price || 0);
+            const { price: currentPriceNum, oldPrice: oldPriceNum, percent } = getPricing(product);
             const currentPrice = currentPriceNum.toFixed(2);
-            
-            const oldPriceVal = product.oldPrice || product.original_price;
-            const oldPriceNum = oldPriceVal ? Number(oldPriceVal) : null;
-
-            // Cálculo dinámico del porcentaje de descuento si existe precio anterior
-            let discountText = product.discount || null;
-            if (!discountText && oldPriceNum && oldPriceNum > currentPriceNum && currentPriceNum > 0) {
-              const calcDiscount = Math.round(((oldPriceNum - currentPriceNum) / oldPriceNum) * 100);
-              discountText = `-${calcDiscount}%`;
-            }
-
-            const ratingVal = Number(product.rating || 4.5);
+            const ratingVal = getRating(product);
+            const stock = getStockInfo(product);
 
             return (
               <Link
@@ -88,8 +80,12 @@ export default function OurProducts({ products: propProducts }) {
               >
                 {/* Contenedor de Imagen con Badge */}
                 <div className="ourproducts-img-box">
-                  {discountText && (
-                    <span className="ourproducts-badge">{discountText}</span>
+                  {stock.soldOut ? (
+                    <span className="ourproducts-badge" style={{ backgroundColor: '#374151' }}>
+                      Agotado
+                    </span>
+                  ) : (
+                    percent > 0 && <span className="ourproducts-badge">-{percent}%</span>
                   )}
                   <img
                     src={product.image_url || product.img1 || product.image || "https://via.placeholder.com/200"}
@@ -107,19 +103,21 @@ export default function OurProducts({ products: propProducts }) {
                   <span className="ourproducts-category">{categoryName}</span>
                   <h3 className="ourproducts-name">{productName}</h3>
 
-                  {/* Rating con estrellas */}
-                  <div className="ourproducts-rating">
-                    <div className="ourproducts-stars">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          className={i < Math.floor(ratingVal) ? "star-active" : "star-inactive"}
-                        />
-                      ))}
+                  {/* Rating: solo si la API envía una valoración real */}
+                  {ratingVal !== null && (
+                    <div className="ourproducts-rating">
+                      <div className="ourproducts-stars">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            className={i < Math.floor(ratingVal) ? "star-active" : "star-inactive"}
+                          />
+                        ))}
+                      </div>
+                      <span className="ourproducts-rating-num">({ratingVal.toFixed(1)})</span>
                     </div>
-                    <span className="ourproducts-rating-num">({ratingVal.toFixed(1)})</span>
-                  </div>
+                  )}
 
                   {/* Precios (Anterior y Actual) */}
                   <div className="ourproducts-price-box">
@@ -132,6 +130,10 @@ export default function OurProducts({ products: propProducts }) {
                       S/. {currentPrice}
                     </span>
                   </div>
+
+                  {stock.low && (
+                    <span className="text-xs font-semibold text-amber-600">{stock.label}</span>
+                  )}
                 </div>
               </Link>
             );
@@ -139,8 +141,8 @@ export default function OurProducts({ products: propProducts }) {
         </div>
       ) : (
         <div className="empty-category-message">
-          {error 
-            ? "No se pudo conectar con el catálogo del servidor." 
+          {error
+            ? "No se pudo conectar con el catálogo del servidor."
             : "No hay productos disponibles actualmente en el servidor."}
         </div>
       )}
