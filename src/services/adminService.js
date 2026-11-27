@@ -191,3 +191,21 @@ export function getImageUploadError(err) {
 
   return getApiError(err, 'inténtalo de nuevo.');
 }
+// ---------- Pedidos (C-026) ----------
+
+export async function fetchAdminOrders(page = 1) {
+  const { data } = await api.get('/admin/orders', {
+    params: { page },
+  });
+
+  return data.orders;
+}
+
+export async function updateOrderStatus(orderId, status) {
+  const { data } = await api.patch(
+    `/orders/${encodeURIComponent(orderId)}/status`,
+    { status }
+  );
+
+  return data;
+}

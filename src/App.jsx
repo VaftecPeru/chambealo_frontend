@@ -28,6 +28,7 @@ import AdminLayout from './pages/admin/AdminLayout.jsx';
 import AdminProducts from './pages/admin/AdminProducts.jsx';
 import AdminCategories from './pages/admin/AdminCategories.jsx';
 import AdminInventory from './pages/admin/AdminInventory.jsx';
+import AdminOrders from './pages/admin/AdminOrders.jsx';
 
 function App() {
   return (
@@ -118,7 +119,16 @@ function App() {
                 }
               />
               <Route path="inventario" element={<AdminInventory />} />
-            </Route>
+
+              <Route
+                path="pedidos"
+                element={
+                  <AdminRoute roles={['admin']}>
+                    <AdminOrders />
+                  </AdminRoute>
+                }
+              />
+              </Route>
           </Routes>
 
           {/* Footer global para todas las rutas */}

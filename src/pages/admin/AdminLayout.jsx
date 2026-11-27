@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router-dom';
-import { Boxes, Package, Tags } from 'lucide-react';
+import { Boxes, Package, Tags, ClipboardList } from 'lucide-react';
 import { getCurrentUser } from '../../services/session';
 
 const TABS = [
   { to: '/admin/productos', label: 'Productos', icon: Package, roles: ['admin', 'vendor'] },
   { to: '/admin/categorias', label: 'Categorías', icon: Tags, roles: ['admin'] },
   { to: '/admin/inventario', label: 'Inventario', icon: Boxes, roles: ['admin', 'vendor'] },
+  { to: '/admin/pedidos', label: 'Pedidos', icon: ClipboardList, roles: ['admin'] },
 ];
 
 const ROLE_LABELS = { admin: 'Administrador', vendor: 'Vendedor' };
@@ -21,7 +22,7 @@ export default function AdminLayout() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Panel de administración</h1>
             <p className="text-sm text-gray-600">
-              Gestiona los productos, las categorías y el inventario de CHAMBEALO.
+              Gestiona los productos, las categorías, el inventario y los pedidos de CHAMBEALO.
             </p>
           </div>
           <p className="text-sm text-gray-500">
