@@ -68,11 +68,11 @@ export default function PagoExitoso() {
           throw new Error('No se pudo verificar el pago.');
         }
 
-        return result.status;
+        return result;
       }
 
       // Muestra el resultado confirmado por el backend.
-      function showPaymentStatus(status) {
+      function showPaymentStatus(status, orderNumber = null) {
         if (status === 'completed' || status === 'paid') {
           if (typeof clearCart === 'function') {
             clearCart();
@@ -81,6 +81,7 @@ export default function PagoExitoso() {
           setState({
             phase: 'ok',
             message: '¡Pago confirmado! Gracias por tu compra.',
+            orderNumber,
           });
 
           return true;
@@ -135,7 +136,7 @@ export default function PagoExitoso() {
           );
         }
 
-        if (showPaymentStatus(result.status)) {
+        if (showPaymentStatus(result.status, result.order_number)) {
           return;
         }
 
@@ -150,9 +151,9 @@ export default function PagoExitoso() {
         // Si falla la confirmación, consultar el estado guardado.
         // No asumir que un error significa que PayPal rechazó el pago.
         try {
-          const status = await checkPaymentStatus();
+          const payment = await checkPaymentStatus();
 
-          if (showPaymentStatus(status)) {
+          if (showPaymentStatus(payment.status, payment.order_number)) {
             return;
           }
 
@@ -203,6 +204,22 @@ export default function PagoExitoso() {
         <div className={`status-banner ${bannerType}`}>
           {state.message}
         </div>
+        {state.phase === 'ok' && (
+          <div style={{ marginTop: 20 }}>
+            {state.orderNumber && (
+              <>
+                <p>Número de pedido:</p>
+                <strong style={{ overflowWrap: 'anywhere' }}>
+                  {state.orderNumber}
+                </strong>
+              </>
+            )}
+
+            <p style={{ marginTop: 16 }}>
+              <Link to="/mis-pedidos">Ver mis pedidos</Link>
+            </p>
+          </div>
+        )}
 
         {state.phase !== 'loading' && (
           <p style={{ marginTop: 16 }}>
